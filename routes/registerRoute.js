@@ -51,13 +51,9 @@ router.post(
       res.cookie('registration_id', uuid, {
         httpOnly: false,
         secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', 
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 900000,
         path: '/',
-        domain:
-          process.env.NODE_ENV === 'production'
-            ? 'taskflow-blyt.onrender.com'
-            : undefined,
       });
 
       // console.log('Set-Cookie:', res.getHeader('Set-Cookie'));
