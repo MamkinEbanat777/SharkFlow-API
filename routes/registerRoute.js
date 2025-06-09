@@ -50,13 +50,17 @@ router.post(
 
       res.cookie('registration_id', uuid, {
         httpOnly: false,
-        secure: false,
+        secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
         maxAge: 900000,
         path: '/',
+        domain:
+          process.env.NODE_ENV === 'production'
+            ? 'taskflow-blyt.onrender.com'
+            : undefined,
       });
 
-      // console.log('Set-Cookie:', res.getHeader('Set-Cookie')); 
+      // console.log('Set-Cookie:', res.getHeader('Set-Cookie'));
 
       res.status(200).json({ message: 'Код подтверждения отправлен' });
     } catch (error) {
