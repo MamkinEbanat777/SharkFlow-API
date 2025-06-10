@@ -4,21 +4,8 @@ import { Filter } from 'bad-words';
 const filter = new Filter();
 const noCyrillicRegex = /^[^\u0400-\u04FF]*$/;
 
-export const registerValidate = Yup.object({
+export const loginValidate = Yup.object({
   user: Yup.object({
-    login: Yup.string()
-      .min(3, 'Логин должен быть не меньше 3 символов')
-      .max(20, 'Логин должен быть не длиннее 20 символов')
-      .matches(
-        /^[a-zA-Z0-9_]+$/,
-        'Логин может содержать только латинские буквы, цифры и подчёркивания',
-      )
-      .matches(noCyrillicRegex, 'Кириллица запрещена')
-      .test('no-profanity', 'Логин содержит недопустимые слова', (val) =>
-        val ? !filter.isProfane(val) : true,
-      )
-      .required('Обязательное поле'),
-
     email: Yup.string()
       .email('Неверный формат почты')
       .matches(
@@ -48,10 +35,6 @@ export const registerValidate = Yup.object({
         val ? !filter.isProfane(val) : true,
       )
 
-      .required('Обязательное поле'),
-
-    confirmPassword: Yup.string()
-      .oneOf([Yup.ref('password')], 'Пароли должны совпадать')
       .required('Обязательное поле'),
   }),
 });

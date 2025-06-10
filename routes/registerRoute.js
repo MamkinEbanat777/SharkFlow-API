@@ -49,7 +49,7 @@ router.post(
       });
 
       res.cookie('registration_id', uuid, {
-        httpOnly: false,
+        httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 900000,

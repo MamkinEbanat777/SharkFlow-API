@@ -15,15 +15,15 @@ router.post(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode } = req.body;
-    console.log('req.body:', req.body);
+    // console.log('req.body:', req.body);
     const uuid = req.cookies.registration_id;
-    console.log(req.cookies);
+    // console.log(req.cookies);
     try {
       if (!uuid) {
         return res.status(400).json({ error: 'Регистрация не найдена' });
       }
       const storedData = getRegistrationData(uuid);
-      console.log('storedData:', storedData);
+      // console.log('storedData:', storedData);
 
       if (!storedData) {
         return res.status(400).json({ error: 'Код истёк или не найден' });
@@ -36,8 +36,8 @@ router.post(
         confirmationCode: storedCode,
       } = storedData;
 
-      console.log('storedCode:', storedCode);
-      console.log('confirmationCode:', confirmationCode);
+      // console.log('storedCode:', storedCode);
+      // console.log('confirmationCode:', confirmationCode);
       if (String(storedCode) !== String(confirmationCode)) {
         return res.status(400).json({ error: 'Неверный код' });
       }
@@ -45,7 +45,7 @@ router.post(
       const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = await prisma.user.create({
-        data: { email, login, password: hashedPassword, uuid: uuid },
+        data: { email, login, password: hashedPassword },
       });
 
       deleteRegistrationData(uuid);
