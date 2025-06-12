@@ -19,9 +19,9 @@ router.post(
     const uuid = req.cookies.registration_id;
     // console.log(req.cookies);
     try {
-      // if (!uuid) {
-      //   return res.status(400).json({ error: 'Регистрация не найдена' });
-      // } очень важно!
+      if (!uuid) {
+        return res.status(400).json({ error: 'Регистрация не найдена' });
+      }
       const storedData = getRegistrationData(uuid);
       // console.log('storedData:', storedData);
 

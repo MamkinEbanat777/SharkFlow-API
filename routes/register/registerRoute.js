@@ -6,6 +6,7 @@ import { sendEmail } from '../../utils/mailer.js';
 import { renderEmail } from '../../utils/emailRenderer.js';
 import { v4 as uuidv4 } from 'uuid';
 import { setRegistrationData } from '../../store/registrationStore.js';
+import bcrypt from "bcrypt"
 
 const router = Router();
 
