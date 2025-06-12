@@ -45,7 +45,7 @@ router.post(
       // const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = await prisma.user.create({
-        data: { email, login, password: password },
+        data: { email, login, password: hashedPassword },
       });
 
       deleteRegistrationData(uuid);
