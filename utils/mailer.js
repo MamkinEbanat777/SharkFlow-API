@@ -1,5 +1,5 @@
 import nodemailer from 'nodemailer';
-
+тока
 const transporter = nodemailer.createTransport({
   host: 'smtp.mail.ru',
   port: 465,

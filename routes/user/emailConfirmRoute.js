@@ -19,9 +19,9 @@ router.post(
     const uuid = req.cookies.registration_id;
     // console.log(req.cookies);
     try {
-      if (!uuid) {
-        return res.status(400).json({ error: 'Регистрация не найдена' });
-      }
+      // if (!uuid) {
+      //   return res.status(400).json({ error: 'Регистрация не найдена' });
+      // } очень важно!
       const storedData = getRegistrationData(uuid);
       // console.log('storedData:', storedData);
 
@@ -32,7 +32,7 @@ router.post(
       const {
         email,
         login,
-        password,
+        hashedPassword,
         confirmationCode: storedCode,
       } = storedData;
 
@@ -42,10 +42,10 @@ router.post(
         return res.status(400).json({ error: 'Неверный код' });
       }
 
-      const hashedPassword = await bcrypt.hash(password, 10);
+      // const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = await prisma.user.create({
-        data: { email, login, password: hashedPassword },
+        data: { email, login, password: password },
       });
 
       deleteRegistrationData(uuid);

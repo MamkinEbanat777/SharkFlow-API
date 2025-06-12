@@ -32,7 +32,14 @@ router.post(
       const confirmationCode = Math.floor(100000 + Math.random() * 900000);
       const uuid = uuidv4();
 
-      setRegistrationData(uuid, { email, login, password, confirmationCode });
+      const hashedPassword = await bcrypt.hash(password, 10);
+
+      setRegistrationData(uuid, {
+        email,
+        login,
+        hashedPassword,
+        confirmationCode,
+      });
 
       const html = await renderEmail('registration', {
         title: 'Добро пожаловать в TaskFlow!',
