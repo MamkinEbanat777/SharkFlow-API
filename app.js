@@ -1,5 +1,5 @@
 import express from 'express';
-import corsMiddleware from './middlewares/corsMiddleware.js';
+import corsMiddleware from './middlewares/http/corsMiddleware.js';
 import loadRoutes from './utils/loadRoutes.js';
 import cookieParser from 'cookie-parser';
 

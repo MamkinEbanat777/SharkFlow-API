@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "tasks" ADD COLUMN     "color" VARCHAR(6) NOT NULL DEFAULT 'FFFFFF';

@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import prisma from '../utils/prismaClient.js';
-import { emailConfirmValidate } from '../utils/validators/emailConfirmValidate.js';
-import { validateMiddleware } from '../middlewares/validateMiddleware.js';
+import prisma from '../../utils/prismaClient.js';
+import { emailConfirmValidate } from '../../utils/validators/emailConfirmValidate.js';
+import { validateMiddleware } from '../../middlewares/http/validateMiddleware.js';
 import {
   getRegistrationData,
   deleteRegistrationData,
-} from '../store/registrationStore.js';
+} from '../../store/registrationStore.js';
 import bcrypt from 'bcrypt';
 
 const router = Router();

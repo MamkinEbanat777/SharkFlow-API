@@ -33,23 +33,24 @@ model Task {
   id          Int      @id @default(autoincrement())
   uuid        String   @unique @default(uuid()) @db.Uuid
   title       String
+  color String @default("FFFFFF") @db.VarChar(6)
   description String?
   completed   Boolean  @default(false)
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 
   boardId Int
-  board   Board @relation(fields: [boardId], references: [id])
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
 
   @@map("tasks")
 }
 
-
 model Board {
   id        Int      @id @default(autoincrement())
   uuid      String   @unique @default(uuid()) @db.Uuid
   title     String
+  color String @default("FFFFFF") @db.VarChar(6)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

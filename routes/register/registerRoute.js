@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { registerValidate } from '../utils/validators/registerValidate.js';
-import { validateMiddleware } from '../middlewares/validateMiddleware.js';
-import prisma from '../utils/prismaClient.js';
-import { sendEmail } from '../utils/mailer.js';
-import { renderEmail } from '../utils/emailRenderer.js';
+import { registerValidate } from '../../utils/validators/registerValidate.js';
+import { validateMiddleware } from '../../middlewares/http/validateMiddleware.js';
+import prisma from '../../utils/prismaClient.js';
+import { sendEmail } from '../../utils/mailer.js';
+import { renderEmail } from '../../utils/emailRenderer.js';
 import { v4 as uuidv4 } from 'uuid';
-import { setRegistrationData } from '../store/registrationStore.js';
+import { setRegistrationData } from '../../store/registrationStore.js';
 
 const router = Router();
 

@@ -5,7 +5,7 @@ const router = Router();
 
 router.post('/refresh', async (req, res) => {
   const refreshToken = req.cookies.refresh_token;
-  console.log(refreshToken);
+  // console.log(refreshToken);
   if (!refreshToken) {
     return res.status(401).json({ message: 'Refresh token отсутствует' });
   }
