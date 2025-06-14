@@ -4,7 +4,7 @@ import prisma from '../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
-router.post('/todo/deleteBoard/:boardUuid', async (req, res) => {
+router.delete('/todo/deleteBoard/:boardUuid', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -33,12 +33,18 @@ router.post('/todo/deleteBoard/:boardUuid', async (req, res) => {
 
     const { boardUuid } = req.params;
 
-    await prisma.board.delete({
+    const deleted = await prisma.board.deleteMany({
       where: {
         uuid: boardUuid,
         userId: user.id,
       },
     });
+
+    if (deleted.count === 0) {
+      return res
+        .status(404)
+        .json({ error: 'Доска не найдена или доступ запрещён' });
+    }
 
     res.status(200).json({
       message: 'Доска успешно удалена',

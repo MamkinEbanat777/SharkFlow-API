@@ -18,12 +18,22 @@ router.post(
     const { email, login, password } = user;
 
     try {
-      const existingUser = await prisma.user.findUnique({ where: { email } });
+      const existingLoginUser = await prisma.user.findUnique({
+        where: { login },
+      });
 
-      if (existingUser) {
-        return res.status(409).json({
-          error: 'Пользователь уже существует',
-        });
+      if (existingLoginUser) {
+        return res.status(409).json({ error: 'Логин уже занят' });
+      }
+
+      const existingEmailUser = await prisma.user.findUnique({
+        where: { email },
+      });
+
+      if (existingEmailUser) {
+        return res
+          .status(409)
+          .json({ error: 'Пользователь с таким email уже существует' });
       }
 
       const confirmationCode = Math.floor(100000 + Math.random() * 900000);
