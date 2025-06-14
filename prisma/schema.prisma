@@ -45,12 +45,14 @@ model Task {
 }
 
 model Board {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @default(uuid()) @db.Uuid
-  title     String
-  color     String   @default("FFFFFF") @db.VarChar(6)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         Int      @id @default(autoincrement())
+  uuid       String   @unique @default(uuid()) @db.Uuid
+  title      String
+  color      String   @default("FFFFFF") @db.VarChar(6)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+  isPinned   Boolean  @default(false)
+  isFavorite Boolean  @default(false)
 
   userId Int
   user   User @relation(fields: [userId], references: [id])

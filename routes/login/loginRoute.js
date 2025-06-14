@@ -40,7 +40,7 @@ router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
       { expiresIn: rememberMe ? '30d' : '1d' },
     );
 
-    res.cookie('refresh_token', refreshToken, {
+    res.cookie('tf__2', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

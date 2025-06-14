@@ -4,7 +4,7 @@ import jwt from 'jsonwebtoken';
 const router = Router();
 
 router.post('/refresh', async (req, res) => {
-  const refreshToken = req.cookies.refresh_token;
+  const refreshToken = req.cookies.tf__2;
   // console.log(refreshToken);
   if (!refreshToken) {
     return res.status(401).json({ message: 'Refresh token отсутствует' });

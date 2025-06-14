@@ -20,7 +20,7 @@ router.post('/todo/createBoard', async (req, res) => {
         .json({ error: 'Токен не содержит uuid пользователя' });
     }
 
-    console.log(req.body);
+    // console.log(req.body);
 
     let { title, color } = req.body;
     if (!title || typeof title !== 'string') {

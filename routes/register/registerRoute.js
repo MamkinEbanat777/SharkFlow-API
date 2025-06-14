@@ -6,7 +6,7 @@ import { sendEmail } from '../../utils/mailer.js';
 import { renderEmail } from '../../utils/emailRenderer.js';
 import { v4 as uuidv4 } from 'uuid';
 import { setRegistrationData } from '../../store/registrationStore.js';
-import bcrypt from "bcrypt"
+import bcrypt from 'bcrypt';
 
 const router = Router();
 
@@ -18,11 +18,7 @@ router.post(
     const { email, login, password } = user;
 
     try {
-      const existingUser = await prisma.user.findFirst({
-        where: {
-          OR: [{ email }],
-        },
-      });
+      const existingUser = await prisma.user.findUnique({ where: { email } });
 
       if (existingUser) {
         return res.status(409).json({

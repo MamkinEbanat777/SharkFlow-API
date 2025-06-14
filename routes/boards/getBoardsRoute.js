@@ -37,9 +37,9 @@ router.get('/todo/getBoards', async (req, res) => {
     if (!userWithBoards) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
-    console.log(userWithBoards);
+    // console.log(userWithBoards);
     res.json({
-      boards: userWithBoards.boards,
+      boards: userWithBoards.boards.map(({ id, ...rest }) => rest),
     });
   } catch (error) {
     console.error('Ошибка при загрузке досок:', error);

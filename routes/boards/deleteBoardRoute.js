@@ -20,8 +20,8 @@ router.post('/todo/deleteBoard/:boardUuid', async (req, res) => {
         .json({ error: 'Токен не содержит uuid пользователя' });
     }
 
-    console.log('бади удаляшки',req.body);
-    console.log('парамы удаляшки',req.params);
+    // console.log('бади удаляшки',req.body);
+    // console.log('парамы удаляшки',req.params);
 
     const user = await prisma.user.findUnique({
       where: { uuid: userUuid },

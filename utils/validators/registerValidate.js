@@ -53,5 +53,8 @@ export const registerValidate = Yup.object({
     confirmPassword: Yup.string()
       .oneOf([Yup.ref('password')], 'Пароли должны совпадать')
       .required('Обязательное поле'),
+    acceptedPolicies: Yup.boolean()
+      .oneOf([true], 'Поставьте галочку')
+      .required(''),
   }),
 });

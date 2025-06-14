@@ -5,6 +5,13 @@ import { initSocket } from './socket/index.js';
 
 dotenv.config();
 
+if (process.env.NODE_ENV === 'production') {
+  console.log = () => {};
+  console.debug = () => {};
+  console.info = () => {};
+  console.warn = () => {};
+}
+
 const PORT = process.env.PORT || 3000;
 
 const server = http.createServer(app);

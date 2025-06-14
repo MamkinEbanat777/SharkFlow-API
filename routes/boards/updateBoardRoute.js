@@ -4,7 +4,7 @@ import prisma from '../../utils/prismaClient.js';
 
 const router = Router();
 
-router.put('/todo/updateBoard/:boardUuid', async (req, res) => {
+router.patch('/todo/updateBoard/:boardUuid', async (req, res) => {
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -21,17 +21,32 @@ router.put('/todo/updateBoard/:boardUuid', async (req, res) => {
     }
 
     const { boardUuid } = req.params;
-    let { title, color } = req.body;
-    if (!title || typeof title !== 'string') {
-      return res.status(400).json({ error: 'Название доски обязательно' });
+    let { title, color, isPinned, isFavorite } = req.body;
+    const dataToUpdate = {};
+
+    if (typeof title === 'string' && title.trim() !== '') {
+      dataToUpdate.title = title.trim();
+    }
+    if (typeof color === 'string' && color.trim() !== '') {
+      dataToUpdate.color = color.trim().startsWith('#')
+        ? color.trim().slice(1)
+        : color.trim();
+    }
+    if (typeof isPinned === 'boolean') {
+      dataToUpdate.isPinned = isPinned;
     }
 
-    if (!color || typeof color !== 'string') {
-      return res.status(400).json({ error: 'Цвет доски обязателен' });
+    if (typeof isFavorite === 'boolean') {
+      dataToUpdate.isFavorite = isFavorite;
     }
-    color = color.startsWith('#') ? color.slice(1) : color;
 
-    console.log('Параметры новой доски:', req.body);
+    // console.log(dataToUpdate);
+
+    if (Object.keys(dataToUpdate).length === 0) {
+      return res.status(400).json({ error: 'Нет данных для обновления' });
+    }
+
+    // console.log('Параметры новой доски:', req.body);
 
     const user = await prisma.user.findUnique({
       where: { uuid: userUuid },
@@ -46,10 +61,7 @@ router.put('/todo/updateBoard/:boardUuid', async (req, res) => {
         uuid: boardUuid,
         userId: user.id,
       },
-      data: {
-        title,
-        color,
-      },
+      data: dataToUpdate,
     });
 
     if (updatedBoard.count === 0) {
@@ -57,10 +69,10 @@ router.put('/todo/updateBoard/:boardUuid', async (req, res) => {
         .status(404)
         .json({ error: 'Доска не найдена или не принадлежит пользователю' });
     }
-
-    res
-      .status(200)
-      .json({ message: 'Доска успешно обновлена', data: { title, color } });
+    res.status(200).json({
+      message: 'Доска успешно обновлена',
+      data: { title, color, isPinned, isFavorite },
+    });
   } catch (error) {
     if (
       error.name === 'JsonWebTokenError' ||

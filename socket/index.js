@@ -27,7 +27,7 @@ export function initSocket(server) {
 
     socket.join(userUuid);
 
-    console.log(`Socket connected: ${socket.id}, User UUID: ${userUuid}`);
+    // console.log(`Socket connected: ${socket.id}, User UUID: ${userUuid}`);
 
     io.to(userUuid).emit('notification', {
       message: `Пользователь ${userUuid} подключился с устройства ${socket.id}`,
