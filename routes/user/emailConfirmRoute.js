@@ -1,12 +1,11 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaClient.js';
+import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { emailConfirmValidate } from '../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../middlewares/http/validateMiddleware.js';
 import {
   getRegistrationData,
   deleteRegistrationData,
 } from '../../store/registrationStore.js';
-import bcrypt from 'bcrypt';
 
 const router = Router();
 
@@ -41,8 +40,6 @@ router.post(
       if (String(storedCode) !== String(confirmationCode)) {
         return res.status(400).json({ error: 'Неверный код' });
       }
-
-      // const hashedPassword = await bcrypt.hash(password, 10);
 
       const newUser = await prisma.user.create({
         data: { email, login, password: hashedPassword },

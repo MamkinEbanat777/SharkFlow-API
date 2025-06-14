@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaClient.js';
+import prisma from '../../utils/prismaConfig/prismaClient.js';
 import jwt from 'jsonwebtoken';
 
 const router = Router();

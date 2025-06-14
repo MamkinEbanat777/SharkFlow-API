@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { loginValidate } from '../../utils/validators/loginValidate.js';
 import { validateMiddleware } from '../../middlewares/http/validateMiddleware.js';
-import prisma from '../../utils/prismaClient.js';
+import prisma from '../../utils/prismaConfig/prismaClient.js';
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
 
