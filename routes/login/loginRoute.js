@@ -34,9 +34,12 @@ router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
         token: refreshToken,
         expiresAt: new Date(
           Date.now() +
-            (rememberMe ? 30 * 24 * 60 * 60 * 1000 : 1 * 24 * 60 * 60 * 1000),
+            (rememberMe
+              ? Number(process.env.SESSION_EXPIRES_REMEMBER_ME)
+              : Number(process.env.SESSION_EXPIRES_DEFAULT)),
         ),
         revoked: false,
+        rememberMe: rememberMe,
         ipAddress,
         userAgent,
         userId: user.id,

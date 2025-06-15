@@ -44,7 +44,7 @@ router.post('/refresh', async (req, res) => {
     let newRefreshToken = refreshToken;
     let rotated = false;
 
-    if (timeLeft < 10 * 60 * 1000) {
+    if (timeLeft < 600000) {
       await prisma.refreshToken.update({
         where: { id: tokenRecord.id },
         data: { revoked: true },
@@ -61,8 +61,8 @@ router.post('/refresh', async (req, res) => {
           expiresAt: new Date(
             now +
               (tokenRecord.rememberMe
-                ? 30 * 24 * 60 * 60 * 1000
-                : 24 * 60 * 60 * 1000),
+                ? Number(process.env.SESSION_EXPIRES_REMEMBER_ME)
+                : Number(process.env.SESSION_EXPIRES_DEFAULT)),
           ),
           ipAddress: req.ip,
           userAgent: req.get('User-Agent'),
