@@ -32,7 +32,7 @@ const accessLogStream = fs.createWriteStream(path.join('logs', 'access.log'), {
   flags: 'a',
 });
 app.use(morgan('combined', { stream: accessLogStream }));
-
+app.use(morgan('dev'));
 const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {
   app.use(path, router);
