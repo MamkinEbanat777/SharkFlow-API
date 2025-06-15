@@ -1,6 +1,7 @@
 import express from 'express';
 import compression from 'compression';
 import corsMiddleware from './middlewares/http/corsMiddleware.js';
+import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
 import loadRoutes from './utils/routesLoader/loadRoutes.js';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
@@ -11,23 +12,20 @@ const app = express();
 
 import helmet from 'helmet';
 import hpp from 'hpp';
-import rateLimit from 'express-rate-limit';
 import statusMonitor from 'express-status-monitor';
 
 app.use(helmet());
 app.use(hpp());
+app.use(corsMiddleware);
 
-// const limiter = rateLimit({
-//   windowMs: 15 * 60 * 1000,
-//   max: 100,
-//   standardHeaders: true,
-//   legacyHeaders: false,
-// });
-// app.use('/', limiter);
+if (process.env.NODE_ENV === 'production') {
+  app.use('/todo', limiterMiddleware);
+}
+
+app.use('/todo', limiterMiddleware);
 
 app.use(statusMonitor());
 app.use(compression());
-app.use(corsMiddleware);
 app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));

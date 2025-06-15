@@ -1,22 +1,40 @@
 import fs from 'fs/promises';
 import path from 'path';
 import Handlebars from 'handlebars';
+import { fileURLToPath } from 'url';
 
-const templatesDir = path.resolve('utils/emailTemplates');
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Папка с шаблонами
+const templatesDir = path.join(
+  __dirname,
+  '..',
+  '..',
+  'utils',
+  'mail',
+  'emailTemplates',
+);
 
 export async function renderEmail(templateName, context) {
-  const baseTemplateStr = await fs.readFile(
-    path.join(templatesDir, 'base.html'),
-    'utf-8',
-  );
-  const bodyTemplateStr = await fs.readFile(
-    path.join(templatesDir, `${templateName}.html`),
-    'utf-8',
-  );
+  try {
+    const baseTemplateStr = await fs.readFile(
+      path.join(templatesDir, 'base.html'),
+      'utf-8',
+    );
 
-  const bodyTemplate = Handlebars.compile(bodyTemplateStr);
-  const bodyHtml = bodyTemplate(context);
+    const bodyTemplateStr = await fs.readFile(
+      path.join(templatesDir, `${templateName}.html`),
+      'utf-8',
+    );
 
-  const baseTemplate = Handlebars.compile(baseTemplateStr);
-  return baseTemplate({ ...context, body: bodyHtml });
+    const bodyTemplate = Handlebars.compile(bodyTemplateStr);
+    const bodyHtml = bodyTemplate(context);
+
+    const baseTemplate = Handlebars.compile(baseTemplateStr);
+    return baseTemplate({ ...context, body: bodyHtml });
+  } catch (err) {
+    console.error('Ошибка при рендеринге email:', err.message);
+    throw err;
+  }
 }
