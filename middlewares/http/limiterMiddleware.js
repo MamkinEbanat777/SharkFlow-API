@@ -3,7 +3,7 @@ const violationCounts = new Map();
 const bannedIPs = new Map();
 
 const INTERVAL_MS = 500;
-const BAN_TIME_MS = 15 * 60 * 1000;
+const BAN_TIME_MS = 1 * 60 * 1000;
 const MAX_VIOLATIONS = 5;
 
 export function limiterMiddleware(req, res, next) {
