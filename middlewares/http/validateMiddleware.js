@@ -6,7 +6,7 @@ export const validateMiddleware = (schema) => async (req, res, next) => {
 
     req.validatedBody = validated;
     next();
-  } catch (err) {
+  } catch (error) {
     res.status(400).json({ error: 'Неверный пароль' });
   }
 };

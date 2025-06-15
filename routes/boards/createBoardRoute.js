@@ -3,6 +3,7 @@ import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 
 const router = Router();
+
 router.post('/todo/createBoard', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
@@ -13,6 +14,7 @@ router.post('/todo/createBoard', authenticateMiddleware, async (req, res) => {
 
   if (!title)
     return res.status(400).json({ error: 'Название доски обязательно' });
+
   if (!color) return res.status(400).json({ error: 'Цвет доски обязателен' });
 
   try {
@@ -23,25 +25,32 @@ router.post('/todo/createBoard', authenticateMiddleware, async (req, res) => {
         user: { connect: { uuid: userUuid } },
       },
     });
+
     return res.status(201).json({
-      uuid: newBoard.uuid,
-      title: newBoard.title,
-      color: newBoard.color,
-      createdAt: newBoard.createdAt,
-      updatedAt: newBoard.updatedAt,
+      message: 'Доска успешно создана',
+      board: {
+        uuid: newBoard.uuid,
+        title: newBoard.title,
+        color: newBoard.color,
+        createdAt: newBoard.createdAt,
+        updatedAt: newBoard.updatedAt,
+      },
     });
-  } catch (err) {
-    if (err.code === 'P2025') {
+  } catch (error) {
+    if (error.code === 'P2025') {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
-    if (err.code === 'P2002') {
+
+    if (error.code === 'P2002') {
       return res
         .status(409)
         .json({ error: 'У вас уже есть доска с таким названием' });
     }
 
-    console.error(err);
-    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    console.error(error);
+    return res
+      .status(500)
+      .json({ error: 'Внутренняя ошибка сервера. Повторите попытку позже' });
   }
 });
 

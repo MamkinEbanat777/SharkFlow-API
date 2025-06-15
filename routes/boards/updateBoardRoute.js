@@ -47,7 +47,7 @@ router.patch(
 
       res.status(200).json({
         message: 'Доска успешно обновлена',
-        data: { title, color, isPinned, isFavorite },
+        updated: { title, color, isPinned, isFavorite },
       });
     } catch (error) {
       if (error.code === 'P2002') {

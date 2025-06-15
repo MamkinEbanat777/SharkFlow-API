@@ -19,7 +19,7 @@ async function loadRoutes(dir = 'routes') {
       if (routeDef && routeDef.router && routeDef.path) {
         loaded.push(routeDef);
       } else {
-        // console.warn(`Файл ${fullPath} не экспортирует { path, router }`);
+        console.warn(`Файл ${fullPath} не экспортирует { path, router }`);
       }
     }
   }

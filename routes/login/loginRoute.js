@@ -43,7 +43,11 @@ router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
       },
     });
 
-    res.cookie('tf__2', refreshToken, getRefreshCookieOptions(rememberMe));
+    res.cookie(
+      'log___tf_12f_t2',
+      refreshToken,
+      getRefreshCookieOptions(rememberMe),
+    );
 
     return res.status(200).json({ accessToken });
   } catch (error) {

@@ -26,10 +26,10 @@ router.delete(
       }
 
       return res.status(200).json({ message: 'Доска успешно удалена' });
-    } catch (err) {
-      console.error('Ошибка при удалении доски:', err);
+    } catch (error) {
+      console.error('Ошибка при удалении доски:', error);
 
-      if (err.code === 'P2025') {
+      if (error.code === 'P2025') {
         return res
           .status(404)
           .json({ error: 'Доска не найдена или доступ запрещён' });

@@ -8,7 +8,7 @@ import { getRefreshCookieOptions } from '../../utils/cookie/loginCookie.js';
 const router = Router();
 
 router.post('/refresh', async (req, res) => {
-  const refreshToken = req.cookies.tf__2;
+  const refreshToken = req.cookies.log___tf_12f_t2;
   if (!refreshToken) {
     return res
       .status(401)
@@ -19,6 +19,7 @@ router.post('/refresh', async (req, res) => {
     const tokenRecord = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
+    const referrer = req.get('Referer') || null;
 
     if (!tokenRecord || tokenRecord.revoked) {
       return res.status(401).json({
@@ -53,7 +54,6 @@ router.post('/refresh', async (req, res) => {
         payload.userUuid,
         tokenRecord.rememberMe,
       );
-      const referrer = req.get('Referer') || null;
       await prisma.refreshToken.create({
         data: {
           token: newRefreshToken,
@@ -76,7 +76,7 @@ router.post('/refresh', async (req, res) => {
 
     if (rotated) {
       res.cookie(
-        'tf__2',
+        'log___tf_12f_t2',
         newRefreshToken,
         getRefreshCookieOptions(tokenRecord.rememberMe),
       );
@@ -87,16 +87,16 @@ router.post('/refresh', async (req, res) => {
     res.status(200).json({
       accessToken: newAccessToken,
     });
-  } catch (err) {
+  } catch (error) {
     if (
-      err instanceof jwt.TokenExpiredError ||
-      err instanceof jwt.JsonWebTokenError
+      error instanceof jwt.TokenExpiredError ||
+      error instanceof jwt.JsonWebTokenError
     ) {
       return res.status(401).json({
         message: 'Ваша сессия истекла. Пожалуйста войдите снова',
       });
     }
-    console.error(err);
+    console.error(error);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });

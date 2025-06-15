@@ -6,7 +6,6 @@ import { fileURLToPath } from 'url';
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
-// Папка с шаблонами
 const templatesDir = path.join(
   __dirname,
   '..',
@@ -33,8 +32,8 @@ export async function renderEmail(templateName, context) {
 
     const baseTemplate = Handlebars.compile(baseTemplateStr);
     return baseTemplate({ ...context, body: bodyHtml });
-  } catch (err) {
-    console.error('Ошибка при рендеринге email:', err.message);
-    throw err;
+  } catch (error) {
+    console.error('Ошибка при рендеринге email:', error.message);
+    throw error;
   }
 }

@@ -14,12 +14,12 @@ router.post(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode } = req.body;
-    const uuid = req.cookies.registration_id;
+    const uuid = req.cookies.sd_f93j8f___;
     try {
       if (!uuid) {
         return res.status(400).json({ error: 'Регистрация не найдена' });
       }
-      
+
       const storedData = getRegistrationData(uuid);
 
       if (!storedData) {
@@ -48,7 +48,9 @@ router.post(
       });
     } catch (error) {
       console.error('Ошибка при регистрации:', error);
-      res.status(500).json({ error: 'Ошибка сервера при регистрации' });
+      res
+        .status(500)
+        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
     }
   },
 );

@@ -19,7 +19,6 @@ router.post('/user', authenticateMiddleware, async (req, res) => {
         login: true,
       },
     });
-    // console.log(user);
 
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });

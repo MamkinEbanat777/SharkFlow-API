@@ -17,7 +17,7 @@ export function socketAuthMiddleware(socket, next) {
     socket.userUuid = payload.userUuid;
 
     next();
-  } catch (err) {
-    next(new Error('Unauthorized: ' + err.message));
+  } catch (error) {
+    next(new Error('Unauthorized: ' + error.message));
   }
 }
