@@ -1,25 +1,12 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
-import jwt from 'jsonwebtoken';
+import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 
 const router = Router();
 
-router.get('/todo/getBoards', async (req, res) => {
+router.get('/todo/getBoards', authenticateMiddleware, async (req, res) => {
   try {
-    const authHeader = req.headers.authorization;
-
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return res.status(401).json({ error: 'Отсутствует или неверный токен' });
-    }
-    const token = authHeader.split(' ')[1];
-    const userData = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
-    const userUuid = userData.userUuid;
-    if (!userUuid) {
-      return res
-        .status(401)
-        .json({ error: 'Токен не содержит uuid пользователя' });
-    }
-
+    const userUuid = req.userUuid;
     const userWithBoards = await prisma.user.findUnique({
       where: { uuid: userUuid },
       include: {
@@ -39,7 +26,27 @@ router.get('/todo/getBoards', async (req, res) => {
     }
     // console.log(userWithBoards);
     res.json({
-      boards: userWithBoards.boards.map(({ id, ...rest }) => rest),
+      boards: userWithBoards.boards.map(
+        ({
+          uuid,
+          title,
+          color,
+          createdAt,
+          updatedAt,
+          isPinned,
+          isFavorite,
+          tasks,
+        }) => ({
+          uuid,
+          title,
+          color,
+          createdAt,
+          updatedAt,
+          isPinned,
+          isFavorite,
+          tasks,
+        }),
+      ),
     });
   } catch (error) {
     console.error('Ошибка при загрузке досок:', error);

@@ -1,22 +1,18 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
+import { createAccessToken } from '../../utils/tokens/accessToken.js';
 
 const router = Router();
 
 router.post('/refresh', async (req, res) => {
   const refreshToken = req.cookies.tf__2;
-  // console.log(refreshToken);
   if (!refreshToken) {
     return res.status(401).json({ message: 'Refresh token отсутствует' });
   }
   try {
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
 
-    const newAccessToken = jwt.sign(
-      { userUuid: payload.userUuid },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: '15m' },
-    );
+    const newAccessToken = createAccessToken(payload.userUuid);
 
     res.status(200).json({
       accessToken: newAccessToken,

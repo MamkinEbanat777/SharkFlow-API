@@ -2,56 +2,29 @@ import { Router } from 'express';
 import { loginValidate } from '../../utils/validators/loginValidate.js';
 import { validateMiddleware } from '../../middlewares/http/validateMiddleware.js';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
-import jwt from 'jsonwebtoken';
 import bcrypt from 'bcrypt';
+import { createAccessToken } from '../../utils/tokens/accessToken.js';
+import { createRefreshToken } from '../../utils/tokens/refreshToken.js';
+import { getRefreshCookieOptions } from '../../utils/cookie/loginCookie.js';
 
 const router = Router();
 
 router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
   const { user } = req.validatedBody;
   const { email, password, rememberMe } = user;
-  // console.log(req.validatedBody);
   try {
-    const getUser = await prisma.user.findFirst({
-      where: { email },
-    });
+    const user = await prisma.user.findUnique({ where: { email } });
 
-    if (!getUser) {
-      return res
-        .status(401)
-        .json({ error: 'Пользователь с таким email не найден' });
+    if (!user || !(await bcrypt.compare(password, user.password))) {
+      return res.status(401).json({ error: 'Неправильный email или пароль' });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, getUser.password);
+    const accessToken = createAccessToken(user.uuid);
+    const refreshToken = createRefreshToken(user.uuid, rememberMe);
 
-    if (!isPasswordValid) {
-      return res.status(401).json({ error: 'Неверный пароль' });
-    }
+    res.cookie('tf__2', refreshToken, getRefreshCookieOptions(rememberMe));
 
-    const accessToken = jwt.sign(
-      { userUuid: getUser.uuid },
-      process.env.JWT_ACCESS_SECRET,
-      { expiresIn: '15m' },
-    );
-
-    const refreshToken = jwt.sign(
-      { userUuid: getUser.uuid },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: rememberMe ? '30d' : '1d' },
-    );
-
-    res.cookie('tf__2', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: rememberMe ? 30 * 24 * 60 * 60 * 1000 : 24 * 60 * 60 * 1000,
-      path: '/',
-    });
-
-    res.status(200).json({
-      accessToken,
-      message: `Добро пожаловать! ${getUser.login}`,
-    });
+    return res.status(200).json({ accessToken });
   } catch (error) {
     console.error('Ошибка при логине:', error);
     res.status(500).json({ error: 'Ошибка сервера при логине' });

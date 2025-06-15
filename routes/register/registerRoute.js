@@ -2,11 +2,12 @@ import { Router } from 'express';
 import { registerValidate } from '../../utils/validators/registerValidate.js';
 import { validateMiddleware } from '../../middlewares/http/validateMiddleware.js';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { sendEmail } from '../../utils/mail/mailer.js';
-import { renderEmail } from '../../utils/mail/emailRenderer.js';
-import { v4 as uuidv4 } from 'uuid';
 import { setRegistrationData } from '../../store/registrationStore.js';
 import bcrypt from 'bcrypt';
+import { getRegistrationCookieOptions } from '../../utils/cookie/registerCookie.js';
+import { generateUUID } from '../../utils/auth/generateUUID.js';
+import { generateConfirmationCode } from '../../utils/auth/generateConfirmationCode.js';
+import { sendConfirmationEmail } from '../../utils/mail/sendConfirmationEmail.js';
 
 const router = Router();
 
@@ -16,28 +17,27 @@ router.post(
   async (req, res) => {
     const { user } = req.validatedBody;
     const { email, login, password } = user;
+    const normalizedEmail = email.toLowerCase();
+    const normalizedLogin = login.toLowerCase();
 
     try {
-      const existingLoginUser = await prisma.user.findUnique({
-        where: { login },
+      const existingUser = await prisma.user.findFirst({
+        where: {
+          OR: [{ normalizedEmail }, { normalizedLogin }],
+        },
       });
 
-      if (existingLoginUser) {
-        return res.status(409).json({ error: 'Логин уже занят' });
+      if (existingUser) {
+        return res.status(409).json({
+          error:
+            existingUser.login === login
+              ? 'Логин уже занят'
+              : 'Пользователь с таким email уже существует',
+        });
       }
 
-      const existingEmailUser = await prisma.user.findUnique({
-        where: { email },
-      });
-
-      if (existingEmailUser) {
-        return res
-          .status(409)
-          .json({ error: 'Пользователь с таким email уже существует' });
-      }
-
-      const confirmationCode = Math.floor(100000 + Math.random() * 900000);
-      const uuid = uuidv4();
+      const uuid = generateUUID();
+      const confirmationCode = generateConfirmationCode();
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -48,29 +48,10 @@ router.post(
         confirmationCode,
       });
 
-      const html = await renderEmail('registration', {
-        title: 'Добро пожаловать в TaskFlow!',
-        confirmationCode,
-      });
+      await sendConfirmationEmail(email, confirmationCode);
+      console.log(`Код подтверждения отправлен на ${email}`);
 
-      sendEmail({
-        from: process.env.MAIL_USER,
-        to: email,
-        subject: 'Добро пожаловать в TaskFlow!',
-        html,
-      }).catch((error) => {
-        console.error('Ошибка при отправке письма:', error);
-      });
-
-      res.cookie('registration_id', uuid, {
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-        maxAge: 900000,
-        path: '/',
-      });
-
-      // console.log('Set-Cookie:', res.getHeader('Set-Cookie'));
+      res.cookie('registration_id', uuid, getRegistrationCookieOptions());
 
       res.status(200).json({ message: 'Код подтверждения отправлен' });
     } catch (error) {

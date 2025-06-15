@@ -40,9 +40,6 @@ export function limiterMiddleware(req, res, next) {
       }
 
       return res.status(429).json({
-        // error: `Подожди секунду перед следующим запросом. Осталось попыток до бана: ${
-        //   MAX_VIOLATIONS - violations
-        // }`,
         code: 429,
       });
     }
