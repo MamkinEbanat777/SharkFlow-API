@@ -22,6 +22,27 @@ router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
     const accessToken = createAccessToken(user.uuid);
     const refreshToken = createRefreshToken(user.uuid, rememberMe);
 
+    const ipAddress =
+      req.headers['x-forwarded-for']?.split(',').shift() ||
+      req.socket.remoteAddress ||
+      null;
+
+    const userAgent = req.get('user-agent') || null;
+
+    await prisma.refreshToken.create({
+      data: {
+        token: refreshToken,
+        expiresAt: new Date(
+          Date.now() +
+            (rememberMe ? 30 * 24 * 60 * 60 * 1000 : 1 * 24 * 60 * 60 * 1000),
+        ),
+        revoked: false,
+        ipAddress,
+        userAgent,
+        userId: user.id,
+      },
+    });
+
     res.cookie('tf__2', refreshToken, getRefreshCookieOptions(rememberMe));
 
     return res.status(200).json({ accessToken });

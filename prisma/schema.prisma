@@ -23,7 +23,8 @@ model User {
   isActive  Boolean  @default(true)
   updatedAt DateTime @updatedAt
 
-  boards Board[]
+  boards        Board[]
+  refreshTokens RefreshToken[]
 
   @@map("users")
 }
@@ -61,4 +62,21 @@ model Board {
 
   @@unique([userId, title])
   @@map("boards")
+}
+
+model RefreshToken {
+  id         Int      @id @default(autoincrement())
+  token      String   @unique
+  createdAt  DateTime @default(now())
+  expiresAt  DateTime
+  revoked    Boolean  @default(false)
+  ipAddress  String?  @db.VarChar(45)
+  userAgent  String?
+  referrer   String?
+  rememberMe Boolean  @default(false)
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("refresh_tokens")
 }
