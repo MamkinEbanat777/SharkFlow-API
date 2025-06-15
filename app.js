@@ -18,11 +18,9 @@ app.use(helmet());
 app.use(hpp());
 app.use(corsMiddleware);
 
-if (process.env.NODE_ENV === 'production') {
-  app.use('/todo', limiterMiddleware);
-}
-
-app.use('/todo', limiterMiddleware);
+// if (process.env.NODE_ENV === 'production') {
+//   app.use('/todo', limiterMiddleware);
+// }
 
 app.use(statusMonitor());
 app.use(compression());
