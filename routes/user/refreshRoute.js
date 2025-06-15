@@ -7,7 +7,9 @@ const router = Router();
 router.post('/refresh', async (req, res) => {
   const refreshToken = req.cookies.tf__2;
   if (!refreshToken) {
-    return res.status(401).json({ message: 'Refresh token отсутствует' });
+    return res
+      .status(401)
+      .json({ message: 'Сессия истекла. Пожалуйста войдите снова' });
   }
   try {
     const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
