@@ -5,6 +5,7 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
   const subjectMap = {
     registration: 'Добро пожаловать в TaskFlow!',
     passwordReset: 'Сброс пароля в TaskFlow',
+    deleteUser: 'Удаление аккаунта TaskFlow',
     emailChange: 'Подтверждение нового email',
   };
 
