@@ -1,40 +1,47 @@
 const lastRequestTime = new Map();
 const violationCounts = new Map();
-const bannedIPs = new Map();
+const bannedClients = new Map();
 
-const INTERVAL_MS = 500;
+const INTERVAL_MS = 2000;
 const BAN_TIME_MS = 1 * 60 * 1000;
-const MAX_VIOLATIONS = 5;
+const MAX_VIOLATIONS = 20;
+
+function getClientKey(req) {
+  const ip = req.ip || 'unknown_ip';
+  const ua = req.headers['user-agent'];
+
+  return `${ip}::${ua}`;
+}
 
 export function limiterMiddleware(req, res, next) {
-  const ip = req.ip;
+  const key = getClientKey(req);
   const now = Date.now();
 
-  if (bannedIPs.has(ip)) {
-    const banExpires = bannedIPs.get(ip);
+  if (bannedClients.has(key)) {
+    const banExpires = bannedClients.get(key);
     if (now < banExpires) {
       return res.status(429).json({
-        error: 'Слишком много запросов. Попробуйте попытку позже',
+        error: 'Слишком много запросов. Подождите немного и попробуйте снова',
         code: 429,
       });
     } else {
-      bannedIPs.delete(ip);
-      violationCounts.delete(ip);
-      lastRequestTime.delete(ip);
+      bannedClients.delete(key);
+      violationCounts.delete(key);
+      lastRequestTime.delete(key);
     }
   }
 
-  if (lastRequestTime.has(ip)) {
-    const diff = now - lastRequestTime.get(ip);
+  if (lastRequestTime.has(key)) {
+    const diff = now - lastRequestTime.get(key);
     if (diff < INTERVAL_MS) {
-      const violations = (violationCounts.get(ip) || 0) + 1;
-      violationCounts.set(ip, violations);
+      const violations = (violationCounts.get(key) || 0) + 1;
+      violationCounts.set(key, violations);
 
       if (violations >= MAX_VIOLATIONS) {
-        bannedIPs.set(ip, now + BAN_TIME_MS);
-        violationCounts.delete(ip);
+        bannedClients.set(key, now + BAN_TIME_MS);
+        violationCounts.delete(key);
         return res.status(429).json({
-          error: 'Слишком много запросов. Попробуйте попытку позже',
+          error: 'Слишком много запросов. Подождите немного и попробуйте снова',
           code: 429,
         });
       }
@@ -45,6 +52,6 @@ export function limiterMiddleware(req, res, next) {
     }
   }
 
-  lastRequestTime.set(ip, now);
+  lastRequestTime.set(key, now);
   next();
 }

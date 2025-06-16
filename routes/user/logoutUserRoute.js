@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 
 const router = Router();
 
-router.post('/logout', async (req, res) => {
+router.post('/user/logout', authenticateMiddleware, async (req, res) => {
   const refreshToken = req.cookies.log___tf_12f_t2;
 
   if (!refreshToken) {

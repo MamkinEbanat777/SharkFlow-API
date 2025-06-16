@@ -4,7 +4,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 
 const router = Router();
 
-router.post('/user', authenticateMiddleware, async (req, res) => {
+router.post('/user/data', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     if (!userUuid) {

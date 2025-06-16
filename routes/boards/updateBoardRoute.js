@@ -15,7 +15,11 @@ router.patch(
 
       const dataToUpdate = {};
 
-      if (typeof title === 'string' && title.trim()) {
+      if (
+        typeof title === 'string' &&
+        title.trim() &&
+        title.trim().length <= 64
+      ) {
         dataToUpdate.title = title.trim();
       }
       if (typeof color === 'string' && color.trim()) {
@@ -30,9 +34,6 @@ router.patch(
       if (Object.keys(dataToUpdate).length === 0) {
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
-
-      if (title.length > 64)
-        return res.status(400).json({ error: 'Название слишком длинное' });
 
       const updatedBoard = await prisma.board.updateMany({
         where: {
@@ -50,7 +51,7 @@ router.patch(
 
       res.status(200).json({
         message: 'Доска успешно обновлена',
-        updated: { title, color, isPinned, isFavorite },
+        updated: dataToUpdate,
       });
     } catch (error) {
       if (error.code === 'P2002') {
@@ -58,6 +59,7 @@ router.patch(
           .status(409)
           .json({ error: 'У вас уже есть доска с таким именем' });
       }
+      console.error('Ошибка обновления доски:', error);
       return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
     }
   },

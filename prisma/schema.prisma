@@ -16,8 +16,8 @@ datasource db {
 model User {
   id        Int      @id @default(autoincrement())
   uuid      String   @unique @default(uuid()) @db.Uuid
-  email     String   @unique
-  login     String   @unique
+  email     String   @unique @db.VarChar(320)
+  login     String   @unique @db.VarChar(30)
   password  String
   createdAt DateTime @default(now())
   isActive  Boolean  @default(true)
@@ -29,26 +29,10 @@ model User {
   @@map("users")
 }
 
-model Task {
-  id          Int      @id @default(autoincrement())
-  uuid        String   @unique @default(uuid()) @db.Uuid
-  title       String   @unique
-  color       String   @default("FFFFFF") @db.VarChar(6)
-  description String?
-  completed   Boolean  @default(false)
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
-
-  boardId Int
-  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
-
-  @@map("tasks")
-}
-
 model Board {
   id         Int      @id @default(autoincrement())
   uuid       String   @unique @default(uuid()) @db.Uuid
-  title      String
+  title      String   @db.VarChar(64)
   color      String   @default("FFFFFF") @db.VarChar(6)
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
@@ -64,15 +48,31 @@ model Board {
   @@map("boards")
 }
 
+model Task {
+  id          Int      @id @default(autoincrement())
+  uuid        String   @unique @default(uuid()) @db.Uuid
+  title       String   @unique @db.VarChar(100)
+  color       String   @default("FFFFFF") @db.VarChar(6)
+  description String?  @db.Text
+  completed   Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  boardId Int
+  board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
+
+  @@map("tasks")
+}
+
 model RefreshToken {
   id         Int      @id @default(autoincrement())
-  token      String   @unique
+  token      String   @unique @db.VarChar(1024)
   createdAt  DateTime @default(now())
   expiresAt  DateTime
   revoked    Boolean  @default(false)
   ipAddress  String?  @db.VarChar(45)
-  userAgent  String?
-  referrer   String?
+  userAgent  String?  @db.VarChar(512)
+  referrer   String?  @db.VarChar(2048)
   rememberMe Boolean  @default(false)
 
   userId Int

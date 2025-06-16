@@ -60,7 +60,9 @@ router.post(
 
       res.cookie('sd_f93j8f___', uuid, getRegistrationCookieOptions());
 
-      res.status(200).json({ message: 'Код подтверждения отправлен' });
+      res
+        .status(200)
+        .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
       console.error('Ошибка при регистрации:', error);
       res
