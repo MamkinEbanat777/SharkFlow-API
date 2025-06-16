@@ -55,7 +55,7 @@ router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
     return res.status(200).json({ accessToken });
   } catch (error) {
     console.error('Ошибка при логине:', error);
-    res.status(500).json({ error: 'Ошибка сервера при логине' });
+    res.status(500).json({ error: 'Ошибка сервера. Пожалуйста, попробуйте' });
   }
 });
 

@@ -17,6 +17,9 @@ router.post('/todo/createBoard', authenticateMiddleware, async (req, res) => {
 
   if (!color) return res.status(400).json({ error: 'Цвет доски обязателен' });
 
+  if (title.length > 64)
+    return res.status(400).json({ error: 'Название слишком длинное' });
+
   try {
     const newBoard = await prisma.board.create({
       data: {

@@ -31,6 +31,9 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
+      if (title.length > 64)
+        return res.status(400).json({ error: 'Название слишком длинное' });
+
       const updatedBoard = await prisma.board.updateMany({
         where: {
           uuid: boardUuid,
