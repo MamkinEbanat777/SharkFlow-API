@@ -5,7 +5,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 const router = Router();
 
 router.delete(
-  '/todo/deleteBoard/:boardUuid',
+  '/api/todo/boards/:boardUuid',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

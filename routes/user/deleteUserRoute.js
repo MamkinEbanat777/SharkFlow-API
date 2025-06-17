@@ -8,7 +8,7 @@ import {
 
 const router = Router();
 
-router.post('/user/delete', authenticateMiddleware, async (req, res) => {
+router.post('/api/users/delete', authenticateMiddleware, async (req, res) => {
   const refreshToken = req.cookies.log___tf_12f_t2;
   const userUuid = req.userUuid;
   const { confirmationCode } = req.body;

@@ -4,7 +4,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 
 const router = Router();
 
-router.get('/todo/getBoards', authenticateMiddleware, async (req, res) => {
+router.get('/api/todo/boards', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     const userWithBoards = await prisma.user.findUnique({

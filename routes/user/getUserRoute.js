@@ -4,7 +4,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 
 const router = Router();
 
-router.get('/user/data', authenticateMiddleware, async (req, res) => {
+router.get('/api/users', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     if (!userUuid) {

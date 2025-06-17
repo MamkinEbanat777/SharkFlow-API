@@ -1,26 +1,26 @@
 import { Router } from 'express';
 import jwt from 'jsonwebtoken';
-import { createAccessToken } from '../../utils/tokens/accessToken.js';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { createRefreshToken } from '../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../utils/cookie/loginCookie.js';
+import { createAccessToken } from '../../../utils/tokens/accessToken.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 
 const router = Router();
 
-router.post('/refresh', async (req, res) => {
+router.post('/api/auth/refresh', async (req, res) => {
+  const referrer = req.get('Referer') || null;
   const refreshToken = req.cookies.log___tf_12f_t2;
   if (!refreshToken) {
     return res
       .status(401)
       .json({ message: 'Сессия истекла. Пожалуйста войдите снова' });
   }
+  const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+  const now = Date.now();
   try {
-    const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
     const tokenRecord = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
-
-    const referrer = req.get('Referer') || null;
 
     if (!tokenRecord || tokenRecord.revoked) {
       return res.status(401).json({
@@ -38,7 +38,6 @@ router.post('/refresh', async (req, res) => {
         .json({ message: 'Токен обновления истек. Пожалуйста войдите снова' });
     }
 
-    const now = Date.now();
     const expiresAt = new Date(tokenRecord.expiresAt).getTime();
     const timeLeft = expiresAt - now;
 

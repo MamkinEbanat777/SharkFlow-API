@@ -10,7 +10,7 @@ import {
 const router = Router();
 
 router.post(
-  '/register/verify',
+  '/api/users',
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode } = req.body;

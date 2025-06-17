@@ -13,12 +13,14 @@ import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail
 const router = Router();
 
 router.post(
-  '/register',
+  '/api/users/confirm',
   validateMiddleware(registerValidate),
   async (req, res) => {
     const { user } = req.validatedBody;
     const { email, login, password } = user;
-
+    const uuid = generateUUID();
+    const confirmationCode = generateConfirmationCode();
+    const hashedPassword = await bcrypt.hash(password, 10);
     const normalizedData = normalizeUserData({ email, login });
 
     try {
@@ -40,11 +42,6 @@ router.post(
               : 'Пользователь с таким email уже существует',
         });
       }
-
-      const uuid = generateUUID();
-      const confirmationCode = generateConfirmationCode();
-
-      const hashedPassword = await bcrypt.hash(password, 10);
 
       setRegistrationData(uuid, {
         email: normalizedData.email,

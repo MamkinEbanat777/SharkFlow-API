@@ -2,10 +2,14 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail.js';
+import {
+  getConfirmationCode,
+  deleteConfirmationCode,
+} from '../../store/userVerifyStore.js';
 
 const router = Router();
 
-router.patch('/user/update', authenticateMiddleware, async (req, res) => {
+router.patch('/api/users/update', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     if (!userUuid) {
@@ -14,23 +18,29 @@ router.patch('/user/update', authenticateMiddleware, async (req, res) => {
         .json({ error: 'UUID пользователя не найден в токене' });
     }
 
-    const { login, email } = req.body;
+    const { confirmationCode, updatedFields } = req.body;
+    const { login, email } = updatedFields || {};
+    console.log(req.body);
+
+    if (typeof confirmationCode !== 'string') {
+      return res.status(400).json({ error: 'Код подтверждения обязателен' });
+    }
+
+    const stored = getConfirmationCode(userUuid);
+    if (!stored || String(stored) !== confirmationCode) {
+      return res.status(400).json({ error: 'Неверный или просроченный код' });
+    }
+
+    deleteConfirmationCode(userUuid);
 
     const normalizedData = normalizeUserData({ email, login });
-
     if (!normalizedData) {
       return res.status(400).json({ error: 'Некорректный email или логин' });
     }
 
     const dataToUpdate = {};
-
-    if (normalizedData.login) {
-      dataToUpdate.login = normalizedData.login;
-    }
-
-    if (normalizedData.email) {
-      dataToUpdate.email = normalizedData.email;
-    }
+    if (normalizedData.login) dataToUpdate.login = normalizedData.login;
+    if (normalizedData.email) dataToUpdate.email = normalizedData.email;
 
     if (Object.keys(dataToUpdate).length === 0) {
       return res.status(400).json({ error: 'Нет данных для обновления' });

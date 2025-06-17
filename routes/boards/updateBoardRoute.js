@@ -5,16 +5,15 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 const router = Router();
 
 router.patch(
-  '/todo/updateBoard/:boardUuid',
+  '/api/todo/boards/:boardUuid',
   authenticateMiddleware,
   async (req, res) => {
+    const userUuid = req.userUuid;
+    const { boardUuid } = req.params;
+    let { title, color, isPinned, isFavorite } = req.body;
+
+    const dataToUpdate = {};
     try {
-      const userUuid = req.userUuid;
-      const { boardUuid } = req.params;
-      let { title, color, isPinned, isFavorite } = req.body;
-
-      const dataToUpdate = {};
-
       if (
         typeof title === 'string' &&
         title.trim() &&

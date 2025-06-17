@@ -4,7 +4,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 
 const router = Router();
 
-router.post('/todo/createBoard', authenticateMiddleware, async (req, res) => {
+router.post('/api/todo/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
   const color =

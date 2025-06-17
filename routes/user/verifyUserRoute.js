@@ -4,65 +4,54 @@ import { generateConfirmationCode } from '../../utils/generators/generateConfirm
 import { sendConfirmationEmail } from '../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { setConfirmationCode } from '../../store/userVerifyStore.js';
-import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail.js';
 
 const router = Router();
 
-router.post('/user/verify', authenticateMiddleware, async (req, res) => {
-  let { email } = req.body;
-  const userUuid = req.userUuid;
+router.post(
+  '/api/users/send-code',
+  authenticateMiddleware,
+  async (req, res) => {
+    const userUuid = req.userUuid;
 
-  if (!email) return res.status(400).json({ error: 'Email обязателен' });
-  const normalizedData = normalizeUserData({ email });
+    try {
+      const user = await prisma.user.findUnique({
+        where: { uuid: userUuid },
+      });
 
-  if (!normalizedData) {
-    return res.status(400).json({ error: 'Некорректный email' });
-  }
+      if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
 
-  const normalizedEmail = normalizedData.email;
+      const email = user.email;
+      if (!email) {
+        return res
+          .status(400)
+          .json({ error: 'Email пользователя отсутствует' });
+      }
 
-  if (!normalizedEmail) {
-    return res.status(400).json({ error: 'Email отсутствует' });
-  }
-  email = normalizedEmail;
+      const confirmationCode = generateConfirmationCode();
 
-  try {
-    const user = await prisma.user.findUnique({
-      where: { uuid: userUuid },
-    });
+      setConfirmationCode(userUuid, confirmationCode);
 
-    if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      await sendConfirmationEmail({
+        to: email,
+        type: 'deleteUser',
+        confirmationCode,
+      });
+
+      console.log(`Код подтверждения отправлен на ${email}`);
+
+      res
+        .status(200)
+        .json({ message: 'Код подтверждения отправлен на вашу почту' });
+    } catch (error) {
+      console.error('Ошибка при удалении аккаунта:', error);
+      res
+        .status(500)
+        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
     }
-
-    if (user.email.toLowerCase() !== email.toLowerCase()) {
-      return res
-        .status(403)
-        .json({ error: 'Email не совпадает с авторизованным пользователем' });
-    }
-
-    const confirmationCode = generateConfirmationCode();
-
-    setConfirmationCode(userUuid, confirmationCode);
-
-    await sendConfirmationEmail({
-      to: email,
-      type: 'deleteUser',
-      confirmationCode,
-    });
-
-    console.log(`Код подтверждения отправлен на ${email}`);
-
-    res
-      .status(200)
-      .json({ message: 'Код подтверждения отправлен на вашу почту' });
-  } catch (error) {
-    console.error('Ошибка при удалении аккаунта:', error);
-    res
-      .status(500)
-      .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
-  }
-});
+  },
+);
 
 export default {
   path: '/',
