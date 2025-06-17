@@ -8,6 +8,7 @@ import { getRegistrationCookieOptions } from '../../utils/cookie/registerCookie.
 import { generateUUID } from '../../utils/generators/generateUUID.js';
 import { generateConfirmationCode } from '../../utils/generators/generateConfirmationCode.js';
 import { sendConfirmationEmail } from '../../utils/mail/sendConfirmationEmail.js';
+import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail.js';
 
 const router = Router();
 
@@ -17,15 +18,15 @@ router.post(
   async (req, res) => {
     const { user } = req.validatedBody;
     const { email, login, password } = user;
-    const normalizedEmail = email.toLowerCase();
-    const normalizedLogin = login.toLowerCase();
+
+    const normalizedData = normalizeUserData({ email, login });
 
     try {
       const existingUser = await prisma.user.findFirst({
         where: {
           OR: [
-            { email: { equals: normalizedEmail, mode: 'insensitive' } },
-            { login: { equals: normalizedLogin, mode: 'insensitive' } },
+            { email: { equals: normalizedData.email, mode: 'insensitive' } },
+            { login: { equals: normalizedData.login, mode: 'insensitive' } },
           ],
         },
       });
@@ -33,7 +34,8 @@ router.post(
       if (existingUser) {
         return res.status(409).json({
           error:
-            existingUser.login === login
+            existingUser.login.toLowerCase() ===
+            normalizedData.login.toLowerCase()
               ? 'Логин уже занят'
               : 'Пользователь с таким email уже существует',
         });
@@ -45,17 +47,18 @@ router.post(
       const hashedPassword = await bcrypt.hash(password, 10);
 
       setRegistrationData(uuid, {
-        email,
-        login,
+        email: normalizedData.email,
+        login: normalizedData.login,
         hashedPassword,
         confirmationCode,
       });
 
       await sendConfirmationEmail({
-        to: email,
+        to: normalizedData.email,
         type: 'registration',
         confirmationCode,
       });
+
       console.log(`Код подтверждения отправлен на ${email}`);
 
       res.cookie('sd_f93j8f___', uuid, getRegistrationCookieOptions());

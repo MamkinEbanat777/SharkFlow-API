@@ -23,7 +23,11 @@ router.patch(
         dataToUpdate.title = title.trim();
       }
       if (typeof color === 'string' && color.trim()) {
-        dataToUpdate.color = color.trim().replace(/^#/, '');
+        const cleaned = color.trim().replace(/^#/, '');
+        if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(cleaned)) {
+          return res.status(400).json({ error: 'Неверный формат цвета' });
+        }
+        dataToUpdate.color = cleaned;
       }
       if (typeof isPinned === 'boolean') {
         dataToUpdate.isPinned = isPinned;
@@ -58,6 +62,11 @@ router.patch(
         return res
           .status(409)
           .json({ error: 'У вас уже есть доска с таким именем' });
+      }
+      if (error.code === 'P2025') {
+        return res
+          .status(404)
+          .json({ error: 'Доска не найдена или доступ запрещён' });
       }
       console.error('Ошибка обновления доски:', error);
       return res.status(500).json({ error: 'Внутренняя ошибка сервера' });

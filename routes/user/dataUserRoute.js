@@ -4,7 +4,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 
 const router = Router();
 
-router.post('/user/data', authenticateMiddleware, async (req, res) => {
+router.get('/user/data', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     if (!userUuid) {
@@ -17,9 +17,10 @@ router.post('/user/data', authenticateMiddleware, async (req, res) => {
       where: { uuid: req.userUuid },
       select: {
         login: true,
+        email: true,
       },
     });
-
+    console.log('fsafas', user);
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }

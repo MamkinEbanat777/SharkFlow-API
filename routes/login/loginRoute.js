@@ -6,15 +6,24 @@ import bcrypt from 'bcrypt';
 import { createAccessToken } from '../../utils/tokens/accessToken.js';
 import { createRefreshToken } from '../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../utils/cookie/loginCookie.js';
+import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail.js';
 
 const router = Router();
 
 router.post('/login', validateMiddleware(loginValidate), async (req, res) => {
   const { user } = req.validatedBody;
   const { email, password, rememberMe } = user;
-  try {
-    const user = await prisma.user.findUnique({ where: { email } });
 
+  const normalizedData = normalizeUserData({ email });
+
+  if (!normalizedData || !normalizedData.email) {
+    return res.status(400).json({ error: 'Некорректный email' });
+  }
+
+  try {
+    const user = await prisma.user.findFirst({
+      where: { email: { equals: normalizedData.email, mode: 'insensitive' } },
+    });
     if (!user || !(await bcrypt.compare(password, user.password))) {
       return res.status(401).json({ error: 'Неправильный email или пароль' });
     }

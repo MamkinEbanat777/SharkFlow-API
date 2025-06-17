@@ -17,6 +17,10 @@ router.post('/todo/createBoard', authenticateMiddleware, async (req, res) => {
 
   if (!color) return res.status(400).json({ error: 'Цвет доски обязателен' });
 
+  if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)) {
+    return res.status(400).json({ error: 'Неверный формат цвета' });
+  }
+
   if (title.length > 64)
     return res.status(400).json({ error: 'Название слишком длинное' });
 

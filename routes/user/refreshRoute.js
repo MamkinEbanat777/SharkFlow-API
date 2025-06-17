@@ -19,6 +19,7 @@ router.post('/refresh', async (req, res) => {
     const tokenRecord = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
     });
+
     const referrer = req.get('Referer') || null;
 
     if (!tokenRecord || tokenRecord.revoked) {

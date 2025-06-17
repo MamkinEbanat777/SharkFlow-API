@@ -18,9 +18,9 @@ app.use(helmet());
 app.use(hpp());
 app.use(corsMiddleware);
 
-// if (process.env.NODE_ENV === 'production') {
-//   app.use('/todo', limiterMiddleware);
-// }
+if (process.env.NODE_ENV === 'production') {
+  app.use('/', limiterMiddleware);
+}
 
 app.use(statusMonitor());
 app.use(compression());
@@ -28,7 +28,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-// app.use('/', limiterMiddleware);
+app.use('/', limiterMiddleware);
 
 const accessLogStream = fs.createWriteStream(path.join('logs', 'access.log'), {
   flags: 'a',

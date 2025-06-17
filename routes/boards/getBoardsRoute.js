@@ -24,7 +24,6 @@ router.get('/todo/getBoards', authenticateMiddleware, async (req, res) => {
     if (!userWithBoards) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
-    // console.log(userWithBoards);
     res.json({
       boards: userWithBoards.boards.map(
         ({

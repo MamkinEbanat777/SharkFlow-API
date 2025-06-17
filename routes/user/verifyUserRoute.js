@@ -4,14 +4,27 @@ import { generateConfirmationCode } from '../../utils/generators/generateConfirm
 import { sendConfirmationEmail } from '../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { setConfirmationCode } from '../../store/userVerifyStore.js';
+import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail.js';
 
 const router = Router();
 
 router.post('/user/verify', authenticateMiddleware, async (req, res) => {
-  const { email } = req.body;
+  let { email } = req.body;
   const userUuid = req.userUuid;
 
   if (!email) return res.status(400).json({ error: 'Email обязателен' });
+  const normalizedData = normalizeUserData({ email });
+
+  if (!normalizedData) {
+    return res.status(400).json({ error: 'Некорректный email' });
+  }
+
+  const normalizedEmail = normalizedData.email;
+
+  if (!normalizedEmail) {
+    return res.status(400).json({ error: 'Email отсутствует' });
+  }
+  email = normalizedEmail;
 
   try {
     const user = await prisma.user.findUnique({
