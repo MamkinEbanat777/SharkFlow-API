@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { generateConfirmationCode } from '../../utils/generators/generateConfirmationCode.js';
-import { sendConfirmationEmail } from '../../utils/mail/sendConfirmationEmail.js';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { setConfirmationCode } from '../../store/userVerifyStore.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { generateConfirmationCode } from '../../../utils/generators/generateConfirmationCode.js';
+import { sendConfirmationEmail } from '../../../utils/mail/sendConfirmationEmail.js';
+import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
+import { setConfirmationCode } from '../../../store/userVerifyStore.js';
 
 const router = Router();
 
 router.post(
-  '/api/users/send-code',
+  '/api/users/delete/confirm-deletion',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

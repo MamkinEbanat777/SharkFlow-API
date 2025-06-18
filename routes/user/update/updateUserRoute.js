@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { normalizeUserData } from '../../utils/validators/normalizeLoginAndEmail.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
+import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
 import {
   getConfirmationCode,
   deleteConfirmationCode,
-} from '../../store/userVerifyStore.js';
+} from '../../../store/userVerifyStore.js';
 
 const router = Router();
 
-router.patch('/api/users/update', authenticateMiddleware, async (req, res) => {
+router.patch('/api/users', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     if (!userUuid) {
@@ -20,7 +20,13 @@ router.patch('/api/users/update', authenticateMiddleware, async (req, res) => {
 
     const { confirmationCode, updatedFields } = req.body;
     const { login, email } = updatedFields || {};
-    console.log(req.body);
+    const trimmedLogin = typeof login === 'string' ? login.trim() : undefined;
+    const normalizedEmail =
+      typeof email === 'string' ? normalizeEmail(email) : undefined;
+
+    if (email !== undefined && !normalizedEmail) {
+      return res.status(400).json({ error: 'Некорректный email' });
+    }
 
     if (typeof confirmationCode !== 'string') {
       return res.status(400).json({ error: 'Код подтверждения обязателен' });
@@ -33,14 +39,9 @@ router.patch('/api/users/update', authenticateMiddleware, async (req, res) => {
 
     deleteConfirmationCode(userUuid);
 
-    const normalizedData = normalizeUserData({ email, login });
-    if (!normalizedData) {
-      return res.status(400).json({ error: 'Некорректный email или логин' });
-    }
-
     const dataToUpdate = {};
-    if (normalizedData.login) dataToUpdate.login = normalizedData.login;
-    if (normalizedData.email) dataToUpdate.email = normalizedData.email;
+    if (trimmedLogin) dataToUpdate.login = trimmedLogin;
+    if (normalizedEmail) dataToUpdate.email = normalizedEmail;
 
     if (Object.keys(dataToUpdate).length === 0) {
       return res.status(400).json({ error: 'Нет данных для обновления' });
@@ -52,7 +53,7 @@ router.patch('/api/users/update', authenticateMiddleware, async (req, res) => {
       select: { login: true, email: true },
     });
 
-    res.json({ user: updatedUser });
+    return res.json({ message: 'Данные успешно обновлены', user: updatedUser });
   } catch (error) {
     if (error.code === 'P2002') {
       return res.status(409).json({ error: 'Почта или логин уже занят' });

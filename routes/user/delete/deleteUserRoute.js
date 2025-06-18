@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import {
   getConfirmationCode,
   deleteConfirmationCode,
-} from '../../store/userVerifyStore.js';
+} from '../../../store/userVerifyStore.js';
 
 const router = Router();
 

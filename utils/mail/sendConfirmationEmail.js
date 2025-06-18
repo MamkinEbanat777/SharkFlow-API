@@ -6,6 +6,7 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     registration: 'Добро пожаловать в TaskFlow!',
     passwordReset: 'Сброс пароля в TaskFlow',
     deleteUser: 'Удаление аккаунта TaskFlow',
+    updateUser: 'Обновление данных аккаунта TaskFlow',
     emailChange: 'Подтверждение нового email',
   };
 

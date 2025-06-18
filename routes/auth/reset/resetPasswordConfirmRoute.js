@@ -1,1 +1,1 @@
-// /api/auth/reset-password/confirm
+// /api/auth/reset-password/confirm-reset

@@ -1,6 +1,6 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 
 const router = Router();
 
@@ -14,13 +14,12 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { uuid: req.userUuid },
+      where: { uuid: userUuid },
       select: {
         login: true,
         email: true,
       },
     });
-    console.log('fsafas', user);
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
