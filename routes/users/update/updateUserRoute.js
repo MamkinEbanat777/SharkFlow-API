@@ -6,12 +6,16 @@ import {
   getConfirmationCode,
   deleteConfirmationCode,
 } from '../../../store/userVerifyStore.js';
+import { logUserUpdate, logUserUpdateFailure } from '../../../utils/loggers/authLoggers.js';
+import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
 
 router.patch('/api/users', authenticateMiddleware, async (req, res) => {
+  const userUuid = req.userUuid;
+  const ipAddress = getClientIP(req);
+  
   try {
-    const userUuid = req.userUuid;
     if (!userUuid) {
       return res
         .status(400)
@@ -34,6 +38,7 @@ router.patch('/api/users', authenticateMiddleware, async (req, res) => {
 
     const stored = getConfirmationCode(userUuid);
     if (!stored || String(stored) !== confirmationCode) {
+      logUserUpdateFailure(userUuid, ipAddress, 'Invalid confirmation code');
       return res.status(400).json({ error: 'Неверный или просроченный код' });
     }
 
@@ -53,15 +58,20 @@ router.patch('/api/users', authenticateMiddleware, async (req, res) => {
       select: { login: true, email: true },
     });
 
+    logUserUpdate(userUuid, dataToUpdate, ipAddress);
+
     return res.json({ message: 'Данные успешно обновлены', user: updatedUser });
   } catch (error) {
     if (error.code === 'P2002') {
+      logUserUpdateFailure(userUuid, ipAddress, 'Email or login already taken');
       return res.status(409).json({ error: 'Почта или логин уже занят' });
     }
     if (error.code === 'P2025') {
+      logUserUpdateFailure(userUuid, ipAddress, 'User not found');
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
     console.error('Ошибка обновления пользователя:', error);
+    logUserUpdateFailure(userUuid, ipAddress, 'Server error');
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }
 });

@@ -7,61 +7,21 @@ import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
+import { 
+  checkLoginRateLimit, 
+  incrementLoginAttempts, 
+  resetLoginAttempts 
+} from '../../../utils/rateLimiters/authRateLimiters.js';
+import { logLoginSuccess, logLoginFailure } from '../../../utils/loggers/authLoggers.js';
+import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
-
-const loginAttempts = new Map();
-const MAX_ATTEMPTS = 5;
-const BLOCK_DURATION = 5 * 60 * 1000; 
-
-const checkRateLimit = (ipAddress, email) => {
-  const key = `${ipAddress}-${email}`;
-  const attempts = loginAttempts.get(key);
-  
-  if (attempts && attempts.count >= MAX_ATTEMPTS) {
-    const timeLeft = attempts.blockedUntil - Date.now();
-    if (timeLeft > 0) {
-      return {
-        blocked: true,
-        timeLeft: Math.ceil(timeLeft / 1000 / 60) 
-      };
-    } else {
-      loginAttempts.delete(key);
-    }
-  }
-  return { blocked: false };
-};
-
-const incrementAttempts = (ipAddress, email) => {
-  const key = `${ipAddress}-${email}`;
-  const attempts = loginAttempts.get(key) || { count: 0, blockedUntil: 0 };
-  
-  attempts.count++;
-  
-  if (attempts.count >= MAX_ATTEMPTS) {
-    attempts.blockedUntil = Date.now() + BLOCK_DURATION;
-  }
-  
-  loginAttempts.set(key, attempts);
-  
-  setTimeout(() => {
-    loginAttempts.delete(key);
-  }, BLOCK_DURATION);
-};
-
-const resetAttempts = (ipAddress, email) => {
-  const key = `${ipAddress}-${email}`;
-  loginAttempts.delete(key);
-};
 
 router.post(
   '/api/auth/login',
   validateMiddleware(loginValidate),
   async (req, res) => {
-    const ipAddress =
-      req.headers['x-forwarded-for']?.split(',').shift() ||
-      req.socket.remoteAddress ||
-      null;
+    const ipAddress = getClientIP(req);
     const userAgent = req.get('user-agent') || null;
     const { user } = req.validatedBody;
     const { email, password, rememberMe } = user;
@@ -72,7 +32,7 @@ router.post(
       return res.status(400).json({ error: 'Некорректный email' });
     }
 
-    const rateLimitCheck = checkRateLimit(ipAddress, normalizedEmail);
+    const rateLimitCheck = checkLoginRateLimit(ipAddress, normalizedEmail);
     if (rateLimitCheck.blocked) {
       return res.status(429).json({ 
         error: `Слишком много попыток входа. Попробуйте через ${rateLimitCheck.timeLeft} минут` 
@@ -80,19 +40,29 @@ router.post(
     }
 
     try {
-      const user = await prisma.user.findFirst({
-        where: { email: { equals: normalizedEmail, mode: 'insensitive' } },
+      const user = await prisma.user.findUnique({
+        where: { email: normalizedEmail },
+        select: {
+          id: true,
+          uuid: true,
+          password: true,
+          login: true,
+          email: true
+        }
       });
 
       if (!user || !(await bcrypt.compare(password, user.password))) {
-        incrementAttempts(ipAddress, normalizedEmail);
+        incrementLoginAttempts(ipAddress, normalizedEmail);
+        logLoginFailure(normalizedEmail, ipAddress);
         return res.status(401).json({ error: 'Неправильный email или пароль' });
       }
 
-      resetAttempts(ipAddress, normalizedEmail);
+      resetLoginAttempts(ipAddress, normalizedEmail);
 
-      const accessToken = createAccessToken(user.uuid);
-      const refreshToken = createRefreshToken(user.uuid, rememberMe);
+      const [accessToken, refreshToken] = await Promise.all([
+        Promise.resolve(createAccessToken(user.uuid)),
+        Promise.resolve(createRefreshToken(user.uuid, rememberMe))
+      ]);
 
       await prisma.refreshToken.create({
         data: {
@@ -117,10 +87,12 @@ router.post(
         getRefreshCookieOptions(rememberMe),
       );
 
+      logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
+
       return res.status(200).json({ accessToken });
     } catch (error) {
       console.error('Ошибка при логине:', error);
-      incrementAttempts(ipAddress, normalizedEmail);
+      incrementLoginAttempts(ipAddress, normalizedEmail);
       res.status(500).json({ error: 'Ошибка сервера. Пожалуйста, попробуйте' });
     }
   },

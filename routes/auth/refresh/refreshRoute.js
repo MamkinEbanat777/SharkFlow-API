@@ -1,100 +1,82 @@
 import { Router } from 'express';
-import jwt from 'jsonwebtoken';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
+import { validateRefreshToken, isTokenExpired, shouldRotateToken } from '../../../utils/validators/jwtValidators.js';
+import { logTokenRefresh, logTokenRefreshFailure } from '../../../utils/loggers/authLoggers.js';
+import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
 
 router.post('/api/auth/refresh', async (req, res) => {
   const referrer = req.get('Referer') || null;
   const refreshToken = req.cookies.log___tf_12f_t2;
-  if (!refreshToken) {
-    return res
-      .status(401)
-      .json({ message: 'Сессия истекла. Пожалуйста войдите снова' });
+  const ipAddress = getClientIP(req);
+
+  const tokenValidation = validateRefreshToken(refreshToken);
+  if (!tokenValidation.isValid) {
+    return res.status(401).json({ message: tokenValidation.error });
   }
 
-  let payload;
-  try {
-    // Проверяем JWT с явным указанием алгоритма
-    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, {
-      algorithms: ['HS256'] // Явно указываем разрешенный алгоритм
-    });
-    
-    // Валидируем UUID в payload
-    if (!payload.userUuid || typeof payload.userUuid !== 'string') {
-      return res.status(401).json({
-        message: 'Недействительный токен. Пожалуйста войдите снова',
-      });
-    }
-  } catch (error) {
-    if (error instanceof jwt.TokenExpiredError) {
-      return res.status(401).json({
-        message: 'Токен обновления истек. Пожалуйста войдите снова',
-      });
-    }
-    if (error instanceof jwt.JsonWebTokenError) {
-      return res.status(401).json({
-        message: 'Недействительный токен. Пожалуйста войдите снова',
-      });
-    }
-    console.error('Unexpected JWT error:', error);
-    return res.status(401).json({
-      message: 'Ошибка аутентификации. Пожалуйста войдите снова',
-    });
-  }
+  const { payload } = tokenValidation;
+  const userUuid = payload.userUuid;
 
-  const now = Date.now();
   try {
     const tokenRecord = await prisma.refreshToken.findUnique({
       where: { token: refreshToken },
+      select: {
+        id: true,
+        userId: true,
+        expiresAt: true,
+        revoked: true,
+        rememberMe: true
+      }
     });
 
     if (!tokenRecord || tokenRecord.revoked) {
+      logTokenRefreshFailure(userUuid, ipAddress, 'Token revoked or not found');
       return res.status(401).json({
-        message: 'Сессия истекла. Пожалуйста войдите снова',
+        message: 'Ваша сессия была завершена. Пожалуйста, войдите в систему заново',
       });
     }
 
-    if (new Date() > tokenRecord.expiresAt) {
+    if (isTokenExpired(tokenRecord.expiresAt)) {
       await prisma.refreshToken.update({
         where: { id: tokenRecord.id },
         data: { revoked: true },
       });
+      logTokenRefreshFailure(userUuid, ipAddress, 'Token expired');
       return res
         .status(401)
-        .json({ message: 'Токен обновления истек. Пожалуйста войдите снова' });
+        .json({ message: 'Ваша сессия истекла. Пожалуйста, войдите в систему заново' });
     }
-
-    const expiresAt = new Date(tokenRecord.expiresAt).getTime();
-    const timeLeft = expiresAt - now;
 
     let newRefreshToken = refreshToken;
     let rotated = false;
 
-    if (timeLeft < 600000) {
-      await prisma.refreshToken.update({
-        where: { id: tokenRecord.id },
-        data: { revoked: true },
-      });
+    if (shouldRotateToken(tokenRecord.expiresAt)) {
+      const [newToken] = await Promise.all([
+        Promise.resolve(createRefreshToken(userUuid, tokenRecord.rememberMe)),
+        prisma.refreshToken.update({
+          where: { id: tokenRecord.id },
+          data: { revoked: true },
+        })
+      ]);
 
-      newRefreshToken = createRefreshToken(
-        payload.userUuid,
-        tokenRecord.rememberMe,
-      );
+      newRefreshToken = newToken;
+      
       await prisma.refreshToken.create({
         data: {
           token: newRefreshToken,
           userId: tokenRecord.userId,
           expiresAt: new Date(
-            now +
+            Date.now() +
               (tokenRecord.rememberMe
                 ? Number(process.env.SESSION_EXPIRES_REMEMBER_ME)
                 : Number(process.env.SESSION_EXPIRES_DEFAULT)),
           ),
-          ipAddress: req.ip,
+          ipAddress,
           userAgent: req.get('User-Agent'),
           referrer,
           rememberMe: tokenRecord.rememberMe,
@@ -112,14 +94,17 @@ router.post('/api/auth/refresh', async (req, res) => {
       );
     }
 
-    const newAccessToken = createAccessToken(payload.userUuid);
+    const newAccessToken = createAccessToken(userUuid);
+
+    logTokenRefresh(userUuid, ipAddress, rotated);
 
     res.status(200).json({
       accessToken: newAccessToken,
     });
   } catch (error) {
     console.error(error);
-    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    logTokenRefreshFailure(userUuid, ipAddress, 'Server error');
+    return res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
   }
 });
 

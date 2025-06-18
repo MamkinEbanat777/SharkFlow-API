@@ -4,6 +4,8 @@ import { generateConfirmationCode } from '../../../utils/generators/generateConf
 import { sendConfirmationEmail } from '../../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { setConfirmationCode } from '../../../store/userVerifyStore.js';
+import { logUserDeleteRequest, logUserDeleteRequestFailure } from '../../../utils/loggers/authLoggers.js';
+import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
 
@@ -12,6 +14,7 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
+    const ipAddress = getClientIP(req);
 
     try {
       const user = await prisma.user.findUnique({
@@ -19,11 +22,13 @@ router.post(
       });
 
       if (!user) {
+        logUserDeleteRequestFailure(userUuid, ipAddress, 'User not found');
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
 
       const email = user.email;
       if (!email) {
+        logUserDeleteRequestFailure(userUuid, ipAddress, 'Email missing');
         return res
           .status(400)
           .json({ error: 'Email пользователя отсутствует' });
@@ -39,13 +44,14 @@ router.post(
         confirmationCode,
       });
 
-      console.log(`Код подтверждения отправлен на ${email}`);
+      logUserDeleteRequest(userUuid, email, ipAddress);
 
       res
         .status(200)
         .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
       console.error('Ошибка при удалении аккаунта:', error);
+      logUserDeleteRequestFailure(userUuid, ipAddress, 'Server error');
       res
         .status(500)
         .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });

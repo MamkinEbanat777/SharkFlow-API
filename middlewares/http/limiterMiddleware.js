@@ -4,9 +4,9 @@ const bannedClients = new Map();
 
 let MAX_REQUESTS_PER_INTERVAL;
 if (process.env.NODE_ENV === 'production') {
-  MAX_REQUESTS_PER_INTERVAL = 1;
+  MAX_REQUESTS_PER_INTERVAL = 10;
 } else {
-  MAX_REQUESTS_PER_INTERVAL = 5;
+  MAX_REQUESTS_PER_INTERVAL = 100;
 }
 
 const INTERVAL_MS = 1000;

@@ -6,6 +6,8 @@ import {
   getRegistrationData,
   deleteRegistrationData,
 } from '../../../store/registrationStore.js';
+import { logRegistrationSuccess, logRegistrationFailure } from '../../../utils/loggers/authLoggers.js';
+import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
 
@@ -15,6 +17,8 @@ router.post(
   async (req, res) => {
     const { confirmationCode } = req.body;
     const uuid = req.cookies.sd_f93j8f___;
+    const ipAddress = getClientIP(req);
+    
     try {
       if (!uuid) {
         return res.status(400).json({ error: 'Регистрация не найдена' });
@@ -34,6 +38,7 @@ router.post(
       } = storedData;
 
       if (String(storedCode) !== String(confirmationCode)) {
+        logRegistrationFailure(email, ipAddress, 'Invalid confirmation code');
         return res.status(400).json({ error: 'Неверный код' });
       }
 
@@ -42,12 +47,16 @@ router.post(
       });
 
       deleteRegistrationData(uuid);
+      
+      logRegistrationSuccess(email, newUser.id, ipAddress);
+      
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
         userId: newUser.id,
       });
     } catch (error) {
       console.error('Ошибка при регистрации:', error);
+      logRegistrationFailure('unknown', ipAddress, 'Server error');
       res
         .status(500)
         .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });

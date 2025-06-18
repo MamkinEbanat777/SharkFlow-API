@@ -10,5 +10,8 @@ export function createRefreshToken(userUuid, rememberMe = false) {
     jti: generateUUID(),
   };
 
-  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { expiresIn });
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { 
+    expiresIn,
+    algorithm: 'HS256'  
+  });
 }

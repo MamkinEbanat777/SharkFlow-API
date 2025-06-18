@@ -1,47 +1,97 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
+import { 
+  validateBoardTitle, 
+  isValidColor, 
+  sanitizeColor 
+} from '../../utils/validators/boardValidators.js';
+import { 
+  checkBoardCreationRateLimit, 
+  incrementBoardCreationAttempts 
+} from '../../utils/rateLimiters/boardRateLimiters.js';
+import { logBoardCreation } from '../../utils/loggers/boardLoggers.js';
+import { getClientIP } from '../../utils/helpers/ipHelper.js';
 
 const router = Router();
 
 router.post('/api/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const title = typeof req.body.title === 'string' ? req.body.title.trim() : '';
-  const color =
-    typeof req.body.color === 'string'
-      ? req.body.color.trim().replace(/^#/, '')
-      : '';
+  const ipAddress = getClientIP(req);
 
-  if (!title)
-    return res.status(400).json({ error: 'Название доски обязательно' });
-
-  if (!color) return res.status(400).json({ error: 'Цвет доски обязателен' });
-
-  if (!/^([0-9a-f]{3}|[0-9a-f]{6})$/i.test(color)) {
-    return res.status(400).json({ error: 'Неверный формат цвета' });
+  
+  const rateLimitCheck = checkBoardCreationRateLimit(userUuid);
+  if (rateLimitCheck.blocked) {
+    return res.status(429).json({ 
+      error: `Слишком много попыток создания досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд` 
+    });
   }
 
-  if (title.length > 64)
-    return res.status(400).json({ error: 'Название слишком длинное' });
+  
+  const rawTitle = req.body.title;
+  const rawColor = req.body.color;
+
+  if (!rawTitle || typeof rawTitle !== 'string') {
+    return res.status(400).json({ error: 'Название доски обязательно' });
+  }
+
+  if (!rawColor || typeof rawColor !== 'string') {
+    return res.status(400).json({ error: 'Цвет доски обязателен' });
+  }
+
+  
+  const titleValidation = validateBoardTitle(rawTitle);
+  if (!titleValidation.isValid) {
+    return res.status(400).json({ error: titleValidation.error });
+  }
+  const title = titleValidation.value;
+
+  
+  const color = sanitizeColor(rawColor);
+  if (!isValidColor(color)) {
+    return res.status(400).json({ error: 'Неверный формат цвета (используйте hex формат)' });
+  }
 
   try {
+    
+    const boardCount = await prisma.board.count({
+      where: { user: { uuid: userUuid } }
+    });
+
+    const MAX_BOARDS_PER_USER = 50;
+    if (boardCount >= MAX_BOARDS_PER_USER) {
+      return res.status(400).json({ 
+        error: `Достигнут лимит досок (${MAX_BOARDS_PER_USER}). Удалите некоторые доски для создания новых.` 
+      });
+    }
+
+    
     const newBoard = await prisma.board.create({
       data: {
         title,
         color,
         user: { connect: { uuid: userUuid } },
       },
+      select: {
+        uuid: true,
+        title: true,
+        color: true,
+        createdAt: true,
+        updatedAt: true,
+        isPinned: true,
+        isFavorite: true
+      }
     });
+
+    
+    incrementBoardCreationAttempts(userUuid);
+
+    
+    logBoardCreation(title, userUuid, ipAddress);
 
     return res.status(201).json({
       message: 'Доска успешно создана',
-      board: {
-        uuid: newBoard.uuid,
-        title: newBoard.title,
-        color: newBoard.color,
-        createdAt: newBoard.createdAt,
-        updatedAt: newBoard.updatedAt,
-      },
+      board: newBoard,
     });
   } catch (error) {
     if (error.code === 'P2025') {
@@ -54,10 +104,10 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
         .json({ error: 'У вас уже есть доска с таким названием' });
     }
 
-    console.error(error);
+    console.error('Ошибка при создании доски:', error);
     return res
       .status(500)
-      .json({ error: 'Внутренняя ошибка сервера. Повторите попытку позже' });
+      .json({ error: 'Произошла внутренняя ошибка сервера. Попробуйте позже' });
   }
 });
 

@@ -8,7 +8,7 @@ export function socketAuthMiddleware(socket, next) {
       return next(new Error('Unauthorized: token missing'));
     }
 
-    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET);
+    const payload = jwt.verify(token, process.env.JWT_ACCESS_SECRET, {    algorithms: ['HS256'] });
 
     if (!payload || !payload.userUuid) {
       return next(new Error('Unauthorized: invalid token payload'));
