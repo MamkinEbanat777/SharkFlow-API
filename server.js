@@ -1,9 +1,9 @@
 import http from 'http';
 import app from './app.js';
 import dotenv from 'dotenv';
-import { initSocket } from './socket/index.js';
-
 dotenv.config();
+
+import { initSocket } from './socket/index.js';
 
 if (process.env.NODE_ENV === 'production') {
   console.log = () => {};

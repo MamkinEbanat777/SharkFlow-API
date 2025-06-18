@@ -15,7 +15,37 @@ router.post('/api/auth/refresh', async (req, res) => {
       .status(401)
       .json({ message: 'Сессия истекла. Пожалуйста войдите снова' });
   }
-  const payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET);
+
+  let payload;
+  try {
+    // Проверяем JWT с явным указанием алгоритма
+    payload = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET, {
+      algorithms: ['HS256'] // Явно указываем разрешенный алгоритм
+    });
+    
+    // Валидируем UUID в payload
+    if (!payload.userUuid || typeof payload.userUuid !== 'string') {
+      return res.status(401).json({
+        message: 'Недействительный токен. Пожалуйста войдите снова',
+      });
+    }
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      return res.status(401).json({
+        message: 'Токен обновления истек. Пожалуйста войдите снова',
+      });
+    }
+    if (error instanceof jwt.JsonWebTokenError) {
+      return res.status(401).json({
+        message: 'Недействительный токен. Пожалуйста войдите снова',
+      });
+    }
+    console.error('Unexpected JWT error:', error);
+    return res.status(401).json({
+      message: 'Ошибка аутентификации. Пожалуйста войдите снова',
+    });
+  }
+
   const now = Date.now();
   try {
     const tokenRecord = await prisma.refreshToken.findUnique({
@@ -88,14 +118,6 @@ router.post('/api/auth/refresh', async (req, res) => {
       accessToken: newAccessToken,
     });
   } catch (error) {
-    if (
-      error instanceof jwt.TokenExpiredError ||
-      error instanceof jwt.JsonWebTokenError
-    ) {
-      return res.status(401).json({
-        message: 'Ваша сессия истекла. Пожалуйста войдите снова',
-      });
-    }
     console.error(error);
     return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
   }

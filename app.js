@@ -10,6 +10,12 @@ import morgan from 'morgan';
 
 const app = express();
 
+const accessLogStream = fs.createWriteStream(path.join('logs', 'access.log'), {
+  flags: 'a',
+});
+app.use(morgan('combined', { stream: accessLogStream }));
+app.use(morgan('dev'));
+
 import helmet from 'helmet';
 import hpp from 'hpp';
 import statusMonitor from 'express-status-monitor';
@@ -28,11 +34,7 @@ app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
-const accessLogStream = fs.createWriteStream(path.join('logs', 'access.log'), {
-  flags: 'a',
-});
-app.use(morgan('combined', { stream: accessLogStream }));
-app.use(morgan('dev'));
+
 const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {
   app.use(path, router);
