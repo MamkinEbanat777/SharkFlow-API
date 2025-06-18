@@ -1,4 +1,3 @@
-
 const boardCreationAttempts = new Map();
 const MAX_BOARDS_PER_MINUTE = 3;
 const RATE_LIMIT_DURATION = 60 * 1000; 
@@ -145,4 +144,15 @@ export const incrementBoardUpdateAttempts = (userUuid) => {
   setTimeout(() => {
     boardUpdateAttempts.delete(userUuid);
   }, RATE_LIMIT_DURATION);
-}; 
+};
+
+// setInterval(() => {
+//   const now = Date.now();
+//   [boardCreationAttempts, boardDeletionAttempts, boardFetchAttempts, boardUpdateAttempts].forEach(map => {
+//     for (const [key, value] of map.entries()) {
+//       if (value.resetTime && value.resetTime < now) {
+//         map.delete(key);
+//       }
+//     }
+//   });
+// }, 10 * 60 * 1000); 
