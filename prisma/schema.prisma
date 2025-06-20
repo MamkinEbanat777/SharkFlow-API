@@ -51,19 +51,18 @@ model Board {
 model Task {
   id          Int       @id @default(autoincrement())
   uuid        String    @unique @default(uuid()) @db.Uuid
-  title       String    @unique @db.VarChar(64)
-  color       String    @default("FFFFFF") @db.VarChar(6)
+  title       String    @db.VarChar(64)
   description String?   @db.Text
-  completed   Boolean   @default(false)
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
-  dueDate     DateTime? 
-  priority    Int       @default(0) 
+  dueDate     DateTime?
+  priority    Priority  @default(MEDIUM)
   status      Status    @default(PENDING)
 
   boardId Int
   board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
+  @@unique([boardId, title])
   @@map("tasks")
 }
 
@@ -89,4 +88,10 @@ enum Status {
   IN_PROGRESS
   COMPLETED
   CANCELLED
+}
+
+enum Priority {
+  LOW
+  MEDIUM
+  HIGH
 }

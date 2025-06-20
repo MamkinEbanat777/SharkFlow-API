@@ -1,14 +1,14 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { 
-  validateBoardTitle, 
-  isValidColor, 
-  sanitizeColor 
+import {
+  validateBoardTitle,
+  isValidColor,
+  sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
-import { 
-  checkBoardCreationRateLimit, 
-  incrementBoardCreationAttempts 
+import {
+  checkBoardCreationRateLimit,
+  incrementBoardCreationAttempts,
 } from '../../utils/rateLimiters/boardRateLimiters.js';
 import { logBoardCreation } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
@@ -19,15 +19,13 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 
-  
   const rateLimitCheck = checkBoardCreationRateLimit(userUuid);
   if (rateLimitCheck.blocked) {
-    return res.status(429).json({ 
-      error: `Слишком много попыток создания досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд` 
+    return res.status(429).json({
+      error: `Слишком много попыток создания досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
     });
   }
 
-  
   const rawTitle = req.body.title;
   const rawColor = req.body.color;
 
@@ -39,33 +37,31 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Цвет доски обязателен' });
   }
 
-  
   const titleValidation = validateBoardTitle(rawTitle);
   if (!titleValidation.isValid) {
     return res.status(400).json({ error: titleValidation.error });
   }
   const title = titleValidation.value;
 
-  
   const color = sanitizeColor(rawColor);
   if (!isValidColor(color)) {
-    return res.status(400).json({ error: 'Неверный формат цвета (используйте hex формат)' });
+    return res
+      .status(400)
+      .json({ error: 'Неверный формат цвета (используйте hex формат)' });
   }
 
   try {
-    
     const boardCount = await prisma.board.count({
-      where: { user: { uuid: userUuid } }
+      where: { user: { uuid: userUuid } },
     });
 
-    const MAX_BOARDS_PER_USER = 50;
+    const MAX_BOARDS_PER_USER = 100;
     if (boardCount >= MAX_BOARDS_PER_USER) {
-      return res.status(400).json({ 
-        error: `Достигнут лимит досок (${MAX_BOARDS_PER_USER}). Удалите некоторые доски для создания новых.` 
+      return res.status(400).json({
+        error: `Достигнут лимит досок (${MAX_BOARDS_PER_USER}). Удалите некоторые доски для создания новых.`,
       });
     }
 
-    
     const newBoard = await prisma.board.create({
       data: {
         title,
@@ -79,14 +75,12 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
         createdAt: true,
         updatedAt: true,
         isPinned: true,
-        isFavorite: true
-      }
+        isFavorite: true,
+      },
     });
 
-    
     incrementBoardCreationAttempts(userUuid);
 
-    
     logBoardCreation(title, userUuid, ipAddress);
 
     return res.status(201).json({

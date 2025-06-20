@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { 
-  checkBoardFetchRateLimit, 
-  incrementBoardFetchAttempts 
+import {
+  checkBoardFetchRateLimit,
+  incrementBoardFetchAttempts,
 } from '../../utils/rateLimiters/boardRateLimiters.js';
 import { validatePaginationParams } from '../../utils/validators/boardValidators.js';
 import { logBoardFetch } from '../../utils/loggers/boardLoggers.js';
@@ -15,28 +15,27 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 
-  
   const rateLimitCheck = checkBoardFetchRateLimit(userUuid);
   if (rateLimitCheck.blocked) {
-    return res.status(429).json({ 
-      error: `Слишком много запросов. Попробуйте через ${rateLimitCheck.timeLeft} секунд` 
+    return res.status(429).json({
+      error: `Слишком много запросов. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
     });
   }
 
-  
-  const { page, limit } = validatePaginationParams(req.query.page, req.query.limit);
+  const { page, limit } = validatePaginationParams(
+    req.query.page,
+    req.query.limit,
+  );
   const offset = (page - 1) * limit;
 
   try {
-    
     const [boards, totalBoards] = await Promise.all([
-      
       prisma.board.findMany({
         where: { user: { uuid: userUuid } },
         orderBy: [
           { isPinned: 'desc' },
           { isFavorite: 'desc' },
-          { updatedAt: 'desc' }
+          { updatedAt: 'desc' },
         ],
         skip: offset,
         take: limit,
@@ -50,30 +49,27 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
           isFavorite: true,
           _count: {
             select: {
-              tasks: true
-            }
-          }
-        }
+              tasks: true,
+            },
+          },
+        },
       }),
-      
+
       prisma.board.count({
-        where: { user: { uuid: userUuid } }
-      })
+        where: { user: { uuid: userUuid } },
+      }),
     ]);
 
-    
     incrementBoardFetchAttempts(userUuid);
 
-    
     logBoardFetch(boards.length, totalBoards, userUuid, ipAddress);
 
-    
     const totalPages = Math.ceil(totalBoards / limit);
     const hasNextPage = page < totalPages;
     const hasPrevPage = page > 1;
 
     res.json({
-      boards: boards.map(board => ({
+      boards: boards.map((board) => ({
         uuid: board.uuid,
         title: board.title,
         color: board.color,
@@ -81,7 +77,7 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
         updatedAt: board.updatedAt,
         isPinned: board.isPinned,
         isFavorite: board.isFavorite,
-        taskCount: board._count.tasks
+        taskCount: board._count.tasks,
       })),
       pagination: {
         currentPage: page,
@@ -89,8 +85,8 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
         totalBoards,
         hasNextPage,
         hasPrevPage,
-        limit
-      }
+        limit,
+      },
     });
   } catch (error) {
     console.error('Ошибка при загрузке досок:', error);
