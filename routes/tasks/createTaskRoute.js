@@ -58,6 +58,8 @@ router.post(
       return res.status(400).json({ error: 'Название задачи обязательно' });
     }
 
+    console.log(rawTitle);
+
     const titleValidation = validateTaskTitle(rawTitle);
     if (!titleValidation.isValid) {
       return res.status(400).json({ error: titleValidation.error });

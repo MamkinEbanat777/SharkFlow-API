@@ -24,7 +24,7 @@ export const validateTaskTitle = (title) => {
 
   const sanitized = sanitizeInput(title);
   if (sanitized.length < 1) {
-    return { isValid: false, error: 'Название доски не может быть пустым' };
+    return { isValid: false, error: 'Название задачи не может быть пустым' };
   }
 
   if (sanitized.length > 64) {
