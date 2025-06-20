@@ -49,10 +49,10 @@ router.post(
     }
 
     const rawTitle = req.body.title;
-    const rawDueDate = req.body.dueDate;
+    const rawDueDate = req.body.dueDate?.trim() || null;
     const rawdescription = req.body.description;
-    const rawPriority = req.body.priority;
-    const rawStatus = req.body.status;
+    const rawPriority = req.body.priority?.trim() || null;
+    const rawStatus = req.body.status?.trim() || null;
 
     if (!rawTitle || typeof rawTitle !== 'string') {
       return res.status(400).json({ error: 'Название задачи обязательно' });
@@ -64,17 +64,38 @@ router.post(
     }
     const title = titleValidation.value;
 
-    if (rawDueDate && isNaN(Date.parse(rawDueDate))) {
-      return res.status(400).json({ error: 'Некорректная дата дедлайна' });
-    }
+    const dueDate =
+      rawDueDate && !isNaN(Date.parse(rawDueDate))
+        ? new Date(rawDueDate)
+        : rawDueDate === null
+        ? null
+        : (() => {
+            return res
+              .status(400)
+              .json({ error: 'Некорректная дата дедлайна' });
+          })();
 
-    if (!Object.values(Priority).includes(rawPriority)) {
-      return res.status(400).json({ error: 'Недопустимый приоритет задачи' });
-    }
+    const priority =
+      rawPriority && Object.values(Priority).includes(rawPriority)
+        ? rawPriority
+        : rawPriority === null
+        ? null
+        : (() => {
+            return res
+              .status(400)
+              .json({ error: 'Недопустимый приоритет задачи' });
+          })();
 
-    if (!Object.values(Status).includes(rawStatus)) {
-      return res.status(400).json({ error: 'Недопустимый статус задачи' });
-    }
+    const status =
+      rawStatus && Object.values(Status).includes(rawStatus)
+        ? rawStatus
+        : rawStatus === null
+        ? null
+        : (() => {
+            return res
+              .status(400)
+              .json({ error: 'Недопустимый статус задачи' });
+          })();
 
     try {
       const taskCount = await prisma.task.count({
@@ -92,9 +113,9 @@ router.post(
         data: {
           title,
           description: rawdescription ?? '',
-          dueDate: rawDueDate ? new Date(rawDueDate) : null,
-          priority: rawPriority,
-          status: rawStatus,
+          dueDate,
+          priority,
+          status,
           board: { connect: { uuid: boardUuid } },
         },
         select: {
