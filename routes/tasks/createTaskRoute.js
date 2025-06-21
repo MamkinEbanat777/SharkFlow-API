@@ -8,7 +8,7 @@ import {
 import {
   checkTaskCreationRateLimit,
   incrementTaskCreationAttempts,
-} from '../../utils/rateLimiters/taskRateLimiters';
+} from '../../utils/rateLimiters/taskRateLimiters.js';
 import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
 import { Priority, Status } from '@prisma/client';

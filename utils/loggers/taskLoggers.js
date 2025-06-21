@@ -3,8 +3,8 @@ export const logTaskCreation = (title, userUuid, ipAddress) => {
   console.log(`Task created: "${title}" by user ${userUuid} from IP: ${ipAddress}`);
 };
 
-export const logTaskDeletion = (title, taskCount, userUuid, ipAddress) => {
-  console.log(`Task deleted: "${title}" (${taskCount} tasks) by user ${userUuid} from IP: ${ipAddress}`);
+export const logTaskDeletion = (title, userUuid, ipAddress) => {
+  console.log(`Task deleted: "${title}" by user ${userUuid} from IP: ${ipAddress}`);
 };
 
 export const logTaskUpdate = (title, changes, userUuid, ipAddress) => {

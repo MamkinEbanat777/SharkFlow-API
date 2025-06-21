@@ -2,21 +2,21 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import {
-  checkBoardDeletionRateLimit,
-  incrementBoardDeletionAttempts,
-} from '../../utils/rateLimiters/boardRateLimiters.js';
-import { logBoardDeletion } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import {
+  checkTaskDeletionRateLimit,
+  incrementTaskDeletionAttempts,
+} from '../../utils/rateLimiters/taskRateLimiters.js';
+import { logTaskDeletion } from '../../utils/loggers/taskLoggers.js';
 
 const router = Router();
 
 router.delete(
-  '/api/boards/:boardUuid',
+  '/api/boards/:boardUuid/tasks/:taskUuid',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const { boardUuid } = req.params;
+    const { boardUuid, taskUuid } = req.params;
     const ipAddress = getClientIP(req);
 
     if (!isValidUUID(boardUuid)) {
@@ -25,60 +25,56 @@ router.delete(
         .json({ error: 'Неверный формат идентификатора доски' });
     }
 
-    const rateLimitCheck = checkBoardDeletionRateLimit(userUuid);
+    if (!isValidUUID(taskUuid)) {
+      return res
+        .status(400)
+        .json({ error: 'Неверный формат идентификатора задачи' });
+    }
+
+    const rateLimitCheck = checkTaskDeletionRateLimit(userUuid);
     if (rateLimitCheck.blocked) {
       return res.status(429).json({
-        error: `Слишком много попыток удаления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
+        error: `Слишком много попыток удаления задач. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
       });
     }
 
     try {
-      const boardToDelete = await prisma.board.findFirst({
+      const taskToDelete = await prisma.task.findFirst({
         where: {
-          uuid: boardUuid,
-          user: { uuid: userUuid },
-        },
-        select: {
-          id: true,
-          uuid: true,
-          title: true,
-          _count: {
-            select: {
-              tasks: true,
+          uuid: taskUuid,
+          board: {
+            uuid: boardUuid,
+            user: {
+              uuid: userUuid,
             },
           },
         },
+        select: { id: true, title: true },
       });
-
-      if (!boardToDelete) {
+      if (!taskToDelete) {
         return res
           .status(404)
-          .json({ error: 'Доска не найдена или доступ запрещён' });
+          .json({ error: 'Задача не найдена или доступ запрещён' });
       }
 
-      const taskCount = boardToDelete._count.tasks;
+      incrementTaskDeletionAttempts(userUuid);
 
-      await prisma.board.delete({
-        where: { id: boardToDelete.id },
+      await prisma.task.delete({
+        where: { id: taskToDelete.id },
       });
 
-      incrementBoardDeletionAttempts(userUuid);
+      logTaskDeletion(taskToDelete.title, userUuid, ipAddress);
 
-      logBoardDeletion(boardToDelete.title, taskCount, userUuid, ipAddress);
-
-      return res.status(200).json({
-        deletedBoard: {
-          title: boardToDelete.title,
-          tasksRemoved: taskCount,
-        },
-      });
+      return res
+        .status(200)
+        .json({ deletedTask: { title: taskToDelete.title } });
     } catch (error) {
-      console.error('Ошибка при удалении доски:', error);
+      console.error('Ошибка при удалении задачи:', error);
 
       if (error.code === 'P2025') {
         return res
           .status(404)
-          .json({ error: 'Доска не найдена или доступ запрещён' });
+          .json({ error: 'Задача не найдена или доступ запрещён' });
       }
 
       return res

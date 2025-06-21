@@ -1,124 +1,144 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { 
-  isValidUUID, 
-  validateBoardTitle, 
-  isValidColor, 
-  sanitizeColor 
-} from '../../utils/validators/boardValidators.js';
-import { 
-  checkBoardUpdateRateLimit, 
-  incrementBoardUpdateAttempts 
-} from '../../utils/rateLimiters/boardRateLimiters.js';
-import { logBoardUpdate } from '../../utils/loggers/boardLoggers.js';
+import { isValidUUID } from '../../utils/validators/boardValidators.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import {
+  checkTaskUpdateRateLimit,
+  incrementTaskUpdateAttempts,
+} from '../../utils/rateLimiters/taskRateLimiters.js';
+import { logTaskUpdate } from '../../utils/loggers/taskLoggers.js';
+import { Priority, Status } from '@prisma/client';
 
 const router = Router();
 
 router.patch(
-  '/api/boards/:boardUuid',
+  '/api/boards/:boardUuid/tasks/:taskUuid',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const { boardUuid } = req.params;
+    const { boardUuid, taskUuid } = req.params;
     const ipAddress = getClientIP(req);
 
     if (!isValidUUID(boardUuid)) {
-      return res.status(400).json({ error: 'Неверный формат идентификатора доски' });
+      return res.status(400).json({ error: 'Неверный UUID доски' });
+    }
+    if (!isValidUUID(taskUuid)) {
+      return res.status(400).json({ error: 'Неверный UUID задачи' });
     }
 
-    const rateLimitCheck = checkBoardUpdateRateLimit(userUuid);
+    const rateLimitCheck = checkTaskUpdateRateLimit(userUuid);
     if (rateLimitCheck.blocked) {
-      return res.status(429).json({ 
-        error: `Слишком много попыток обновления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд` 
+      return res.status(429).json({
+        error: `Слишком много попыток обновления задач. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
       });
     }
 
-    let { title, color, isPinned, isFavorite } = req.body;
+    const { title, dueDate, description, priority, status } = req.body;
     const dataToUpdate = {};
 
     try {
       if (title !== undefined) {
         if (typeof title !== 'string') {
-          return res.status(400).json({ error: 'Название должно быть строкой' });
+          return res
+            .status(400)
+            .json({ error: 'Название должен быть строкой' });
         }
-        
-        const titleValidation = validateBoardTitle(title);
-        if (!titleValidation.isValid) {
-          return res.status(400).json({ error: titleValidation.error });
+        if (title.length === 0 || title.length > 64) {
+          return res.status(400).json({
+            error: 'Название должно быть не более 64 символов',
+          });
         }
-        dataToUpdate.title = titleValidation.value;
+        dataToUpdate.title = title.trim();
       }
 
-      if (color !== undefined) {
-        if (typeof color !== 'string') {
-          return res.status(400).json({ error: 'Цвет должен быть строкой' });
+      if (dueDate !== undefined) {
+        const d = new Date(dueDate);
+        if (isNaN(d.valueOf())) {
+          return res
+            .status(400)
+            .json({ error: 'Дедлайн должен быть валидной датой' });
         }
-        
-        const sanitizedColor = sanitizeColor(color);
-        if (!isValidColor(sanitizedColor)) {
-          return res.status(400).json({ error: 'Неверный формат цвета (используйте hex формат)' });
-        }
-        dataToUpdate.color = sanitizedColor;
+        dataToUpdate.dueDate = d;
       }
 
-      if (isPinned !== undefined) {
-        if (typeof isPinned !== 'boolean') {
-          return res.status(400).json({ error: 'Поле isPinned должно быть boolean' });
+      if (description !== undefined) {
+        if (typeof description !== 'string') {
+          return res
+            .status(400)
+            .json({ error: 'Описание должно быть строкой' });
         }
-        dataToUpdate.isPinned = isPinned;
+        dataToUpdate.description = description.trim();
       }
 
-      if (isFavorite !== undefined) {
-        if (typeof isFavorite !== 'boolean') {
-          return res.status(400).json({ error: 'Поле isFavorite должно быть boolean' });
+      if (priority !== undefined) {
+        if (priority !== null && !Object.values(Priority).includes(priority)) {
+          return res.status(400).json({
+            error: `Приоритет должен быть одним из: ${Object.values(
+              Priority,
+            ).join(', ')}`,
+          });
         }
-        dataToUpdate.isFavorite = isFavorite;
+        dataToUpdate.priority = priority;
+      }
+
+      if (status !== undefined) {
+        if (status !== null && !Object.values(Status).includes(status)) {
+          return res.status(400).json({
+            error: `Статус должен быть одним из: ${Object.values(Status).join(
+              ', ',
+            )}`,
+          });
+        }
+        dataToUpdate.status = status;
       }
 
       if (Object.keys(dataToUpdate).length === 0) {
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const updatedBoard = await prisma.board.updateMany({
+      const result = await prisma.task.updateMany({
         where: {
-          uuid: boardUuid,
-          user: { uuid: userUuid },
+          uuid: taskUuid,
+          board: {
+            uuid: boardUuid,
+            user: { uuid: userUuid },
+          },
         },
         data: dataToUpdate,
       });
 
-      if (updatedBoard.count === 0) {
-        return res.status(404).json({
-          error: 'Доска не найдена или не принадлежит пользователю',
-        });
+      if (result.count === 0) {
+        return res
+          .status(404)
+          .json({ error: 'Задача не найдена или доступ запрещён' });
       }
 
-      incrementBoardUpdateAttempts(userUuid);
-
-      logBoardUpdate('Board', dataToUpdate, userUuid, ipAddress);
+      incrementTaskUpdateAttempts(userUuid);
+      logTaskUpdate(taskUuid, dataToUpdate, userUuid, ipAddress);
 
       res.status(200).json({
-        message: 'Доска успешно обновлена',
+        message: 'Задача успешно обновлена',
         updated: {
-          uuid: boardUuid,
-          ...dataToUpdate
+          uuid: taskUuid,
+          ...dataToUpdate,
         },
       });
     } catch (error) {
       if (error.code === 'P2002') {
         return res
           .status(409)
-          .json({ error: 'У вас уже есть доска с таким названием' });
+          .json({ error: 'У вас уже есть задача с таким названием' });
       }
       if (error.code === 'P2025') {
         return res
           .status(404)
-          .json({ error: 'Доска не найдена или доступ запрещён' });
+          .json({ error: 'Задача не найдена или доступ запрещён' });
       }
-      console.error('Ошибка обновления доски:', error);
-      return res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
+      console.error('Ошибка обновления задачи:', error);
+      return res
+        .status(500)
+        .json({ error: 'Произошла внутренняя ошибка сервера' });
     }
   },
 );

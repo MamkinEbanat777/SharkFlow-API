@@ -5,7 +5,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 import {
   checkTaskFetchRateLimit,
   incrementTaskFetchAttempts,
-} from '../../utils/rateLimiters/taskRateLimiters';
+} from '../../utils/rateLimiters/taskRateLimiters.js';
 
 import { logTaskFetch } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
