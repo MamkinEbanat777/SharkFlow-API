@@ -5,7 +5,7 @@ import {
   checkBoardFetchRateLimit,
   incrementBoardFetchAttempts,
 } from '../../utils/rateLimiters/boardRateLimiters.js';
-import { validatePaginationParams } from '../../utils/validators/boardValidators.js';
+// import { validatePaginationParams } from '../../utils/validators/boardValidators.js';
 import { logBoardFetch } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
 
@@ -22,11 +22,11 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
     });
   }
 
-  const { page, limit } = validatePaginationParams(
-    req.query.page,
-    req.query.limit,
-  );
-  const offset = (page - 1) * limit;
+  // const { page, limit } = validatePaginationParams(
+  //   req.query.page,
+  //   req.query.limit,
+  // );
+  // const offset = (page - 1) * limit;
 
   try {
     const [boards, totalBoards] = await Promise.all([
@@ -37,8 +37,8 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
           { isFavorite: 'desc' },
           { updatedAt: 'desc' },
         ],
-        skip: offset,
-        take: limit,
+        // skip: offset,
+        // take: limit,
         select: {
           uuid: true,
           title: true,
@@ -64,9 +64,9 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
 
     logBoardFetch(boards.length, totalBoards, userUuid, ipAddress);
 
-    const totalPages = Math.ceil(totalBoards / limit);
-    const hasNextPage = page < totalPages;
-    const hasPrevPage = page > 1;
+    // const totalPages = Math.ceil(totalBoards / limit);
+    // const hasNextPage = page < totalPages;
+    // const hasPrevPage = page > 1;
 
     res.json({
       boards: boards.map((board) => ({
@@ -79,14 +79,14 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
         isFavorite: board.isFavorite,
         taskCount: board._count.tasks,
       })),
-      pagination: {
-        currentPage: page,
-        totalPages,
-        totalBoards,
-        hasNextPage,
-        hasPrevPage,
-        limit,
-      },
+      // pagination: {
+      //   currentPage: page,
+      //   totalPages,
+      //   totalBoards,
+      //   hasNextPage,
+      //   hasPrevPage,
+      //   limit,
+      // },
     });
   } catch (error) {
     console.error('Ошибка при загрузке досок:', error);
