@@ -12,7 +12,7 @@ const transporter = nodemailer.createTransport({
 export async function sendEmail({ to, subject, text = '', html }) {
   try {
     const info = await transporter.sendMail({
-      from: `"TaskFlow" ${process.env.MAIL_USER}`,
+      from: `"SharkFlow" ${process.env.MAIL_USER}`,
       to,
       subject,
       text,

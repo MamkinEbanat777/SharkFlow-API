@@ -3,10 +3,10 @@ import { sendEmail } from './mailer.js';
 
 export async function sendConfirmationEmail({ to, type, confirmationCode }) {
   const subjectMap = {
-    registration: 'Добро пожаловать в TaskFlow!',
-    passwordReset: 'Сброс пароля в TaskFlow',
-    deleteUser: 'Удаление аккаунта TaskFlow',
-    updateUser: 'Обновление данных аккаунта TaskFlow',
+    registration: 'Добро пожаловать в SharkFlow!',
+    passwordReset: 'Сброс пароля в SharkFlow',
+    deleteUser: 'Удаление аккаунта SharkFlow',
+    updateUser: 'Обновление данных аккаунта SharkFlow',
     emailChange: 'Подтверждение нового email',
   };
 
