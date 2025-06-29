@@ -23,7 +23,7 @@ import statusMonitor from 'express-status-monitor';
 app.use(helmet());
 app.use(hpp());
 app.use(corsMiddleware);
-app.options('*', corsMiddleware);
+// app.options('*', corsMiddleware);
 
 // if (process.env.NODE_ENV === 'production') {
 //   app.use('/', limiterMiddleware);
