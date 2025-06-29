@@ -1,7 +1,7 @@
 import express from 'express';
 import compression from 'compression';
 import corsMiddleware from './middlewares/http/corsMiddleware.js';
-import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
+// import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
 import loadRoutes from './utils/routesLoader/loadRoutes.js';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
