@@ -132,6 +132,10 @@ router.post(
         },
       });
 
+      const updatedTaskCount = await prisma.task.count({
+        where: { board: { uuid: boardUuid } },
+      });
+
       incrementTaskCreationAttempts(userUuid);
 
       logTaskCreation(title, userUuid, ipAddress);
@@ -139,6 +143,7 @@ router.post(
       return res.status(201).json({
         message: 'Задача успешно создана',
         task: newTask,
+        taskCount: updatedTaskCount,
       });
     } catch (error) {
       if (error.code === 'P2025') {
