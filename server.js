@@ -8,7 +8,7 @@ import { initSocket } from './socket/index.js';
 if (process.env.NODE_ENV === 'production') {
   console.log = () => {};
   console.debug = () => {};
-  console.info = () => {};
+  // console.info = () => {};
   // console.warn = () => {};
 } 
 
