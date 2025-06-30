@@ -42,6 +42,7 @@ router.delete(
       const taskToDelete = await prisma.task.findFirst({
         where: {
           uuid: taskUuid,
+          isDeleted: false,
           board: {
             uuid: boardUuid,
             user: {
@@ -59,8 +60,12 @@ router.delete(
 
       incrementTaskDeletionAttempts(userUuid);
 
-      await prisma.task.delete({
+      await prisma.task.update({
         where: { id: taskToDelete.id },
+        data: {
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
       });
 
       logTaskDeletion(taskToDelete.title, userUuid, ipAddress);

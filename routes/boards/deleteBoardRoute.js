@@ -2,9 +2,9 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import { 
-  checkBoardDeletionRateLimit, 
-  incrementBoardDeletionAttempts 
+import {
+  checkBoardDeletionRateLimit,
+  incrementBoardDeletionAttempts,
 } from '../../utils/rateLimiters/boardRateLimiters.js';
 import { logBoardDeletion } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
@@ -19,21 +19,20 @@ router.delete(
     const { boardUuid } = req.params;
     const ipAddress = getClientIP(req);
 
-    
     if (!isValidUUID(boardUuid)) {
-      return res.status(400).json({ error: 'Неверный формат идентификатора доски' });
+      return res
+        .status(400)
+        .json({ error: 'Неверный формат идентификатора доски' });
     }
 
-    
     const rateLimitCheck = checkBoardDeletionRateLimit(userUuid);
     if (rateLimitCheck.blocked) {
-      return res.status(429).json({ 
-        error: `Слишком много попыток удаления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд` 
+      return res.status(429).json({
+        error: `Слишком много попыток удаления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
       });
     }
 
     try {
-      
       const boardToDelete = await prisma.board.findFirst({
         where: {
           uuid: boardUuid,
@@ -45,10 +44,10 @@ router.delete(
           title: true,
           _count: {
             select: {
-              tasks: true
-            }
-          }
-        }
+              tasks: true,
+            },
+          },
+        },
       });
 
       if (!boardToDelete) {
@@ -57,25 +56,23 @@ router.delete(
           .json({ error: 'Доска не найдена или доступ запрещён' });
       }
 
-      
       const taskCount = boardToDelete._count.tasks;
-      
-      await prisma.board.delete({
-        where: { id: boardToDelete.id }
+
+      await prisma.board.update({
+        where: { id: boardToDelete.id },
+        data: { isDeleted: true },
       });
 
-      
       incrementBoardDeletionAttempts(userUuid);
 
-      
       logBoardDeletion(boardToDelete.title, taskCount, userUuid, ipAddress);
 
-      return res.status(200).json({ 
+      return res.status(200).json({
         message: 'Доска успешно удалена',
         deletedBoard: {
           title: boardToDelete.title,
-          tasksRemoved: taskCount
-        }
+          tasksRemoved: taskCount,
+        },
       });
     } catch (error) {
       console.error('Ошибка при удалении доски:', error);
@@ -86,7 +83,9 @@ router.delete(
           .json({ error: 'Доска не найдена или доступ запрещён' });
       }
 
-      return res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
+      return res
+        .status(500)
+        .json({ error: 'Произошла внутренняя ошибка сервера' });
     }
   },
 );

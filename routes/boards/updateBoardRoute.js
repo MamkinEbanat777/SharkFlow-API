@@ -1,15 +1,15 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { 
-  isValidUUID, 
-  validateBoardTitle, 
-  isValidColor, 
-  sanitizeColor 
+import {
+  isValidUUID,
+  validateBoardTitle,
+  isValidColor,
+  sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
-import { 
-  checkBoardUpdateRateLimit, 
-  incrementBoardUpdateAttempts 
+import {
+  checkBoardUpdateRateLimit,
+  incrementBoardUpdateAttempts,
 } from '../../utils/rateLimiters/boardRateLimiters.js';
 import { logBoardUpdate } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
@@ -25,13 +25,15 @@ router.patch(
     const ipAddress = getClientIP(req);
 
     if (!isValidUUID(boardUuid)) {
-      return res.status(400).json({ error: 'Неверный формат идентификатора доски' });
+      return res
+        .status(400)
+        .json({ error: 'Неверный формат идентификатора доски' });
     }
 
     const rateLimitCheck = checkBoardUpdateRateLimit(userUuid);
     if (rateLimitCheck.blocked) {
-      return res.status(429).json({ 
-        error: `Слишком много попыток обновления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд` 
+      return res.status(429).json({
+        error: `Слишком много попыток обновления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
       });
     }
 
@@ -41,9 +43,11 @@ router.patch(
     try {
       if (title !== undefined) {
         if (typeof title !== 'string') {
-          return res.status(400).json({ error: 'Название должно быть строкой' });
+          return res
+            .status(400)
+            .json({ error: 'Название должно быть строкой' });
         }
-        
+
         const titleValidation = validateBoardTitle(title);
         if (!titleValidation.isValid) {
           return res.status(400).json({ error: titleValidation.error });
@@ -55,24 +59,30 @@ router.patch(
         if (typeof color !== 'string') {
           return res.status(400).json({ error: 'Цвет должен быть строкой' });
         }
-        
+
         const sanitizedColor = sanitizeColor(color);
         if (!isValidColor(sanitizedColor)) {
-          return res.status(400).json({ error: 'Неверный формат цвета (используйте hex формат)' });
+          return res
+            .status(400)
+            .json({ error: 'Неверный формат цвета (используйте hex формат)' });
         }
         dataToUpdate.color = sanitizedColor;
       }
 
       if (isPinned !== undefined) {
         if (typeof isPinned !== 'boolean') {
-          return res.status(400).json({ error: 'Поле isPinned должно быть boolean' });
+          return res
+            .status(400)
+            .json({ error: 'Поле isPinned должно быть boolean' });
         }
         dataToUpdate.isPinned = isPinned;
       }
 
       if (isFavorite !== undefined) {
         if (typeof isFavorite !== 'boolean') {
-          return res.status(400).json({ error: 'Поле isFavorite должно быть boolean' });
+          return res
+            .status(400)
+            .json({ error: 'Поле isFavorite должно быть boolean' });
         }
         dataToUpdate.isFavorite = isFavorite;
       }
@@ -83,6 +93,7 @@ router.patch(
 
       const updatedBoard = await prisma.board.updateMany({
         where: {
+          isDeleted: false,
           uuid: boardUuid,
           user: { uuid: userUuid },
         },
@@ -103,7 +114,7 @@ router.patch(
         message: 'Доска успешно обновлена',
         updated: {
           uuid: boardUuid,
-          ...dataToUpdate
+          ...dataToUpdate,
         },
       });
     } catch (error) {
@@ -118,7 +129,9 @@ router.patch(
           .json({ error: 'Доска не найдена или доступ запрещён' });
       }
       console.error('Ошибка обновления доски:', error);
-      return res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
+      return res
+        .status(500)
+        .json({ error: 'Произошла внутренняя ошибка сервера' });
     }
   },
 );

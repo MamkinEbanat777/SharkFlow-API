@@ -100,6 +100,7 @@ router.patch(
       const result = await prisma.task.updateMany({
         where: {
           uuid: taskUuid,
+          isDeleted: false,
           board: {
             uuid: boardUuid,
             user: { uuid: userUuid },

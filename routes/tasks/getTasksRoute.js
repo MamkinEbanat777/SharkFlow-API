@@ -31,6 +31,7 @@ router.get(
       const [tasks, totalTasks] = await Promise.all([
         prisma.task.findMany({
           where: {
+            isDeleted: false,
             board: {
               uuid: boardUuid,
               user: { uuid: userUuid },

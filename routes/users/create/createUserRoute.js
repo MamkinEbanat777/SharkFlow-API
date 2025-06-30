@@ -6,7 +6,10 @@ import {
   getRegistrationData,
   deleteRegistrationData,
 } from '../../../store/registrationStore.js';
-import { logRegistrationSuccess, logRegistrationFailure } from '../../../utils/loggers/authLoggers.js';
+import {
+  logRegistrationSuccess,
+  logRegistrationFailure,
+} from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
@@ -16,16 +19,16 @@ router.post(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode } = req.body;
-    const uuid = req.cookies.sd_f93j8f___;
+    const regUuid = req.cookies.sd_f93j8f___;
+    const guestUuid = req.cookies.log___sf_21s_t1;
     const ipAddress = getClientIP(req);
-    
+
     try {
-      if (!uuid) {
+      if (!regUuid) {
         return res.status(400).json({ error: 'Регистрация не найдена' });
       }
 
-      const storedData = getRegistrationData(uuid);
-
+      const storedData = getRegistrationData(regUuid);
       if (!storedData) {
         return res.status(400).json({ error: 'Код истёк или не найден' });
       }
@@ -42,17 +45,51 @@ router.post(
         return res.status(400).json({ error: 'Неверный код' });
       }
 
-      const newUser = await prisma.user.create({
-        data: { email, login, password: hashedPassword },
+      let userRecord;
+
+      if (guestUuid) {
+        const existingGuest = await prisma.user.findUnique({
+          where: { uuid: guestUuid },
+        });
+
+        if (existingGuest && existingGuest.role === 'guest') {
+          userRecord = await prisma.user.update({
+            where: { uuid: guestUuid },
+            data: {
+              email,
+              login,
+              password: hashedPassword,
+              role: 'user',
+            },
+          });
+        }
+      }
+
+      if (!userRecord) {
+        userRecord = await prisma.user.create({
+          data: {
+            email,
+            login,
+            password: hashedPassword,
+            role: 'user',
+          },
+        });
+      }
+
+      await prisma.refreshToken.deleteMany({
+        where: {
+          userId: userRecord.id,
+          revoked: false,
+        },
       });
 
-      deleteRegistrationData(uuid);
-      
-      logRegistrationSuccess(email, newUser.id, ipAddress);
-      
+      deleteRegistrationData(regUuid);
+
+      logRegistrationSuccess(email, userRecord.id, ipAddress);
+
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
-        userId: newUser.id,
+        // userId: userRecord.id,
       });
     } catch (error) {
       console.error('Ошибка при регистрации:', error);

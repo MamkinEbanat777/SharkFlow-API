@@ -3,8 +3,15 @@ import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
-import { validateRefreshToken, isTokenExpired, shouldRotateToken } from '../../../utils/validators/jwtValidators.js';
-import { logTokenRefresh, logTokenRefreshFailure } from '../../../utils/loggers/authLoggers.js';
+import {
+  validateRefreshToken,
+  isTokenExpired,
+  shouldRotateToken,
+} from '../../../utils/validators/jwtValidators.js';
+import {
+  logTokenRefresh,
+  logTokenRefreshFailure,
+} from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
@@ -30,14 +37,15 @@ router.post('/api/auth/refresh', async (req, res) => {
         userId: true,
         expiresAt: true,
         revoked: true,
-        rememberMe: true
-      }
+        rememberMe: true,
+      },
     });
 
     if (!tokenRecord || tokenRecord.revoked) {
       logTokenRefreshFailure(userUuid, ipAddress, 'Token revoked or not found');
       return res.status(401).json({
-        message: 'Ваша сессия была завершена. Пожалуйста, войдите в систему заново',
+        message:
+          'Ваша сессия была завершена. Пожалуйста, войдите в систему заново',
       });
     }
 
@@ -47,9 +55,9 @@ router.post('/api/auth/refresh', async (req, res) => {
         data: { revoked: true },
       });
       logTokenRefreshFailure(userUuid, ipAddress, 'Token expired');
-      return res
-        .status(401)
-        .json({ message: 'Ваша сессия истекла. Пожалуйста, войдите в систему заново' });
+      return res.status(401).json({
+        message: 'Ваша сессия истекла. Пожалуйста, войдите в систему заново',
+      });
     }
 
     let newRefreshToken = refreshToken;
@@ -61,11 +69,11 @@ router.post('/api/auth/refresh', async (req, res) => {
         prisma.refreshToken.update({
           where: { id: tokenRecord.id },
           data: { revoked: true },
-        })
+        }),
       ]);
 
       newRefreshToken = newToken;
-      
+
       await prisma.refreshToken.create({
         data: {
           token: newRefreshToken,
@@ -94,17 +102,30 @@ router.post('/api/auth/refresh', async (req, res) => {
       );
     }
 
-    const newAccessToken = createAccessToken(userUuid);
+    const user = await prisma.user.findUnique({
+      where: { uuid: userUuid },
+      select: { role: true },
+    });
+
+    if (!user) {
+      return res.status(401).json({ message: 'Пользователь не найден' });
+    }
+
+    const newAccessToken = createAccessToken(userUuid, user.role);
 
     logTokenRefresh(userUuid, ipAddress, rotated);
 
     res.status(200).json({
       accessToken: newAccessToken,
+      uuid: userUuid,
+      role: user.role,
     });
   } catch (error) {
     console.error(error);
     logTokenRefreshFailure(userUuid, ipAddress, 'Server error');
-    return res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
+    return res
+      .status(500)
+      .json({ error: 'Произошла внутренняя ошибка сервера' });
   }
 });
 

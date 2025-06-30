@@ -14,14 +14,17 @@ datasource db {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  uuid      String   @unique @default(uuid()) @db.Uuid
-  email     String   @unique @db.VarChar(320)
-  login     String   @unique @db.VarChar(30)
+  id        Int       @id @default(autoincrement())
+  uuid      String    @unique @default(uuid()) @db.Uuid
+  email     String    @unique @db.VarChar(320)
+  login     String    @unique @db.VarChar(30)
   password  String
-  createdAt DateTime @default(now())
-  isActive  Boolean  @default(true)
-  updatedAt DateTime @updatedAt
+  createdAt DateTime  @default(now())
+  isActive  Boolean   @default(true)
+  updatedAt DateTime  @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+  role      UserRole  @default(user)
 
   boards        Board[]
   refreshTokens RefreshToken[]
@@ -30,14 +33,16 @@ model User {
 }
 
 model Board {
-  id         Int      @id @default(autoincrement())
-  uuid       String   @unique @default(uuid()) @db.Uuid
-  title      String   @db.VarChar(64)
-  color      String   @default("FFFFFF") @db.VarChar(6)
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-  isPinned   Boolean  @default(false)
-  isFavorite Boolean  @default(false)
+  id         Int       @id @default(autoincrement())
+  uuid       String    @unique @default(uuid()) @db.Uuid
+  title      String    @db.VarChar(64)
+  color      String    @default("FFFFFF") @db.VarChar(6)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
+  isPinned   Boolean   @default(false)
+  isFavorite Boolean   @default(false)
+  isDeleted  Boolean   @default(false)
+  deletedAt  DateTime?
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -56,8 +61,10 @@ model Task {
   createdAt   DateTime  @default(now())
   updatedAt   DateTime  @updatedAt
   dueDate     DateTime?
-  priority    Priority?  @default(MEDIUM)
-  status      Status?    @default(PENDING)
+  priority    Priority? @default(MEDIUM)
+  status      Status?   @default(PENDING)
+  isDeleted   Boolean   @default(false)
+  deletedAt   DateTime?
 
   boardId Int
   board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
@@ -94,4 +101,11 @@ enum Priority {
   LOW
   MEDIUM
   HIGH
+}
+
+enum UserRole {
+  user
+  admin
+  moderator
+  guest
 }

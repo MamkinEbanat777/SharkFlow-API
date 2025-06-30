@@ -7,12 +7,15 @@ import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
-import { 
-  checkLoginRateLimit, 
-  incrementLoginAttempts, 
-  resetLoginAttempts 
+import {
+  checkLoginRateLimit,
+  incrementLoginAttempts,
+  resetLoginAttempts,
 } from '../../../utils/rateLimiters/authRateLimiters.js';
-import { logLoginSuccess, logLoginFailure } from '../../../utils/loggers/authLoggers.js';
+import {
+  logLoginSuccess,
+  logLoginFailure,
+} from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
@@ -34,21 +37,22 @@ router.post(
 
     const rateLimitCheck = checkLoginRateLimit(ipAddress, normalizedEmail);
     if (rateLimitCheck.blocked) {
-      return res.status(429).json({ 
-        error: `Слишком много попыток входа. Попробуйте через ${rateLimitCheck.timeLeft} минут` 
+      return res.status(429).json({
+        error: `Слишком много попыток входа. Попробуйте через ${rateLimitCheck.timeLeft} минут`,
       });
     }
 
     try {
       const user = await prisma.user.findUnique({
-        where: { email: normalizedEmail },
+        where: { email: normalizedEmail, isDeleted: false },
         select: {
           id: true,
           uuid: true,
           password: true,
           login: true,
-          email: true
-        }
+          email: true,
+          role: true,
+        },
       });
 
       if (!user || !(await bcrypt.compare(password, user.password))) {
@@ -60,8 +64,8 @@ router.post(
       resetLoginAttempts(ipAddress, normalizedEmail);
 
       const [accessToken, refreshToken] = await Promise.all([
-        Promise.resolve(createAccessToken(user.uuid)),
-        Promise.resolve(createRefreshToken(user.uuid, rememberMe))
+        Promise.resolve(createAccessToken(user.uuid, user.role)),
+        Promise.resolve(createRefreshToken(user.uuid, rememberMe)),
       ]);
 
       await prisma.refreshToken.create({

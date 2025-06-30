@@ -5,7 +5,10 @@ import {
   getConfirmationCode,
   deleteConfirmationCode,
 } from '../../../store/userVerifyStore.js';
-import { logUserDelete, logUserDeleteFailure } from '../../../utils/loggers/authLoggers.js';
+import {
+  logUserDelete,
+  logUserDeleteFailure,
+} from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 
 const router = Router();
@@ -47,8 +50,43 @@ router.post('/api/users/delete', authenticateMiddleware, async (req, res) => {
         where: { token: refreshToken },
         data: { revoked: true },
       }),
-      prisma.user.delete({
+
+      prisma.task.updateMany({
+        where: {
+          board: {
+            user: {
+              uuid: userUuid,
+              isDeleted: false,
+            },
+          },
+          isDeleted: false,
+        },
+        data: {
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
+      }),
+
+      prisma.board.updateMany({
+        where: {
+          user: {
+            uuid: userUuid,
+            isDeleted: false,
+          },
+          isDeleted: false,
+        },
+        data: {
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
+      }),
+
+      prisma.user.update({
         where: { uuid: userUuid },
+        data: {
+          isDeleted: true,
+          deletedAt: new Date(),
+        },
       }),
     ]);
 

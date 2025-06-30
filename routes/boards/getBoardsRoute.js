@@ -31,7 +31,7 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
   try {
     const [boards, totalBoards] = await Promise.all([
       prisma.board.findMany({
-        where: { user: { uuid: userUuid } },
+        where: { isDeleted: false, user: { uuid: userUuid } },
         orderBy: [
           { isPinned: 'desc' },
           { isFavorite: 'desc' },
@@ -56,7 +56,7 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
       }),
 
       prisma.board.count({
-        where: { user: { uuid: userUuid } },
+        where: { isDeleted: false, user: { uuid: userUuid } },
       }),
     ]);
 
