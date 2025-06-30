@@ -9,7 +9,7 @@ const router = Router();
 router.get('/api/users', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
-  
+
   try {
     if (!userUuid) {
       return res
@@ -22,14 +22,16 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
       select: {
         login: true,
         email: true,
+        role: true,
       },
     });
-    
+
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
-    
+
     logUserFetch(userUuid, ipAddress);
+
     res.json(user);
   } catch (error) {
     console.error('Ошибка при получении пользователя:', error);
