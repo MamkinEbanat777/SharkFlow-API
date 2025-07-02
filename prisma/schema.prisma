@@ -18,7 +18,8 @@ model User {
   uuid                   String    @unique @default(uuid()) @db.Uuid
   email                  String    @unique @db.VarChar(320)
   login                  String    @unique @db.VarChar(30)
-  password               String
+  password               String?
+  googleSub              String?   @unique @db.VarChar(255)
   createdAt              DateTime  @default(now())
   isActive               Boolean   @default(true)
   updatedAt              DateTime  @updatedAt
@@ -29,6 +30,7 @@ model User {
   twoFactorEnabled       Boolean   @default(false)
   twoFactorPendingSecret String?   @db.VarChar(256)
   avatarUrl              String?   @db.VarChar(1024)
+  publicId               String?   @db.VarChar(100)
 
   boards        Board[]
   refreshTokens RefreshToken[]

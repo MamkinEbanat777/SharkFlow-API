@@ -2,7 +2,6 @@ import { Router } from 'express';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import speakeasy from 'speakeasy';
-import * as qrcode from 'qrcode';
 import { encrypt } from '../../../../utils/crypto/encrypt.js';
 import { decrypt } from '../../../../utils/crypto/decrypt.js';
 import { isEmailConfirmed } from '../../../../store/emailCodeStore.js';
