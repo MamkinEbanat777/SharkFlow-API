@@ -1,0 +1,44 @@
+import { Router } from 'express';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
+import speakeasy from 'speakeasy';
+import { decrypt } from '../../../../utils/crypto/decrypt.js';
+import { clearEmailConfirmed } from '../../../../store/emailCodeStore.js';
+
+const router = Router();
+
+router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
+  const { totpCode } = req.body;
+  const userUuid = req.userUuid;
+
+  const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
+
+  const encrypted = user.twoFactorPendingSecret;
+  const secret = decrypt(encrypted);
+  const verified = speakeasy.totp.verify({
+    secret: secret,
+    encoding: 'base32',
+    token: totpCode.trim(),
+    window: 1,
+  });
+
+  if (!verified) {
+    return res.status(400).json({ error: 'Неверный или просроченый код' });
+  }
+
+  await prisma.user.update({
+    where: { uuid: userUuid },
+    data: {
+      twoFactorSecret: user.twoFactorPendingSecret,
+      twoFactorPendingSecret: '',
+      twoFactorEnabled: true,
+    },
+  });
+  clearEmailConfirmed(userUuid);
+  res.json({ success: true, message: '2FA успешно подключена' });
+});
+
+export default {
+  path: '/',
+  router,
+};

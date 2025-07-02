@@ -89,7 +89,6 @@ router.post(
 
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
-        // userId: userRecord.id,
       });
     } catch (error) {
       console.error('Ошибка при регистрации:', error);

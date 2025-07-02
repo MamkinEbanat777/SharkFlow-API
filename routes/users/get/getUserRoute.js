@@ -23,6 +23,8 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
         login: true,
         email: true,
         role: true,
+        twoFactorEnabled: true,
+        avatarUrl: true,
       },
     });
 

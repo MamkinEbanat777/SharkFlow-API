@@ -37,6 +37,7 @@ router.delete(
         where: {
           uuid: boardUuid,
           user: { uuid: userUuid },
+          isDeleted: false,
         },
         select: {
           id: true,

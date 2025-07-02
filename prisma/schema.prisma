@@ -14,17 +14,21 @@ datasource db {
 }
 
 model User {
-  id        Int       @id @default(autoincrement())
-  uuid      String    @unique @default(uuid()) @db.Uuid
-  email     String    @unique @db.VarChar(320)
-  login     String    @unique @db.VarChar(30)
-  password  String
-  createdAt DateTime  @default(now())
-  isActive  Boolean   @default(true)
-  updatedAt DateTime  @updatedAt
-  isDeleted Boolean   @default(false)
-  deletedAt DateTime?
-  role      UserRole  @default(user)
+  id                     Int       @id @default(autoincrement())
+  uuid                   String    @unique @default(uuid()) @db.Uuid
+  email                  String    @unique @db.VarChar(320)
+  login                  String    @unique @db.VarChar(30)
+  password               String
+  createdAt              DateTime  @default(now())
+  isActive               Boolean   @default(true)
+  updatedAt              DateTime  @updatedAt
+  isDeleted              Boolean   @default(false)
+  deletedAt              DateTime?
+  role                   UserRole  @default(user)
+  twoFactorSecret        String?   @db.VarChar(256)
+  twoFactorEnabled       Boolean   @default(false)
+  twoFactorPendingSecret String?   @db.VarChar(256)
+  avatarUrl              String?   @db.VarChar(1024)
 
   boards        Board[]
   refreshTokens RefreshToken[]
@@ -49,7 +53,7 @@ model Board {
 
   tasks Task[]
 
-  @@unique([userId, title])
+  @@index([userId, title])
   @@map("boards")
 }
 

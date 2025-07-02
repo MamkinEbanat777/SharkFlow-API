@@ -7,6 +7,8 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     passwordReset: 'Сброс пароля в SharkFlow',
     deleteUser: 'Удаление аккаунта SharkFlow',
     updateUser: 'Обновление данных аккаунта SharkFlow',
+    setupTotp: 'Подключение двуфакторной аутентификации',
+    disableTotp: 'Отключение двуфакторной аутентификации',
     emailChange: 'Подтверждение нового email',
   };
 

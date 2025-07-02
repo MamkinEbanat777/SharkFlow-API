@@ -38,6 +38,7 @@ router.post(
       where: {
         uuid: boardUuid,
         user: { uuid: userUuid },
+        isDeleted: false,
       },
       select: { id: true },
     });
@@ -57,8 +58,6 @@ router.post(
     if (!rawTitle || typeof rawTitle !== 'string') {
       return res.status(400).json({ error: 'Название задачи обязательно' });
     }
-
-    console.log(rawTitle);
 
     const titleValidation = validateTaskTitle(rawTitle);
     if (!titleValidation.isValid) {
