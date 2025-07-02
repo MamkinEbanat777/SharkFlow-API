@@ -10,6 +10,7 @@ import {
   logUserDeleteFailure,
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import cloudinary from 'cloudinary';
 
 const router = Router();
 
@@ -44,7 +45,15 @@ router.post('/api/users/delete', authenticateMiddleware, async (req, res) => {
     return res.status(400).json({ error: 'Неверный код подтверждения' });
   }
 
+  const user = await prisma.user.findFirst({
+    where: { uuid: userUuid, isDeleted: false },
+    select: { publicId: true },
+  });
+
   try {
+    if (user?.publicId) {
+      await cloudinary.v2.uploader.destroy(user.publicId);
+    }
     await prisma.$transaction([
       prisma.refreshToken.updateMany({
         where: { token: refreshToken },
@@ -86,6 +95,11 @@ router.post('/api/users/delete', authenticateMiddleware, async (req, res) => {
         data: {
           isDeleted: true,
           deletedAt: new Date(),
+          avatarUrl: null,
+          publicId: null,
+          twoFactorSecret: null,
+          twoFactorPendingSecret: null,
+          twoFactorEnabled: false,
         },
       }),
     ]);

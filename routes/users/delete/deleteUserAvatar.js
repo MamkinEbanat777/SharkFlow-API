@@ -24,7 +24,7 @@ router.delete('/api/users/avatar', authenticateMiddleware, async (req, res) => {
 
     res.status(200).json({
       message: 'Аватар успешно удалён',
-});
+    });
   } catch (error) {
     console.error('Ошибка при удалении аватара:', error);
     res.status(500).json({ error: 'Внутренняя ошибка сервера' });

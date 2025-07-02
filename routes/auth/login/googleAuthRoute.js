@@ -42,8 +42,25 @@ router.post('/api/auth/google', async (req, res) => {
       },
     });
 
-    if (!user) {
-      const base = email?.split('@')[0] || name || 'user';
+    if (user) {
+      if (user.isDeleted) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            isDeleted: false,
+            deletedAt: null,
+            googleSub,
+            avatarUrl,
+          },
+        });
+      } else if (!user.googleSub) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { googleSub },
+        });
+      }
+    } else {
+      const base = email.split('@')[0] || name || 'user';
       const login = await generateUniqueLogin(base);
       user = await prisma.user.create({
         data: {
@@ -54,11 +71,6 @@ router.post('/api/auth/google', async (req, res) => {
           password: null,
           role: 'user',
         },
-      });
-    } else if (!user.googleSub) {
-      user = await prisma.user.update({
-        where: { id: user.id },
-        data: { googleSub },
       });
     }
 
@@ -84,10 +96,6 @@ router.post('/api/auth/google', async (req, res) => {
 
     return res.status(200).json({
       accessToken,
-      role: user.role,
-      avatarUrl: user.avatarUrl,
-      login: user.login,
-      email: user.email,
     });
   } catch (error) {
     console.error('Ошибка при логине через Google:', error);
