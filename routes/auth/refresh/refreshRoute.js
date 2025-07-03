@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { createRefreshToken, issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import { issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import {
   validateRefreshToken,
@@ -107,7 +107,7 @@ router.post('/api/auth/refresh', async (req, res) => {
     }
 
     const user = await prisma.user.findUnique({
-      where: { uuid: userUuid },
+      where: { uuid: userUuid, isDeleted: false },
       select: { role: true },
     });
 

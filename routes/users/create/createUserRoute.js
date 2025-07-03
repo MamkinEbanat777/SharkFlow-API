@@ -13,6 +13,7 @@ import {
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
+import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
 
 const router = Router();
 
@@ -20,7 +21,7 @@ router.post(
   '/api/users',
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
-    const { confirmationCode } = req.body;
+    const confirmationCodeFromClient = req.body.confirmationCode;
     const regUuid = req.cookies.sd_f93j8f___;
     const guestUuid = req.cookies.log___sf_21s_t1;
     const ipAddress = getClientIP(req);
@@ -30,20 +31,23 @@ router.post(
         return res.status(400).json({ error: 'Регистрация не найдена' });
       }
 
-      const storedData = getRegistrationData(regUuid);
+      const storedData = await getRegistrationData(regUuid);
       if (!storedData) {
         return res.status(400).json({ error: 'Код истёк или не найден' });
       }
 
-      const {
-        email,
-        login,
-        hashedPassword,
-        confirmationCode: storedCode,
-      } = storedData;
+      const { email, login, hashedPassword } = storedData;
 
-      if (String(storedCode) !== String(confirmationCode)) {
-        logRegistrationFailure(email, ipAddress, 'Invalid confirmation code');
+      const success = await validateConfirmationCode(
+        regUuid,
+        confirmationCodeFromClient,
+        {
+          failure: (uuid, reason) =>
+            logRegistrationFailure(email, ipAddress, reason),
+        },
+      );
+
+      if (!success) {
         return res.status(400).json({ error: 'Неверный код' });
       }
 
@@ -64,6 +68,7 @@ router.post(
               role: 'user',
             },
           });
+          res.clearCookie('log___sf_21s_t1');
         }
       }
 
@@ -73,7 +78,6 @@ router.post(
             email,
             login,
             password: hashedPassword,
-            role: 'user',
           },
         });
       }
@@ -85,15 +89,11 @@ router.post(
         },
       });
 
-      deleteRegistrationData(regUuid);
+      await deleteRegistrationData(regUuid);
+
+      await deleteConfirmationCode(regUuid);
 
       logRegistrationSuccess(email, userRecord.id, ipAddress);
-
-      if (!validateConfirmationCode(userRecord?.uuid, confirmationCode, {
-        failure: (uuid, reason) => logRegistrationFailure(email, ipAddress, reason),
-      })) {
-        return res.status(400).json({ error: 'Неверный код' });
-      }
 
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
@@ -102,10 +102,14 @@ router.post(
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при создании пользователя',
         mappings: {
-          P2002: { status: 409, message: 'Пользователь с таким email или логином уже существует' },
+          P2002: {
+            status: 409,
+            message: 'Пользователь с таким email или логином уже существует',
+          },
         },
         status: 500,
-        message: 'Произошла внутренняя ошибка сервера при создании пользователя',
+        message:
+          'Произошла внутренняя ошибка сервера при создании пользователя',
       });
     }
   },

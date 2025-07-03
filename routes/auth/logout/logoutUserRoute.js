@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { logLogout, logLogoutInvalidToken } from '../../../utils/loggers/authLoggers.js';
+import {
+  logLogout,
+  logLogoutInvalidToken,
+} from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
@@ -18,10 +21,10 @@ router.post('/api/auth/logout', authenticateMiddleware, async (req, res) => {
 
   try {
     const tokenRecord = await prisma.refreshToken.findFirst({
-      where: { 
+      where: {
         token: refreshToken,
         user: { uuid: userUuid },
-        revoked: false
+        revoked: false,
       },
       select: {
         id: true,
@@ -29,10 +32,10 @@ router.post('/api/auth/logout', authenticateMiddleware, async (req, res) => {
         user: {
           select: {
             login: true,
-            email: true
-          }
-        }
-      }
+            email: true,
+          },
+        },
+      },
     });
 
     if (tokenRecord) {
@@ -41,7 +44,12 @@ router.post('/api/auth/logout', authenticateMiddleware, async (req, res) => {
         data: { revoked: true },
       });
 
-      logLogout(tokenRecord.user.login, tokenRecord.user.email, userUuid, ipAddress);
+      logLogout(
+        tokenRecord.user.login,
+        tokenRecord.user.email,
+        userUuid,
+        ipAddress,
+      );
     } else {
       logLogoutInvalidToken(userUuid, ipAddress);
     }

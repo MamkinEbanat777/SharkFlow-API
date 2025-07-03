@@ -20,6 +20,7 @@ model User {
   login                  String    @unique @db.VarChar(30)
   password               String?
   googleSub              String?   @unique @db.VarChar(255)
+  googleOAuthEnabled     Boolean   @default(false)
   createdAt              DateTime  @default(now())
   isActive               Boolean   @default(true)
   updatedAt              DateTime  @updatedAt

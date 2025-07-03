@@ -13,13 +13,21 @@ export function createRefreshToken(userUuid, rememberMe = false) {
     jti: generateUUID(),
   };
 
-  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, { 
+  return jwt.sign(payload, process.env.JWT_REFRESH_SECRET, {
     expiresIn,
-    algorithm: 'HS256'  
+    algorithm: 'HS256',
   });
 }
 
-export async function issueRefreshToken({ res, userUuid, rememberMe = false, setCookie = true, ipAddress = null, userAgent = null, referrer = null }) {
+export async function issueRefreshToken({
+  res,
+  userUuid,
+  rememberMe = false,
+  setCookie = true,
+  ipAddress = null,
+  userAgent = null,
+  referrer = null,
+}) {
   const refreshToken = createRefreshToken(userUuid, rememberMe);
 
   const expiresMs = rememberMe
@@ -28,6 +36,10 @@ export async function issueRefreshToken({ res, userUuid, rememberMe = false, set
   const expiresAt = new Date(Date.now() + expiresMs);
 
   const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
+
+  if (!user) {
+    return res.status(404).json({ error: 'Пользователь не найден' });
+  }
 
   await prisma.refreshToken.create({
     data: {
@@ -43,7 +55,11 @@ export async function issueRefreshToken({ res, userUuid, rememberMe = false, set
   });
 
   if (setCookie && res) {
-    res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(rememberMe));
+    res.cookie(
+      'log___tf_12f_t2',
+      refreshToken,
+      getRefreshCookieOptions(rememberMe),
+    );
   }
 
   return refreshToken;

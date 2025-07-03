@@ -16,6 +16,8 @@
   "type": "module",
   "dependencies": {
     "@prisma/client": "^6.10.0",
+    "@upstash/redis": "^1.35.1",
+    "axios": "^1.10.0",
     "bad-words": "^4.0.0",
     "bcrypt": "^6.0.0",
     "cloudinary": "^2.7.0",
@@ -43,6 +45,7 @@
     "qrcode": "^1.5.4",
     "socket.io": "^4.8.1",
     "speakeasy": "^2.0.0",
+    "transliteration": "^2.3.5",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
     "xss-clean": "^0.1.4",

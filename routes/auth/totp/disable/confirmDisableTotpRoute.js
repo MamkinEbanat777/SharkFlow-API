@@ -1,9 +1,6 @@
 import { Router } from 'express';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-import { generateConfirmationCode } from '../../../../utils/generators/generateConfirmationCode.js';
-import { sendConfirmationEmail } from '../../../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { setConfirmationCode } from '../../../../store/userVerifyStore.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 
@@ -17,7 +14,7 @@ router.post(
 
     try {
       const user = await prisma.user.findUnique({
-        where: { uuid: userUuid },
+        where: { uuid: userUuid, isDeleted: false },
       });
 
       if (!user) {
@@ -37,7 +34,7 @@ router.post(
         loggers: {
           success: () => {},
           failure: () => {},
-        }
+        },
       });
 
       res

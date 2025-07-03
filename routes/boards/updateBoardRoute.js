@@ -26,7 +26,6 @@ router.patch(
         .status(400)
         .json({ error: 'Неверный формат идентификатора доски' });
     }
-   
 
     let { title, color, isPinned, isFavorite } = req.body;
     const dataToUpdate = {};
@@ -82,30 +81,41 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const updatedBoard = await prisma.board.updateMany({
-        where: {
-          isDeleted: false,
-          uuid: boardUuid,
-          user: { uuid: userUuid },
-        },
+      const board = await prisma.board.findFirst({
+        where: { uuid: boardUuid, user: { uuid: userUuid }, isDeleted: false },
+      });
+      if (!board) {
+        return res
+          .status(404)
+          .json({ error: 'Доска не найдена или не принадлежит пользователю' });
+      }
+
+      const updatedBoard = await prisma.board.update({
+        where: { id: board.id },
         data: dataToUpdate,
       });
 
-      if (updatedBoard.count === 0) {
+      if (!updatedBoard) {
         return res.status(404).json({
           error: 'Доска не найдена или не принадлежит пользователю',
         });
       }
 
-      logBoardUpdate('Board', dataToUpdate, userUuid, ipAddress);
+      logBoardUpdate(updatedBoard.title, dataToUpdate, userUuid, ipAddress);
 
       return res.status(200).json({ updatedBoard: { ...dataToUpdate } });
     } catch (error) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при обновлении доски',
         mappings: {
-          P2002: { status: 409, message: 'Доска с таким названием уже существует' },
-          P2025: { status: 404, message: 'Доска не найдена или доступ запрещён' },
+          P2002: {
+            status: 409,
+            message: 'Доска с таким названием уже существует',
+          },
+          P2025: {
+            status: 404,
+            message: 'Доска не найдена или доступ запрещён',
+          },
         },
         status: 500,
         message: 'Произошла внутренняя ошибка сервера при обновлении доски',

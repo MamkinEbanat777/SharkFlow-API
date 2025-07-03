@@ -30,6 +30,7 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
         // skip: offset,
         // take: limit,
         select: {
+          id: true,
           uuid: true,
           title: true,
           color: true,
@@ -37,11 +38,6 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
           updatedAt: true,
           isPinned: true,
           isFavorite: true,
-          _count: {
-            select: {
-              tasks: true,
-            },
-          },
         },
       }),
 
@@ -50,6 +46,20 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
       }),
     ]);
 
+    const counts = await prisma.task.groupBy({
+      by: ['boardId'],
+      where: {
+        isDeleted: false,
+        board: { uuid: { in: boards.map((b) => b.uuid) } },
+      },
+      _count: { _all: true },
+    });
+
+    const countMap = counts.reduce((acc, { boardId, _count }) => {
+      acc[boardId] = _count._all;
+      return acc;
+    }, {});
+
     logBoardFetch(boards.length, totalBoards, userUuid, ipAddress);
 
     // const totalPages = Math.ceil(totalBoards / limit);
@@ -57,25 +67,27 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
     // const hasPrevPage = page > 1;
 
     res.json({
-      boards: boards.map((board) => ({
-        uuid: board.uuid,
-        title: board.title,
-        color: board.color,
-        createdAt: board.createdAt,
-        updatedAt: board.updatedAt,
-        isPinned: board.isPinned,
-        isFavorite: board.isFavorite,
-        taskCount: board._count.tasks,
+      boards: boards.map((b) => ({
+        uuid: b.uuid,
+        title: b.title,
+        color: b.color,
+        createdAt: b.createdAt,
+        updatedAt: b.updatedAt,
+        isPinned: b.isPinned,
+        isFavorite: b.isFavorite,
+        taskCount: countMap[b.id] ?? 0,
       })),
-      // pagination: {
-      //   currentPage: page,
-      //   totalPages,
-      //   totalBoards,
-      //   hasNextPage,
-      //   hasPrevPage,
-      //   limit,
-      // },
+      totalBoards,
     });
+
+    // pagination: {
+    //   currentPage: page,
+    //   totalPages,
+    //   totalBoards,
+    //   hasNextPage,
+    //   hasPrevPage,
+    //   limit,
+    // },
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при получении досок',

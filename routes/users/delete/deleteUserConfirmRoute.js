@@ -1,9 +1,10 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { generateConfirmationCode } from '../../../utils/generators/generateConfirmationCode.js';
-import { sendConfirmationEmail } from '../../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { logUserDeleteRequest, logUserDeleteRequestFailure } from '../../../utils/loggers/authLoggers.js';
+import {
+  logUserDeleteRequest,
+  logUserDeleteRequestFailure,
+} from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
@@ -20,6 +21,7 @@ router.post(
     try {
       const user = await prisma.user.findUnique({
         where: { uuid: userUuid },
+        select: { email: true },
       });
 
       if (!user) {
@@ -35,23 +37,26 @@ router.post(
           .json({ error: 'Email пользователя отсутствует' });
       }
 
-      const confirmationCode = generateConfirmationCode();
-
       await sendUserConfirmationCode({
         userUuid,
         type: 'deleteUser',
         loggers: {
-          success: (uuid, email) => logUserDeleteRequest(uuid, email, ipAddress),
-          failure: (uuid, reason) => logUserDeleteRequestFailure(uuid, ipAddress, reason),
-        }
+          success: (uuid, email) =>
+            logUserDeleteRequest(uuid, email, ipAddress),
+          failure: (uuid, reason) =>
+            logUserDeleteRequestFailure(uuid, ipAddress, reason),
+        },
       });
 
-      res.status(200).json({ message: 'Код подтверждения отправлен на вашу почту' });
+      res
+        .status(200)
+        .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при подтверждении удаления пользователя',
         status: 500,
-        message: 'Произошла внутренняя ошибка сервера при подтверждении удаления пользователя',
+        message:
+          'Произошла внутренняя ошибка сервера при подтверждении удаления пользователя',
       });
     }
   },

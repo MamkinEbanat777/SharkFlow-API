@@ -2,6 +2,7 @@ import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import cloudinary from 'cloudinary';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -13,12 +14,25 @@ router.delete('/api/users/avatar', authenticateMiddleware, async (req, res) => {
       select: { avatarUrl: true, publicId: true },
     });
 
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
     if (user?.publicId) {
       await cloudinary.v2.uploader.destroy(user.publicId);
     }
 
-    await prisma.user.update({
+    const existingUser = await prisma.user.findFirst({
       where: { uuid: userUuid, isDeleted: false },
+      select: { id: true, publicId: true },
+    });
+
+    if (!existingUser) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    await prisma.user.update({
+      where: { id: existingUser.id },
       data: { avatarUrl: null, publicId: null },
     });
 
@@ -26,8 +40,11 @@ router.delete('/api/users/avatar', authenticateMiddleware, async (req, res) => {
       message: 'Аватар успешно удалён',
     });
   } catch (error) {
-    console.error('Ошибка при удалении аватара:', error);
-    res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при удалении аватара',
+      status: 500,
+      message: 'Произошла внутренняя ошибка сервера при удалении аватара',
+    });
   }
 });
 

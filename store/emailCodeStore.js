@@ -1,24 +1,16 @@
-const confirmedUsers = new Map();
+import { redis } from '../config/redisconfig.js';
 
-const EXPIRE_MS = 5 * 60 * 1000;
+const EXPIRE_SECONDS = 5 * 60;
 
-export function setEmailConfirmed(userUuid) {
-  const expiresAt = Date.now() + EXPIRE_MS;
-  confirmedUsers.set(userUuid, expiresAt);
+export async function setEmailConfirmed(userUuid) {
+  await redis.set(`emailConfirmed:${userUuid}`, 'true', { ex: EXPIRE_SECONDS });
 }
 
-export function isEmailConfirmed(userUuid) {
-  const expiresAt = confirmedUsers.get(userUuid);
-  if (!expiresAt) return false;
-
-  if (Date.now() > expiresAt) {
-    confirmedUsers.delete(userUuid);
-    return false;
-  }
-
-  return true;
+export async function isEmailConfirmed(userUuid) {
+  const value = await redis.get(`emailConfirmed:${userUuid}`);
+  return value === 'true';
 }
 
-export function clearEmailConfirmed(userUuid) {
-  confirmedUsers.delete(userUuid);
+export async function clearEmailConfirmed(userUuid) {
+  await redis.del(`emailConfirmed:${userUuid}`);
 }

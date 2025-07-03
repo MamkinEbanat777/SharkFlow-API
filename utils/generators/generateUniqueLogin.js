@@ -1,13 +1,30 @@
 import prisma from '../prismaConfig/prismaClient.js';
-import { sanitizeLogin } from './sanitizeLogin.js';
+import { transliterate } from 'transliteration';
+
+function sanitizeLogin(base) {
+  const cleaned = transliterate(base)
+    .toLowerCase()
+    .replace(/\s+/g, '')
+    .replace(/[^a-z0-9]/g, '')
+    .slice(0, 30);
+
+  return cleaned || 'user';
+}
 
 export async function generateUniqueLogin(base) {
   let login = sanitizeLogin(base);
   let uniqueLogin = login;
-  let suffix = Math.floor(1000 + Math.random() * 9000);
+  let suffix = 1000;
 
-  while (await prisma.user.findUnique({ where: { login: uniqueLogin } })) {
+  while (
+    await prisma.user.findFirst({
+      where: { login: uniqueLogin, isDeleted: false },
+    })
+  ) {
     uniqueLogin = `${login}${suffix++}`;
+    if (suffix > 9999) {
+      throw new Error('Не удалось сгенерировать уникальный логин');
+    }
   }
 
   return uniqueLogin;

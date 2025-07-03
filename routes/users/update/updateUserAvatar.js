@@ -13,11 +13,16 @@ router.patch('/api/users/avatar', authenticateMiddleware, async (req, res) => {
   if (!imgUrl || typeof imgUrl !== 'string') {
     return res.status(400).json({ error: 'Невалидный URL изображения' });
   }
+  try {
+    new URL(imgUrl);
+  } catch {
+    return res.status(400).json({ error: 'Невалидный URL изображения' });
+  }
 
   try {
     const updatedUser = await prisma.user.update({
       where: { uuid: userUuid, isDeleted: false },
-      data: { avatarUrl: imgUrl, publicId: publicId },
+      data: { avatarUrl: imgUrl, publicId: publicId || null },
       select: { avatarUrl: true },
     });
 

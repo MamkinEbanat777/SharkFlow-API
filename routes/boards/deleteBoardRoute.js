@@ -22,7 +22,6 @@ router.delete(
         .json({ error: 'Неверный формат идентификатора доски' });
     }
 
-
     try {
       const boardToDelete = await prisma.board.findFirst({
         where: {
@@ -50,10 +49,16 @@ router.delete(
 
       const taskCount = boardToDelete._count.tasks;
 
-      await prisma.board.update({
-        where: { id: boardToDelete.id },
-        data: { isDeleted: true },
-      });
+      await prisma.$transaction([
+        prisma.board.update({
+          where: { id: boardToDelete.id },
+          data: { isDeleted: true, deletedAt: new Date() },
+        }),
+        prisma.task.updateMany({
+          where: { boardId: boardToDelete.id, isDeleted: false },
+          data: { isDeleted: true, deletedAt: new Date() },
+        }),
+      ]);
 
       logBoardDeletion(boardToDelete.title, taskCount, userUuid, ipAddress);
 
@@ -68,7 +73,10 @@ router.delete(
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при удалении доски',
         mappings: {
-          P2025: { status: 404, message: 'Доска не найдена или доступ запрещён' },
+          P2025: {
+            status: 404,
+            message: 'Доска не найдена или доступ запрещён',
+          },
         },
         status: 500,
         message: 'Произошла внутренняя ошибка сервера при удалении доски',

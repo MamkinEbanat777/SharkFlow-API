@@ -1,20 +1,30 @@
-const confirmationStore = {};
+import { redis } from '../config/redisconfig.js';
 
-export function setConfirmationCode(key, data) {
-  confirmationStore[key] = data;
-  console.log('[setConfirmationCode]', key, data, confirmationStore);
-  setTimeout(() => {
-    delete confirmationStore[key];
-    console.log('[deleteConfirmationCode:timeout]', key, confirmationStore);
-  }, 15 * 60 * 1000); 
+const EXPIRE_SECONDS = 15 * 60;
+
+export async function setConfirmationCode(key, data) {
+  await redis.set(`confirmation:${key}`, JSON.stringify(data), {
+    ex: EXPIRE_SECONDS,
+  });
+  console.log('[setConfirmationCode]', key, data);
 }
 
-export function getConfirmationCode(key) {
-  const code = confirmationStore[key];
-  console.log('[getConfirmationCode]', key, code, confirmationStore);
-  return code;
+export async function getConfirmationCode(key) {
+  const value = await redis.get(`confirmation:${key}`);
+  if (!value) return null;
+
+  try {
+    return typeof value === 'string' ? JSON.parse(value) : value;
+  } catch (e) {
+    console.error(
+      `[getConfirmationCode] Ошибка парсинга для ключа confirmation:${key}`,
+      e,
+    );
+    return null;
+  }
 }
 
-export function deleteConfirmationCode(key) {
-  delete confirmationStore[key];
+export async function deleteConfirmationCode(key) {
+  await redis.del(`confirmation:${key}`);
+  console.log('[deleteConfirmationCode]', key);
 }

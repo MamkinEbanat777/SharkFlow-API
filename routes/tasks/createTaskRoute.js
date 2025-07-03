@@ -55,38 +55,29 @@ router.post(
     }
     const title = titleValidation.value;
 
-    const dueDate =
-      rawDueDate && !isNaN(Date.parse(rawDueDate))
-        ? new Date(rawDueDate)
-        : rawDueDate === null
-        ? null
-        : (() => {
-            return res
-              .status(400)
-              .json({ error: 'Некорректная дата дедлайна' });
-          })();
+    let dueDate = null;
+    if (rawDueDate) {
+      if (isNaN(Date.parse(rawDueDate))) {
+        return res.status(400).json({ error: 'Некорректная дата дедлайна' });
+      }
+      dueDate = new Date(rawDueDate);
+    }
 
-    const priority =
-      rawPriority && Object.values(Priority).includes(rawPriority)
-        ? rawPriority
-        : rawPriority === null
-        ? null
-        : (() => {
-            return res
-              .status(400)
-              .json({ error: 'Недопустимый приоритет задачи' });
-          })();
+    let priority = null;
+    if (rawPriority) {
+      if (!Object.values(Priority).includes(rawPriority)) {
+        return res.status(400).json({ error: 'Недопустимый приоритет задачи' });
+      }
+      priority = rawPriority;
+    }
 
-    const status =
-      rawStatus && Object.values(Status).includes(rawStatus)
-        ? rawStatus
-        : rawStatus === null
-        ? null
-        : (() => {
-            return res
-              .status(400)
-              .json({ error: 'Недопустимый статус задачи' });
-          })();
+    let status = null;
+    if (rawStatus) {
+      if (!Object.values(Status).includes(rawStatus)) {
+        return res.status(400).json({ error: 'Недопустимый статус задачи' });
+      }
+      status = rawStatus;
+    }
 
     try {
       const taskCount = await prisma.task.count({
@@ -137,7 +128,10 @@ router.post(
         logPrefix: 'Ошибка при создании задачи',
         mappings: {
           P2025: { status: 404, message: 'Пользователь не найден' },
-          P2002: { status: 409, message: 'У вас уже есть задача с таким названием' },
+          P2002: {
+            status: 409,
+            message: 'У вас уже есть задача с таким названием',
+          },
         },
         status: 500,
         message: 'Произошла внутренняя ошибка сервера. Попробуйте позже',

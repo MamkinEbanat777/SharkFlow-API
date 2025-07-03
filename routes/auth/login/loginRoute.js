@@ -53,7 +53,6 @@ router.post(
           login: true,
           email: true,
           role: true,
-          googleSub: true,
         },
       });
 
@@ -70,7 +69,7 @@ router.post(
 
       resetLoginAttempts(ipAddress, normalizedEmail);
 
-      const accessToken = await createAccessToken(user.uuid, rememberMe);
+      const accessToken = createAccessToken(user.uuid, user.role);
       const refreshToken = await issueRefreshToken({
         res,
         userUuid: user.uuid,
@@ -93,6 +92,7 @@ router.post(
       incrementLoginAttempts(ipAddress, normalizedEmail);
       handleRouteError(res, error, {
         message: 'Ошибка при логине. Попробуйте позже',
+        status: 500,
         logPrefix: 'Ошибка при логине',
       });
     }

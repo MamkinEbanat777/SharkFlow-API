@@ -79,7 +79,10 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при создании доски',
       mappings: {
-        P2002: { status: 409, message: 'Доска с таким названием уже существует' },
+        P2002: {
+          status: 409,
+          message: 'Доска с таким названием уже существует',
+        },
         P2025: { status: 404, message: 'Пользователь не найден' },
       },
       status: 500,

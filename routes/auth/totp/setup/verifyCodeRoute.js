@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
-import { getConfirmationCode } from '../../../../store/userVerifyStore.js';
+import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { setEmailConfirmed } from '../../../../store/emailCodeStore.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
@@ -17,17 +17,18 @@ router.post(
     const { confirmationCode } = req.body;
     const userUuid = req.userUuid;
     try {
-      const storedCode = getConfirmationCode(userUuid);
-      console.log(storedCode);
-      if (!validateConfirmationCode(userUuid, confirmationCode)) {
-        return res.status(400).json({ error: 'Неверный код' });
+      const valid = await validateConfirmationCode(userUuid, confirmationCode);
+      if (!valid) {
+        return res
+          .status(400)
+          .json({ error: 'Неверный или просроченный код подтверждения' });
       }
 
-      if (confirmationCode.length === 6) {
-        setEmailConfirmed(userUuid);
-      }
+      deleteConfirmationCode(userUuid);
 
-      res.status(201).json({
+      setEmailConfirmed(userUuid);
+
+      res.status(200).json({
         message: 'Код подтверждения верен',
       });
     } catch (error) {

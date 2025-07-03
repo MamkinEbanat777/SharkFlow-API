@@ -15,6 +15,10 @@ router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
 
     const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
 
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
     const encrypted = user.twoFactorPendingSecret;
     const secret = decrypt(encrypted);
     const verified = speakeasy.totp.verify({

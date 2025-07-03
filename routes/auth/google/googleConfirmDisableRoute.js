@@ -1,26 +1,26 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
+import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
-import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
 router.post(
-  '/api/users/confirm-update',
+  '/api/auth/google/confirm-disable',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
     const ipAddress = getClientIP(req);
 
     try {
-      const user = await prisma.user.findUnique({
-        where: { uuid: userUuid },
+      const user = await prisma.user.findFirst({
+        where: { uuid: userUuid, isDeleted: false },
       });
 
       if (!user) {
@@ -38,7 +38,7 @@ router.post(
 
       await sendUserConfirmationCode({
         userUuid,
-        type: 'updateUser',
+        type: 'disableGoogle',
         loggers: {
           success: (uuid, email) =>
             logUserUpdateRequest(uuid, email, ipAddress),

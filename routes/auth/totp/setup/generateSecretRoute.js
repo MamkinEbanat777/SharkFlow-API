@@ -20,6 +20,10 @@ router.get('/api/auth/totp', authenticateMiddleware, async (req, res) => {
       select: { twoFactorPendingSecret: true, email: true },
     });
 
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
     let secret = user.twoFactorPendingSecret;
     if (!secret) {
       const generated = speakeasy.generateSecret({

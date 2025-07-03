@@ -4,7 +4,10 @@ import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 const router = Router();
 
 router.get('/monitor', async (req, res) => {
-  console.info('Прием проверка связи...');
+  console.info(
+    `[Monitor] Получен запрос от ${req.ip} ${new Date().toISOString()}`,
+  );
+
   try {
     res.status(200).send('API is working');
   } catch (error) {

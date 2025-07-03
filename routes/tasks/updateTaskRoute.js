@@ -34,12 +34,13 @@ router.patch(
             .status(400)
             .json({ error: 'Название должен быть строкой' });
         }
-        if (title.length === 0 || title.length > 64) {
+        const trimmedTitle = title.trim();
+        if (trimmedTitle.length === 0 || trimmedTitle.length > 64) {
           return res.status(400).json({
             error: 'Название должно быть не более 64 символов',
           });
         }
-        dataToUpdate.title = title.trim();
+        dataToUpdate.title = trimmedTitle;
       }
 
       if (dueDate !== undefined) {
@@ -62,13 +63,18 @@ router.patch(
       }
 
       if (priority !== undefined) {
-        if (priority !== null && !Object.values(Priority).includes(priority)) {
+        if (
+          priority !== null &&
+          (typeof priority !== 'string' ||
+            !Object.values(Priority).includes(priority))
+        ) {
           return res.status(400).json({
             error: `Приоритет должен быть одним из: ${Object.values(
               Priority,
             ).join(', ')}`,
           });
         }
+
         dataToUpdate.priority = priority;
       }
 
@@ -87,39 +93,65 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const result = await prisma.task.updateMany({
+      const board = await prisma.board.findFirst({
         where: {
-          uuid: taskUuid,
-          isDeleted: false,
-          board: {
-            uuid: boardUuid,
-            user: { uuid: userUuid },
-          },
+          uuid: boardUuid,
+          user: { uuid: userUuid, isDeleted: false },
         },
-        data: dataToUpdate,
+        select: { id: true },
       });
 
-      if (result.count === 0) {
+      if (!board) {
+        return res
+          .status(404)
+          .json({ error: 'Доска не найдена или доступ запрещён' });
+      }
+
+      const select = { uuid: true };
+      for (const key of Object.keys(dataToUpdate)) {
+        select[key] = true;
+      }
+
+      const task = await prisma.task.findFirst({
+        where: {
+          uuid: taskUuid,
+          boardId: board.id,
+          isDeleted: false,
+        },
+      });
+
+      if (!task) {
         return res
           .status(404)
           .json({ error: 'Задача не найдена или доступ запрещён' });
       }
 
+      const updatedTask = await prisma.task.update({
+        where: { uuid: taskUuid },
+        data: dataToUpdate,
+        select,
+      });
+
+      console.log(updatedTask);
+
       logTaskUpdate(taskUuid, dataToUpdate, userUuid, ipAddress);
 
       res.status(200).json({
         message: 'Задача успешно обновлена',
-        updated: {
-          uuid: taskUuid,
-          ...dataToUpdate,
-        },
+        updated: updatedTask,
       });
     } catch (error) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка обновления задачи',
         mappings: {
-          P2002: { status: 409, message: 'У вас уже есть задача с таким названием' },
-          P2025: { status: 404, message: 'Задача не найдена или доступ запрещён' },
+          P2002: {
+            status: 409,
+            message: 'У вас уже есть задача с таким названием',
+          },
+          P2025: {
+            status: 404,
+            message: 'Задача не найдена или доступ запрещён',
+          },
         },
         status: 500,
         message: 'Произошла внутренняя ошибка сервера при обновлении задачи',

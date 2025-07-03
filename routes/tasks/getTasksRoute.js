@@ -5,6 +5,7 @@ import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddl
 import { logTaskFetch } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { isValidUUID } from '../../utils/validators/boardValidators.js';
 
 const router = Router();
 
@@ -16,44 +17,37 @@ router.get(
     const boardUuid = req.params.boardUuid;
     const ipAddress = getClientIP(req);
 
+    if (!isValidUUID(boardUuid)) {
+      return res
+        .status(400)
+        .json({ error: 'Неверный формат идентификатора доски' });
+    }
+
     try {
-      const [tasks, totalTasks] = await Promise.all([
-        prisma.task.findMany({
-          where: {
-            isDeleted: false,
-            board: {
-              uuid: boardUuid,
-              user: { uuid: userUuid },
-            },
+      const tasks = await prisma.task.findMany({
+        where: {
+          isDeleted: false,
+          board: {
+            uuid: boardUuid,
+            user: { uuid: userUuid },
           },
-          orderBy: [{ updatedAt: 'desc' }],
-          select: {
-            uuid: true,
-            title: true,
-            createdAt: true,
-            updatedAt: true,
-            description: true,
-            dueDate: true,
-            priority: true,
-            status: true,
-          },
-        }),
-      ]);
-
-      logTaskFetch(tasks.length, totalTasks, userUuid, ipAddress);
-
-      res.json({
-        tasks: tasks.map((task) => ({
-          uuid: task.uuid,
-          title: task.title,
-          createdAt: task.createdAt,
-          updatedAt: task.updatedAt,
-          description: task.description,
-          dueDate: task.dueDate,
-          priority: task.priority,
-          status: task.status,
-        })),
+        },
+        orderBy: [{ updatedAt: 'desc' }],
+        select: {
+          uuid: true,
+          title: true,
+          createdAt: true,
+          updatedAt: true,
+          description: true,
+          dueDate: true,
+          priority: true,
+          status: true,
+        },
       });
+
+      logTaskFetch(tasks.length, tasks.length, userUuid, ipAddress);
+
+      res.json({ tasks });
     } catch (error) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при загрузке задач',

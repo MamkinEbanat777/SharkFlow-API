@@ -10,6 +10,7 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     setupTotp: 'Подключение двуфакторной аутентификации',
     disableTotp: 'Отключение двуфакторной аутентификации',
     emailChange: 'Подтверждение нового email',
+    disableGoogle: 'Отключение авторизаци через Google',
   };
 
   const html = await renderEmail(type, {

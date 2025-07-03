@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
-import { createRefreshToken, issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import {
+  createRefreshToken,
+  issueRefreshToken,
+} from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { v4 as uuidv4 } from 'uuid';

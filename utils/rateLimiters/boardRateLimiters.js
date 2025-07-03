@@ -1,5 +1,5 @@
 const boardCreationAttempts = new Map();
-const MAX_BOARDS_PER_MINUTE = 3;
+const MAX_BOARDS_PER_MINUTE = 10;
 const RATE_LIMIT_DURATION = 60 * 1000; 
 
 export const checkBoardCreationRateLimit = (userUuid) => {
@@ -37,7 +37,7 @@ export const incrementBoardCreationAttempts = (userUuid) => {
 
 
 const boardDeletionAttempts = new Map();
-const MAX_DELETIONS_PER_MINUTE = 5;
+const MAX_DELETIONS_PER_MINUTE = 20;
 
 export const checkBoardDeletionRateLimit = (userUuid) => {
   const attempts = boardDeletionAttempts.get(userUuid);
@@ -111,7 +111,7 @@ export const incrementBoardFetchAttempts = (userUuid) => {
 
 
 const boardUpdateAttempts = new Map();
-const MAX_UPDATES_PER_MINUTE = 10;
+const MAX_UPDATES_PER_MINUTE = 30;
 
 export const checkBoardUpdateRateLimit = (userUuid) => {
   const attempts = boardUpdateAttempts.get(userUuid);
