@@ -11,6 +11,8 @@ import { sendConfirmationEmail } from '../../../utils/mail/sendConfirmationEmail
 import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
 import { logRegistrationRequest, logRegistrationFailure } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 
 const router = Router();
 
@@ -57,13 +59,14 @@ router.post(
         confirmationCode,
       });
 
-      await sendConfirmationEmail({
-        to: normalizedEmail,
+      await sendUserConfirmationCode({
+        userUuid: uuid,
         type: 'registration',
-        confirmationCode,
+        loggers: {
+          success: () => logRegistrationRequest(normalizedEmail, ipAddress),
+          failure: () => logRegistrationFailure(normalizedEmail, ipAddress, 'Email send failed'),
+        }
       });
-
-      logRegistrationRequest(normalizedEmail, ipAddress);
 
       res.cookie('sd_f93j8f___', uuid, getRegistrationCookieOptions());
 
@@ -71,11 +74,11 @@ router.post(
         .status(200)
         .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
-      console.error('Ошибка при регистрации:', error);
-      logRegistrationFailure(normalizedEmail, ipAddress, 'Server error');
-      res
-        .status(500)
-        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при подтверждении создания пользователя',
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при подтверждении создания пользователя',
+      });
     }
   },
 );

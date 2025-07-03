@@ -5,6 +5,7 @@ import speakeasy from 'speakeasy';
 import { encrypt } from '../../../../utils/crypto/encrypt.js';
 import { decrypt } from '../../../../utils/crypto/decrypt.js';
 import { isEmailConfirmed } from '../../../../store/emailCodeStore.js';
+import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -43,8 +44,11 @@ router.get('/api/auth/totp', authenticateMiddleware, async (req, res) => {
 
     res.json({ otpauthUrl, secret });
   } catch (error) {
-    console.error('Error generating or fetching TOTP secret:', error);
-    res.status(500).json({ error: 'Ошибка при генерации 2FA' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка генерации или получения TOTP secret',
+      status: 500,
+      message: 'Ошибка при генерации 2FA',
+    });
   }
 });
 

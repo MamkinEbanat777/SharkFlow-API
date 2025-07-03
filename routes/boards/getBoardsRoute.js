@@ -1,26 +1,16 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import {
-  checkBoardFetchRateLimit,
-  incrementBoardFetchAttempts,
-} from '../../utils/rateLimiters/boardRateLimiters.js';
 // import { validatePaginationParams } from '../../utils/validators/boardValidators.js';
 import { logBoardFetch } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
 router.get('/api/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
-
-  const rateLimitCheck = checkBoardFetchRateLimit(userUuid);
-  if (rateLimitCheck.blocked) {
-    return res.status(429).json({
-      error: `Слишком много запросов. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-    });
-  }
 
   // const { page, limit } = validatePaginationParams(
   //   req.query.page,
@@ -60,8 +50,6 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
       }),
     ]);
 
-    incrementBoardFetchAttempts(userUuid);
-
     logBoardFetch(boards.length, totalBoards, userUuid, ipAddress);
 
     // const totalPages = Math.ceil(totalBoards / limit);
@@ -89,8 +77,11 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
       // },
     });
   } catch (error) {
-    console.error('Ошибка при загрузке досок:', error);
-    res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при получении досок',
+      status: 500,
+      message: 'Произошла внутренняя ошибка сервера при получении досок',
+    });
   }
 });
 

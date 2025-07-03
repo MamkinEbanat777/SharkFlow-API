@@ -3,7 +3,8 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { generateConfirmationCode } from '../../../../utils/generators/generateConfirmationCode.js';
 import { sendConfirmationEmail } from '../../../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { setConfirmationCode } from '../../../../store/userVerifyStore.js';
+import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 
 const router = Router();
 
@@ -29,24 +30,24 @@ router.post(
           .json({ error: 'Email пользователя отсутствует' });
       }
 
-      const confirmationCode = generateConfirmationCode();
-      console.log(confirmationCode);
-
-      setConfirmationCode(userUuid, confirmationCode);
-      await sendConfirmationEmail({
-        to: email,
+      await sendUserConfirmationCode({
+        userUuid,
         type: 'setupTotp',
-        confirmationCode,
+        loggers: {
+          success: () => {},
+          failure: () => {},
+        }
       });
 
       res
         .status(200)
         .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
-      console.error('Ошибка при отправки кода:', error);
-      res
-        .status(500)
-        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при отправке кода',
+        status: 500,
+        message: 'Ошибка при отправке кода подтверждения',
+      });
     }
   },
 );

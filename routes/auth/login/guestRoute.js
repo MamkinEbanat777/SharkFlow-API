@@ -1,11 +1,13 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
-import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import { createRefreshToken, issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { getGuestCookieOptions } from '../../../utils/cookie/registerCookie.js';
 
 const router = Router();
 
@@ -25,20 +27,13 @@ router.post('/api/auth/guest-login', async (req, res) => {
           existingGuest.role,
         );
 
-        const refreshToken = createRefreshToken(existingGuest.uuid, false);
-
-        await prisma.refreshToken.create({
-          data: {
-            token: refreshToken,
-            expiresAt: new Date(
-              Date.now() + Number(process.env.SESSION_EXPIRES_DEFAULT),
-            ),
-            revoked: false,
-            rememberMe: false,
-            ipAddress,
-            userAgent,
-            userId: existingGuest.id,
-          },
+        const refreshToken = await issueRefreshToken({
+          res,
+          userUuid: existingGuest.uuid,
+          rememberMe: false,
+          ipAddress,
+          userAgent,
+          referrer: req.get('Referer') || null,
         });
 
         res.cookie(
@@ -73,29 +68,25 @@ router.post('/api/auth/guest-login', async (req, res) => {
     });
 
     const accessToken = createAccessToken(guest.uuid, guest.role);
-    const refreshToken = createRefreshToken(guest.uuid, false);
-
-    await prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        expiresAt: new Date(
-          Date.now() + Number(process.env.SESSION_EXPIRES_DEFAULT),
-        ),
-        revoked: false,
-        rememberMe: false,
-        ipAddress,
-        userAgent,
-        userId: guest.id,
-      },
+    const refreshToken = await issueRefreshToken({
+      res,
+      userUuid: guest.uuid,
+      rememberMe: false,
+      ipAddress,
+      userAgent,
+      referrer: req.get('Referer') || null,
     });
 
     res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
-    res.cookie('log___sf_21s_t1', guest.uuid, getRefreshCookieOptions(false));
+    res.cookie('log___sf_21s_t1', guest.uuid, getGuestCookieOptions());
 
     return res.status(200).json({ accessToken, role: guest.role });
   } catch (error) {
-    console.error('Ошибка при логине:', error);
-    res.status(500).json({ error: 'Ошибка сервера. Пожалуйста, попробуйте' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при гостевом входе',
+      status: 500,
+      message: 'Ошибка при гостевом входе. Попробуйте позже',
+    });
   }
 });
 

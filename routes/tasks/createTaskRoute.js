@@ -5,13 +5,10 @@ import {
   validateTaskTitle,
   isValidUUID,
 } from '../../utils/validators/taskValidators.js';
-import {
-  checkTaskCreationRateLimit,
-  incrementTaskCreationAttempts,
-} from '../../utils/rateLimiters/taskRateLimiters.js';
 import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
 import { Priority, Status } from '@prisma/client';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -22,13 +19,6 @@ router.post(
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
     const ipAddress = getClientIP(req);
-
-    const rateLimitCheck = checkTaskCreationRateLimit(userUuid);
-    if (rateLimitCheck.blocked) {
-      return res.status(429).json({
-        error: `Слишком много попыток создания задач. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-      });
-    }
 
     if (!isValidUUID(boardUuid)) {
       return res.status(400).json({ error: 'Некорректный UUID доски' });
@@ -135,8 +125,6 @@ router.post(
         where: { board: { uuid: boardUuid } },
       });
 
-      incrementTaskCreationAttempts(userUuid);
-
       logTaskCreation(title, userUuid, ipAddress);
 
       return res.status(201).json({
@@ -145,19 +133,14 @@ router.post(
         taskCount: updatedTaskCount,
       });
     } catch (error) {
-      if (error.code === 'P2025') {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
-
-      if (error.code === 'P2002') {
-        return res
-          .status(409)
-          .json({ error: 'У вас уже есть задача с таким названием' });
-      }
-
-      console.error('Ошибка при создании задачи:', error);
-      return res.status(500).json({
-        error: 'Произошла внутренняя ошибка сервера. Попробуйте позже',
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при создании задачи',
+        mappings: {
+          P2025: { status: 404, message: 'Пользователь не найден' },
+          P2002: { status: 409, message: 'У вас уже есть задача с таким названием' },
+        },
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера. Попробуйте позже',
       });
     }
   },

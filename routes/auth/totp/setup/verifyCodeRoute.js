@@ -4,6 +4,8 @@ import { validateMiddleware } from '../../../../middlewares/http/validateMiddlew
 import { getConfirmationCode } from '../../../../store/userVerifyStore.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { setEmailConfirmed } from '../../../../store/emailCodeStore.js';
+import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
+import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 
 const router = Router();
 
@@ -17,7 +19,7 @@ router.post(
     try {
       const storedCode = getConfirmationCode(userUuid);
       console.log(storedCode);
-      if (String(storedCode) !== String(confirmationCode)) {
+      if (!validateConfirmationCode(userUuid, confirmationCode)) {
         return res.status(400).json({ error: 'Неверный код' });
       }
 
@@ -29,10 +31,11 @@ router.post(
         message: 'Код подтверждения верен',
       });
     } catch (error) {
-      console.error('Ошибка при регистрации:', error);
-      res
-        .status(500)
-        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при регистрации',
+        status: 500,
+        message: 'Ошибка при проверке кода подтверждения',
+      });
     }
   },
 );

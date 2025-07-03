@@ -11,6 +11,8 @@ import {
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import cloudinary from 'cloudinary';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 
 const router = Router();
 
@@ -39,9 +41,9 @@ router.post('/api/users/delete', authenticateMiddleware, async (req, res) => {
     return res.status(401).json({ error: 'Недействительный или чужой токен' });
   }
 
-  const expectedCode = getConfirmationCode(userUuid);
-  if (!confirmationCode || String(confirmationCode) !== String(expectedCode)) {
-    logUserDeleteFailure(userUuid, ipAddress, 'Invalid confirmation code');
+  if (!validateConfirmationCode(userUuid, confirmationCode, {
+    failure: (uuid, reason) => logUserDeleteFailure(uuid, ipAddress, reason),
+  })) {
     return res.status(400).json({ error: 'Неверный код подтверждения' });
   }
 
@@ -117,9 +119,14 @@ router.post('/api/users/delete', authenticateMiddleware, async (req, res) => {
 
     res.status(200).json({ message: 'Вы успешно удалили аккаунт' });
   } catch (error) {
-    console.error(error);
-    logUserDeleteFailure(userUuid, ipAddress, 'Server error');
-    res.status(500).json({ error: 'Ошибка при попытке удалить аккаунт' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при удалении пользователя',
+      mappings: {
+        P2025: { status: 404, message: 'Пользователь не найден' },
+      },
+      status: 500,
+      message: 'Произошла внутренняя ошибка сервера при удалении пользователя',
+    });
   }
 });
 

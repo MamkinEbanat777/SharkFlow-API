@@ -6,6 +6,7 @@ import { authenticateMiddleware } from '../../../middlewares/http/authenticateMi
 import { setConfirmationCode } from '../../../store/userVerifyStore.js';
 import { logUserUpdateRequest, logUserUpdateRequestFailure } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 
 const router = Router();
 
@@ -36,25 +37,22 @@ router.post(
 
       const confirmationCode = generateConfirmationCode();
 
-      setConfirmationCode(userUuid, confirmationCode);
-
-      await sendConfirmationEmail({
-        to: email,
+      await sendUserConfirmationCode({
+        userUuid,
         type: 'updateUser',
-        confirmationCode,
+        loggers: {
+          success: (uuid, email) => logUserUpdateRequest(uuid, email, ipAddress),
+          failure: (uuid, reason) => logUserUpdateRequestFailure(uuid, ipAddress, reason),
+        }
       });
 
-      logUserUpdateRequest(userUuid, email, ipAddress);
-
-      res
-        .status(200)
-        .json({ message: 'Код подтверждения отправлен на вашу почту' });
+      res.status(200).json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
-      console.error('Ошибка при обновлении аккаунта:', error);
-      logUserUpdateRequestFailure(userUuid, ipAddress, 'Server error');
-      res
-        .status(500)
-        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при подтверждении обновления пользователя',
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при подтверждении обновления пользователя',
+      });
     }
   },
 );

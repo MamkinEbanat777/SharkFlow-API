@@ -8,6 +8,8 @@ import {
 } from '../../../store/userVerifyStore.js';
 import { logUserUpdate, logUserUpdateFailure } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 
 const router = Router();
 
@@ -36,13 +38,11 @@ router.patch('/api/users', authenticateMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Код подтверждения обязателен' });
     }
 
-    const stored = getConfirmationCode(userUuid);
-    if (!stored || String(stored) !== confirmationCode) {
-      logUserUpdateFailure(userUuid, ipAddress, 'Invalid confirmation code');
+    if (!validateConfirmationCode(userUuid, confirmationCode, {
+      failure: (uuid, reason) => logUserUpdateFailure(uuid, ipAddress, reason),
+    })) {
       return res.status(400).json({ error: 'Неверный или просроченный код' });
     }
-
-    deleteConfirmationCode(userUuid);
 
     const dataToUpdate = {};
     if (trimmedLogin) dataToUpdate.login = trimmedLogin;
@@ -62,17 +62,15 @@ router.patch('/api/users', authenticateMiddleware, async (req, res) => {
 
     return res.json({ message: 'Данные успешно обновлены', user: updatedUser });
   } catch (error) {
-    if (error.code === 'P2002') {
-      logUserUpdateFailure(userUuid, ipAddress, 'Email or login already taken');
-      return res.status(409).json({ error: 'Почта или логин уже занят' });
-    }
-    if (error.code === 'P2025') {
-      logUserUpdateFailure(userUuid, ipAddress, 'User not found');
-      return res.status(404).json({ error: 'Пользователь не найден' });
-    }
-    console.error('Ошибка обновления пользователя:', error);
-    logUserUpdateFailure(userUuid, ipAddress, 'Server error');
-    return res.status(500).json({ error: 'Внутренняя ошибка сервера' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при обновлении пользователя',
+      mappings: {
+        P2002: { status: 409, message: 'Пользователь с таким email или логином уже существует' },
+        P2025: { status: 404, message: 'Пользователь не найден' },
+      },
+      status: 500,
+      message: 'Произошла внутренняя ошибка сервера при обновлении пользователя',
+    });
   }
 });
 

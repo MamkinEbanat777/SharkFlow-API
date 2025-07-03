@@ -4,7 +4,7 @@ import { validateMiddleware } from '../../../middlewares/http/validateMiddleware
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import bcrypt from 'bcrypt';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
-import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import { issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
 import {
@@ -17,6 +17,7 @@ import {
   logLoginFailure,
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -52,10 +53,16 @@ router.post(
           login: true,
           email: true,
           role: true,
+          googleSub: true,
         },
       });
 
-      if (!user || !(await bcrypt.compare(password, user.password))) {
+      if (!user || !user.password) {
+        incrementLoginAttempts(ipAddress, normalizedEmail);
+        return res.status(401).json({ error: 'Неправильный email или пароль' });
+      }
+
+      if (!(await bcrypt.compare(password, user.password))) {
         incrementLoginAttempts(ipAddress, normalizedEmail);
         logLoginFailure(normalizedEmail, ipAddress);
         return res.status(401).json({ error: 'Неправильный email или пароль' });
@@ -63,26 +70,14 @@ router.post(
 
       resetLoginAttempts(ipAddress, normalizedEmail);
 
-      const [accessToken, refreshToken] = await Promise.all([
-        Promise.resolve(createAccessToken(user.uuid, user.role)),
-        Promise.resolve(createRefreshToken(user.uuid, rememberMe)),
-      ]);
-
-      await prisma.refreshToken.create({
-        data: {
-          token: refreshToken,
-          expiresAt: new Date(
-            Date.now() +
-              (rememberMe
-                ? Number(process.env.SESSION_EXPIRES_REMEMBER_ME)
-                : Number(process.env.SESSION_EXPIRES_DEFAULT)),
-          ),
-          revoked: false,
-          rememberMe: rememberMe,
-          ipAddress,
-          userAgent,
-          userId: user.id,
-        },
+      const accessToken = await createAccessToken(user.uuid, rememberMe);
+      const refreshToken = await issueRefreshToken({
+        res,
+        userUuid: user.uuid,
+        rememberMe,
+        ipAddress,
+        userAgent,
+        referrer: req.get('Referer') || null,
       });
 
       res.cookie(
@@ -95,9 +90,11 @@ router.post(
 
       return res.status(200).json({ accessToken });
     } catch (error) {
-      console.error('Ошибка при логине:', error);
       incrementLoginAttempts(ipAddress, normalizedEmail);
-      res.status(500).json({ error: 'Ошибка сервера. Пожалуйста, попробуйте' });
+      handleRouteError(res, error, {
+        message: 'Ошибка при логине. Попробуйте позже',
+        logPrefix: 'Ошибка при логине',
+      });
     }
   },
 );

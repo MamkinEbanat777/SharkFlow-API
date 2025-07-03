@@ -2,13 +2,9 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 
-import {
-  checkTaskFetchRateLimit,
-  incrementTaskFetchAttempts,
-} from '../../utils/rateLimiters/taskRateLimiters.js';
-
 import { logTaskFetch } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -19,13 +15,6 @@ router.get(
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
     const ipAddress = getClientIP(req);
-
-    const rateLimitCheck = checkTaskFetchRateLimit(userUuid);
-    if (rateLimitCheck.blocked) {
-      return res.status(429).json({
-        error: `Слишком много запросов. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-      });
-    }
 
     try {
       const [tasks, totalTasks] = await Promise.all([
@@ -51,8 +40,6 @@ router.get(
         }),
       ]);
 
-      incrementTaskFetchAttempts(userUuid);
-
       logTaskFetch(tasks.length, totalTasks, userUuid, ipAddress);
 
       res.json({
@@ -68,8 +55,11 @@ router.get(
         })),
       });
     } catch (error) {
-      console.error('Ошибка при загрузке задач:', error);
-      res.status(500).json({ error: 'Произошла внутренняя ошибка сервера' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при загрузке задач',
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при загрузке задач',
+      });
     }
   },
 );

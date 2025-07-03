@@ -5,6 +5,8 @@ import {
   getConfirmationCode,
   deleteConfirmationCode,
 } from '../../../../store/userVerifyStore.js';
+import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
+import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 
 const router = Router();
 
@@ -21,12 +23,8 @@ router.post(
         return res.status(400).json({ error: 'Код подтверждения обязателен' });
       }
 
-      const storedCode = getConfirmationCode(userUuid);
-
-      if (String(storedCode) !== String(confirmationCode)) {
-        return res
-          .status(400)
-          .json({ error: 'Неверный или просроченный код подтверждения' });
+      if (!validateConfirmationCode(userUuid, confirmationCode)) {
+        return res.status(400).json({ error: 'Неверный или просроченный код подтверждения' });
       }
 
       deleteConfirmationCode(userUuid);
@@ -41,8 +39,11 @@ router.post(
 
       return res.json({ message: '2FA успешно отключена' });
     } catch (error) {
-      console.error('Ошибка при отключении 2FA:', error);
-      return res.status(500).json({ error: 'Ошибка сервера' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при отключении 2FA',
+        status: 500,
+        message: 'Ошибка при отключении 2FA',
+      });
     }
   },
 );

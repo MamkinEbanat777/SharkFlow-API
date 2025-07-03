@@ -2,12 +2,9 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import {
-  checkBoardDeletionRateLimit,
-  incrementBoardDeletionAttempts,
-} from '../../utils/rateLimiters/boardRateLimiters.js';
 import { logBoardDeletion } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -25,12 +22,6 @@ router.delete(
         .json({ error: 'Неверный формат идентификатора доски' });
     }
 
-    const rateLimitCheck = checkBoardDeletionRateLimit(userUuid);
-    if (rateLimitCheck.blocked) {
-      return res.status(429).json({
-        error: `Слишком много попыток удаления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-      });
-    }
 
     try {
       const boardToDelete = await prisma.board.findFirst({
@@ -64,8 +55,6 @@ router.delete(
         data: { isDeleted: true },
       });
 
-      incrementBoardDeletionAttempts(userUuid);
-
       logBoardDeletion(boardToDelete.title, taskCount, userUuid, ipAddress);
 
       return res.status(200).json({
@@ -76,17 +65,14 @@ router.delete(
         },
       });
     } catch (error) {
-      console.error('Ошибка при удалении доски:', error);
-
-      if (error.code === 'P2025') {
-        return res
-          .status(404)
-          .json({ error: 'Доска не найдена или доступ запрещён' });
-      }
-
-      return res
-        .status(500)
-        .json({ error: 'Произошла внутренняя ошибка сервера' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при удалении доски',
+        mappings: {
+          P2025: { status: 404, message: 'Доска не найдена или доступ запрещён' },
+        },
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при удалении доски',
+      });
     }
   },
 );

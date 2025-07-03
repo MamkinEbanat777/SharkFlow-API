@@ -3,9 +3,10 @@ import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { generateConfirmationCode } from '../../../utils/generators/generateConfirmationCode.js';
 import { sendConfirmationEmail } from '../../../utils/mail/sendConfirmationEmail.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { setConfirmationCode } from '../../../store/userVerifyStore.js';
 import { logUserDeleteRequest, logUserDeleteRequestFailure } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 
 const router = Router();
 
@@ -36,25 +37,22 @@ router.post(
 
       const confirmationCode = generateConfirmationCode();
 
-      setConfirmationCode(userUuid, confirmationCode);
-
-      await sendConfirmationEmail({
-        to: email,
+      await sendUserConfirmationCode({
+        userUuid,
         type: 'deleteUser',
-        confirmationCode,
+        loggers: {
+          success: (uuid, email) => logUserDeleteRequest(uuid, email, ipAddress),
+          failure: (uuid, reason) => logUserDeleteRequestFailure(uuid, ipAddress, reason),
+        }
       });
 
-      logUserDeleteRequest(userUuid, email, ipAddress);
-
-      res
-        .status(200)
-        .json({ message: 'Код подтверждения отправлен на вашу почту' });
+      res.status(200).json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {
-      console.error('Ошибка при удалении аккаунта:', error);
-      logUserDeleteRequestFailure(userUuid, ipAddress, 'Server error');
-      res
-        .status(500)
-        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при подтверждении удаления пользователя',
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при подтверждении удаления пользователя',
+      });
     }
   },
 );

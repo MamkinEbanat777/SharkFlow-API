@@ -6,25 +6,15 @@ import {
   isValidColor,
   sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
-import {
-  checkBoardCreationRateLimit,
-  incrementBoardCreationAttempts,
-} from '../../utils/rateLimiters/boardRateLimiters.js';
 import { logBoardCreation } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
 router.post('/api/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
-
-  const rateLimitCheck = checkBoardCreationRateLimit(userUuid);
-  if (rateLimitCheck.blocked) {
-    return res.status(429).json({
-      error: `Слишком много попыток создания досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-    });
-  }
 
   const rawTitle = req.body.title;
   const rawColor = req.body.color;
@@ -79,8 +69,6 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
       },
     });
 
-    incrementBoardCreationAttempts(userUuid);
-
     logBoardCreation(title, userUuid, ipAddress);
 
     return res.status(201).json({
@@ -88,20 +76,15 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
       board: newBoard,
     });
   } catch (error) {
-    if (error.code === 'P2025') {
-      return res.status(404).json({ error: 'Пользователь не найден' });
-    }
-
-    if (error.code === 'P2002') {
-      return res
-        .status(409)
-        .json({ error: 'У вас уже есть доска с таким названием' });
-    }
-
-    console.error('Ошибка при создании доски:', error);
-    return res
-      .status(500)
-      .json({ error: 'Произошла внутренняя ошибка сервера. Попробуйте позже' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при создании доски',
+      mappings: {
+        P2002: { status: 409, message: 'Доска с таким названием уже существует' },
+        P2025: { status: 404, message: 'Пользователь не найден' },
+      },
+      status: 500,
+      message: 'Произошла внутренняя ошибка сервера при создании доски',
+    });
   }
 });
 

@@ -1,7 +1,7 @@
 import express from 'express';
 import compression from 'compression';
 import corsMiddleware from './middlewares/http/corsMiddleware.js';
-// import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
+import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
 import loadRoutes from './utils/routesLoader/loadRoutes.js';
 import cookieParser from 'cookie-parser';
 import fs from 'fs';
@@ -36,6 +36,11 @@ app.use(express.json({ limit: '10kb' }));
 app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 app.set('trust proxy', true);
+
+app.use('/api/auth', limiterMiddleware);
+app.use('/api/tasks', limiterMiddleware);
+app.use('/api/boards', limiterMiddleware);
+app.use('/api/users', limiterMiddleware);
 
 const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {

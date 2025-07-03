@@ -3,6 +3,7 @@ import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { logLogout, logLogoutInvalidToken } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -54,8 +55,11 @@ router.post('/api/auth/logout', authenticateMiddleware, async (req, res) => {
 
     res.status(200).json({ message: 'Вы успешно вышли из системы' });
   } catch (error) {
-    console.error('Ошибка при выходе из системы:', error);
-    res.status(500).json({ error: 'Произошла ошибка при выходе из системы' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при выходе из системы',
+      status: 500,
+      message: 'Произошла ошибка при выходе из системы',
+    });
   }
 });
 

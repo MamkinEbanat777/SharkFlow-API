@@ -7,12 +7,9 @@ import {
   isValidColor,
   sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
-import {
-  checkBoardUpdateRateLimit,
-  incrementBoardUpdateAttempts,
-} from '../../utils/rateLimiters/boardRateLimiters.js';
 import { logBoardUpdate } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -29,13 +26,7 @@ router.patch(
         .status(400)
         .json({ error: 'Неверный формат идентификатора доски' });
     }
-
-    const rateLimitCheck = checkBoardUpdateRateLimit(userUuid);
-    if (rateLimitCheck.blocked) {
-      return res.status(429).json({
-        error: `Слишком много попыток обновления досок. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-      });
-    }
+   
 
     let { title, color, isPinned, isFavorite } = req.body;
     const dataToUpdate = {};
@@ -106,32 +97,19 @@ router.patch(
         });
       }
 
-      incrementBoardUpdateAttempts(userUuid);
-
       logBoardUpdate('Board', dataToUpdate, userUuid, ipAddress);
 
-      res.status(200).json({
-        message: 'Доска успешно обновлена',
-        updated: {
-          uuid: boardUuid,
-          ...dataToUpdate,
-        },
-      });
+      return res.status(200).json({ updatedBoard: { ...dataToUpdate } });
     } catch (error) {
-      if (error.code === 'P2002') {
-        return res
-          .status(409)
-          .json({ error: 'У вас уже есть доска с таким названием' });
-      }
-      if (error.code === 'P2025') {
-        return res
-          .status(404)
-          .json({ error: 'Доска не найдена или доступ запрещён' });
-      }
-      console.error('Ошибка обновления доски:', error);
-      return res
-        .status(500)
-        .json({ error: 'Произошла внутренняя ошибка сервера' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при обновлении доски',
+        mappings: {
+          P2002: { status: 409, message: 'Доска с таким названием уже существует' },
+          P2025: { status: 404, message: 'Доска не найдена или доступ запрещён' },
+        },
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при обновлении доски',
+      });
     }
   },
 );

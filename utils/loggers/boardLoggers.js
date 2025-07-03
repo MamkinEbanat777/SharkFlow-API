@@ -1,26 +1,22 @@
+import { logInfo, logWarn, logError, logSuspicious } from './baseLogger.js';
 
-export const logBoardCreation = (title, userUuid, ipAddress) => {
-  console.log(`Board created: "${title}" by user ${userUuid} from IP: ${ipAddress}`);
-};
+export const logBoardCreation = (title, userUuid, ip) =>
+  logInfo('Board', 'created', `"${title}" by user ${userUuid} from IP: ${ip}`);
 
-export const logBoardDeletion = (title, taskCount, userUuid, ipAddress) => {
-  console.log(`Board deleted: "${title}" (${taskCount} tasks) by user ${userUuid} from IP: ${ipAddress}`);
-};
+export const logBoardDeletion = (title, taskCount, userUuid, ip) =>
+  logInfo('Board', 'deleted', `"${title}" (${taskCount} tasks) by user ${userUuid} from IP: ${ip}`);
 
-export const logBoardUpdate = (title, changes, userUuid, ipAddress) => {
-  console.log(`Board updated: "${title}" by user ${userUuid} from IP: ${ipAddress}, changes: ${JSON.stringify(changes)}`);
-};
+export const logBoardUpdate = (title, changes, userUuid, ip) =>
+  logInfo('Board', 'updated', `"${title}" by user ${userUuid} from IP: ${ip}, changes: ${JSON.stringify(changes)}`);
 
-export const logBoardFetch = (boardsCount, totalBoards, userUuid, ipAddress) => {
+export const logBoardFetch = (boardsCount, totalBoards, userUuid, ip) => {
   if (process.env.NODE_ENV === 'development') {
-    console.log(`Boards fetched: ${boardsCount}/${totalBoards} by user ${userUuid} from IP: ${ipAddress}`);
+    logInfo('Board', 'fetched', `${boardsCount}/${totalBoards} by user ${userUuid} from IP: ${ip}`);
   }
 };
 
-export const logBoardError = (action, error, userUuid, ipAddress) => {
-  console.error(`Board ${action} error for user ${userUuid} from IP: ${ipAddress}:`, error);
-};
+export const logBoardError = (action, error, userUuid, ip) =>
+  logError('Board', action, `for user ${userUuid} from IP: ${ip}`, error);
 
-export const logSuspiciousActivity = (action, userUuid, ipAddress, details = '') => {
-  console.warn(`Suspicious board activity: ${action} by user ${userUuid} from IP: ${ipAddress} ${details}`);
-}; 
+export const logSuspiciousActivity = (action, userUuid, ip, details = '') =>
+  logSuspicious('Board', action, userUuid, ip, details); 

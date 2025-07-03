@@ -11,6 +11,8 @@ import {
   logRegistrationFailure,
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 
 const router = Router();
 
@@ -87,15 +89,24 @@ router.post(
 
       logRegistrationSuccess(email, userRecord.id, ipAddress);
 
+      if (!validateConfirmationCode(userRecord?.uuid, confirmationCode, {
+        failure: (uuid, reason) => logRegistrationFailure(email, ipAddress, reason),
+      })) {
+        return res.status(400).json({ error: 'Неверный код' });
+      }
+
       res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
       });
     } catch (error) {
-      console.error('Ошибка при регистрации:', error);
-      logRegistrationFailure('unknown', ipAddress, 'Server error');
-      res
-        .status(500)
-        .json({ error: 'Ошибка сервера. Пожалуйста, повторите попытку позже' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при создании пользователя',
+        mappings: {
+          P2002: { status: 409, message: 'Пользователь с таким email или логином уже существует' },
+        },
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при создании пользователя',
+      });
     }
   },
 );

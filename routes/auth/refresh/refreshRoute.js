@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import { createRefreshToken, issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import {
   validateRefreshToken,
@@ -13,6 +13,7 @@ import {
   logTokenRefreshFailure,
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -60,19 +61,22 @@ router.post('/api/auth/refresh', async (req, res) => {
       });
     }
 
-    let newRefreshToken = refreshToken;
     let rotated = false;
 
-    if (shouldRotateToken(tokenRecord.expiresAt)) {
-      const [newToken] = await Promise.all([
-        Promise.resolve(createRefreshToken(userUuid, tokenRecord.rememberMe)),
-        prisma.refreshToken.update({
-          where: { id: tokenRecord.id },
-          data: { revoked: true },
-        }),
-      ]);
+    const newRefreshToken = await issueRefreshToken({
+      res,
+      userUuid,
+      rememberMe: tokenRecord.rememberMe,
+      ipAddress,
+      userAgent: req.get('User-Agent'),
+      referrer,
+    });
 
-      newRefreshToken = newToken;
+    if (shouldRotateToken(tokenRecord.expiresAt)) {
+      await prisma.refreshToken.update({
+        where: { id: tokenRecord.id },
+        data: { revoked: true },
+      });
 
       await prisma.refreshToken.create({
         data: {
@@ -121,11 +125,12 @@ router.post('/api/auth/refresh', async (req, res) => {
       role: user.role,
     });
   } catch (error) {
-    console.error(error);
     logTokenRefreshFailure(userUuid, ipAddress, 'Server error');
-    return res
-      .status(500)
-      .json({ error: 'Произошла внутренняя ошибка сервера' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при обновлении токена',
+      status: 500,
+      message: 'Произошла внутренняя ошибка сервера',
+    });
   }
 });
 

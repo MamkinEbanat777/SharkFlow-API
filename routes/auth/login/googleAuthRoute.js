@@ -1,11 +1,12 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
-import { createRefreshToken } from '../../../utils/tokens/refreshToken.js';
+import { createRefreshToken, issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { OAuth2Client } from 'google-auth-library';
 import { generateUniqueLogin } from '../../../utils/generators/generateUniqueLogin.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 const googleClient = new OAuth2Client(process.env.VITE_GOOGLE_CLIENT_ID);
@@ -74,32 +75,28 @@ router.post('/api/auth/google', async (req, res) => {
       });
     }
 
-    const refreshToken = createRefreshToken(user.uuid, true);
+    const refreshToken = await issueRefreshToken({
+      res,
+      userUuid: user.uuid,
+      rememberMe: true,
+      ipAddress,
+      userAgent,
+      referrer: req.get('Referer') || null,
+    });
 
     const accessToken = createAccessToken(user.uuid, user.role);
 
     res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
 
-    await prisma.refreshToken.create({
-      data: {
-        token: refreshToken,
-        expiresAt: new Date(
-          Date.now() + Number(process.env.SESSION_EXPIRES_REMEMBER_ME),
-        ),
-        revoked: false,
-        rememberMe: true,
-        ipAddress,
-        userAgent,
-        userId: user.id,
-      },
-    });
-
     return res.status(200).json({
       accessToken,
     });
   } catch (error) {
-    console.error('Ошибка при логине через Google:', error);
-    return res.status(500).json({ error: 'Ошибка сервера. Попробуйте позже.' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при логине через Google',
+      status: 500,
+      message: 'Ошибка при логине через Google. Попробуйте позже.',
+    });
   }
 });
 

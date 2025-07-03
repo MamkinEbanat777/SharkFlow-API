@@ -3,11 +3,8 @@ import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
-import {
-  checkTaskDeletionRateLimit,
-  incrementTaskDeletionAttempts,
-} from '../../utils/rateLimiters/taskRateLimiters.js';
 import { logTaskDeletion } from '../../utils/loggers/taskLoggers.js';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -31,13 +28,6 @@ router.delete(
         .json({ error: 'Неверный формат идентификатора задачи' });
     }
 
-    const rateLimitCheck = checkTaskDeletionRateLimit(userUuid);
-    if (rateLimitCheck.blocked) {
-      return res.status(429).json({
-        error: `Слишком много попыток удаления задач. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-      });
-    }
-
     try {
       const taskToDelete = await prisma.task.findFirst({
         where: {
@@ -58,8 +48,6 @@ router.delete(
           .json({ error: 'Задача не найдена или доступ запрещён' });
       }
 
-      incrementTaskDeletionAttempts(userUuid);
-
       await prisma.task.update({
         where: { id: taskToDelete.id },
         data: {
@@ -74,17 +62,14 @@ router.delete(
         .status(200)
         .json({ deletedTask: { title: taskToDelete.title } });
     } catch (error) {
-      console.error('Ошибка при удалении задачи:', error);
-
-      if (error.code === 'P2025') {
-        return res
-          .status(404)
-          .json({ error: 'Задача не найдена или доступ запрещён' });
-      }
-
-      return res
-        .status(500)
-        .json({ error: 'Произошла внутренняя ошибка сервера' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при удалении задачи',
+        mappings: {
+          P2025: { status: 404, message: 'Задача не найдена или доступ запрещён' },
+        },
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера',
+      });
     }
   },
 );

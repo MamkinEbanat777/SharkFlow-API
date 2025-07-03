@@ -3,12 +3,9 @@ import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
 import { getClientIP } from '../../utils/helpers/ipHelper.js';
-import {
-  checkTaskUpdateRateLimit,
-  incrementTaskUpdateAttempts,
-} from '../../utils/rateLimiters/taskRateLimiters.js';
 import { logTaskUpdate } from '../../utils/loggers/taskLoggers.js';
 import { Priority, Status } from '@prisma/client';
+import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -25,13 +22,6 @@ router.patch(
     }
     if (!isValidUUID(taskUuid)) {
       return res.status(400).json({ error: 'Неверный UUID задачи' });
-    }
-
-    const rateLimitCheck = checkTaskUpdateRateLimit(userUuid);
-    if (rateLimitCheck.blocked) {
-      return res.status(429).json({
-        error: `Слишком много попыток обновления задач. Попробуйте через ${rateLimitCheck.timeLeft} секунд`,
-      });
     }
 
     const { title, dueDate, description, priority, status } = req.body;
@@ -115,7 +105,6 @@ router.patch(
           .json({ error: 'Задача не найдена или доступ запрещён' });
       }
 
-      incrementTaskUpdateAttempts(userUuid);
       logTaskUpdate(taskUuid, dataToUpdate, userUuid, ipAddress);
 
       res.status(200).json({
@@ -126,20 +115,15 @@ router.patch(
         },
       });
     } catch (error) {
-      if (error.code === 'P2002') {
-        return res
-          .status(409)
-          .json({ error: 'У вас уже есть задача с таким названием' });
-      }
-      if (error.code === 'P2025') {
-        return res
-          .status(404)
-          .json({ error: 'Задача не найдена или доступ запрещён' });
-      }
-      console.error('Ошибка обновления задачи:', error);
-      return res
-        .status(500)
-        .json({ error: 'Произошла внутренняя ошибка сервера' });
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка обновления задачи',
+        mappings: {
+          P2002: { status: 409, message: 'У вас уже есть задача с таким названием' },
+          P2025: { status: 404, message: 'Задача не найдена или доступ запрещён' },
+        },
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера при обновлении задачи',
+      });
     }
   },
 );
