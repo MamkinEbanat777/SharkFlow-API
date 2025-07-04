@@ -18,9 +18,9 @@ if (process.env.NODE_ENV !== 'production') {
     },
   );
   app.use(morgan('combined', { stream: accessLogStream }));
+} else {
+  app.use(morgan('dev'));
 }
-
-app.use(morgan('dev'));
 
 import helmet from 'helmet';
 import hpp from 'hpp';
