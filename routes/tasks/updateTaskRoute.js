@@ -96,6 +96,7 @@ router.patch(
       const board = await prisma.board.findFirst({
         where: {
           uuid: boardUuid,
+          isDeleted: false,
           user: { uuid: userUuid, isDeleted: false },
         },
         select: { id: true },

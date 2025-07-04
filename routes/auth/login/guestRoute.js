@@ -21,8 +21,8 @@ router.post('/api/auth/guest-login', async (req, res) => {
     const guestUuid = req.cookies.log___sf_21s_t1;
 
     if (guestUuid) {
-      const existingGuest = await prisma.user.findUnique({
-        where: { uuid: guestUuid },
+      const existingGuest = await prisma.user.findFirst({
+        where: { uuid: guestUuid, isDeleted: false },
       });
       if (existingGuest && existingGuest.role === 'guest') {
         const accessToken = createAccessToken(

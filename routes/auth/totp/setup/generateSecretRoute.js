@@ -4,18 +4,17 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 import speakeasy from 'speakeasy';
 import { encrypt } from '../../../../utils/crypto/encrypt.js';
 import { decrypt } from '../../../../utils/crypto/decrypt.js';
-import { isEmailConfirmed } from '../../../../store/emailCodeStore.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
+import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
+import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 
 const router = Router();
 
-router.get('/api/auth/totp', authenticateMiddleware, async (req, res) => {
+router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
-    if (!isEmailConfirmed(userUuid)) {
-      return res.status(403).json({ error: 'Код подтверждения не пройден' });
-    }
-    const user = await prisma.user.findUnique({
+    const { confirmationCode } = req.body;
+    const user = await prisma.user.findFirst({
       where: { uuid: userUuid, isDeleted: false },
       select: { twoFactorPendingSecret: true, email: true },
     });
@@ -23,6 +22,19 @@ router.get('/api/auth/totp', authenticateMiddleware, async (req, res) => {
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
+
+    const valid = await validateConfirmationCode(
+      userUuid,
+      'setupTotp',
+      confirmationCode,
+    );
+    if (!valid) {
+      return res
+        .status(400)
+        .json({ error: 'Неверный или просроченный код подтверждения' });
+    }
+
+    await deleteConfirmationCode('setupTotp', userUuid);
 
     let secret = user.twoFactorPendingSecret;
     if (!secret) {
@@ -46,7 +58,7 @@ router.get('/api/auth/totp', authenticateMiddleware, async (req, res) => {
       issuer: 'SharkFlow',
     });
 
-    res.json({ otpauthUrl, secret });
+    res.json({ message: 'Код подтверждения верен', otpauthUrl, secret });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка генерации или получения TOTP secret',

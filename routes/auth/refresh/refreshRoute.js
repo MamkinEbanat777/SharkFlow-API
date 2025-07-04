@@ -106,7 +106,7 @@ router.post('/api/auth/refresh', async (req, res) => {
       );
     }
 
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { uuid: userUuid, isDeleted: false },
       select: { role: true },
     });

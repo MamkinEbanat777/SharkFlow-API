@@ -17,6 +17,7 @@ model User {
   id                     Int       @id @default(autoincrement())
   uuid                   String    @unique @default(uuid()) @db.Uuid
   email                  String    @unique @db.VarChar(320)
+  googleEmail            String?   @unique @db.VarChar(320)
   login                  String    @unique @db.VarChar(30)
   password               String?
   googleSub              String?   @unique @db.VarChar(255)
@@ -36,6 +37,8 @@ model User {
   boards        Board[]
   refreshTokens RefreshToken[]
 
+  @@index([uuid, isDeleted])
+  @@index([email, isDeleted])
   @@map("users")
 }
 
@@ -57,6 +60,8 @@ model Board {
   tasks Task[]
 
   @@index([userId, title])
+  @@index([userId, isDeleted])
+  @@index([userId, isPinned, isFavorite, updatedAt])
   @@map("boards")
 }
 
@@ -77,6 +82,7 @@ model Task {
   board   Board @relation(fields: [boardId], references: [id], onDelete: Cascade)
 
   @@unique([boardId, title])
+  @@index([boardId, isDeleted])
   @@map("tasks")
 }
 
@@ -95,6 +101,7 @@ model RefreshToken {
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("refresh_tokens")
+  @@index([userId])
 }
 
 enum Status {

@@ -18,17 +18,29 @@ router.post(
       const userUuid = req.userUuid;
       const { confirmationCode } = req.body;
 
-      const valid = await validateConfirmationCode(userUuid, confirmationCode);
+      const valid = await validateConfirmationCode(
+        userUuid,
+        'disableTotp',
+        confirmationCode,
+      );
       if (!valid) {
         return res
           .status(400)
           .json({ error: 'Неверный или просроченный код подтверждения' });
       }
 
-      deleteConfirmationCode(userUuid);
+      await deleteConfirmationCode('disableTotp', userUuid);
+
+      const user = await prisma.user.findFirst({
+        where: { uuid: userUuid, isDeleted: false },
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
 
       await prisma.user.update({
-        where: { uuid: userUuid, isDeleted: false },
+        where: { uuid: userUuid },
         data: {
           twoFactorSecret: null,
           twoFactorEnabled: false,

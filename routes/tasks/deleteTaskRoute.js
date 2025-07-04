@@ -35,8 +35,10 @@ router.delete(
           isDeleted: false,
           board: {
             uuid: boardUuid,
+            isDeleted: false,
             user: {
               uuid: userUuid,
+              isDeleted: false,
             },
           },
         },
@@ -65,7 +67,10 @@ router.delete(
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при удалении задачи',
         mappings: {
-          P2025: { status: 404, message: 'Задача не найдена или доступ запрещён' },
+          P2025: {
+            status: 404,
+            message: 'Задача не найдена или доступ запрещён',
+          },
         },
         status: 500,
         message: 'Произошла внутренняя ошибка сервера',

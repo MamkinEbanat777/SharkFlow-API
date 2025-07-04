@@ -13,8 +13,8 @@ export async function sendUserConfirmationCode({
   let actualEmail = email;
 
   if (!skipUserCheck) {
-    const user = await prisma.user.findUnique({
-      where: { uuid: userUuid },
+    const user = await prisma.user.findFirst({
+      where: { uuid: userUuid, isDeleted: false },
       select: { email: true },
     });
 
@@ -32,7 +32,7 @@ export async function sendUserConfirmationCode({
   }
 
   const confirmationCode = generateConfirmationCode();
-  setConfirmationCode(userUuid, confirmationCode);
+  setConfirmationCode(type, userUuid, confirmationCode);
   await sendConfirmationEmail({
     to: actualEmail,
     type,

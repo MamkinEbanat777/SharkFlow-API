@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
-import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
-import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
-import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
+import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
+import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
+import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
+import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
 
 const router = Router();
 
@@ -18,14 +18,18 @@ router.post(
       const userUuid = req.userUuid;
       const { confirmationCode } = req.body;
 
-      const valid = await validateConfirmationCode(userUuid, confirmationCode);
+      const valid = await validateConfirmationCode(
+        userUuid,
+        'disableGoogle',
+        confirmationCode,
+      );
       if (!valid) {
         return res
           .status(400)
           .json({ error: 'Неверный или просроченный код подтверждения' });
       }
 
-      deleteConfirmationCode(userUuid);
+      await deleteConfirmationCode('disableGoogle', userUuid);
 
       const user = await prisma.user.findFirst({
         where: { uuid: userUuid, isDeleted: false },

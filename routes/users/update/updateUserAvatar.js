@@ -20,8 +20,18 @@ router.patch('/api/users/avatar', authenticateMiddleware, async (req, res) => {
   }
 
   try {
-    const updatedUser = await prisma.user.update({
+    const user = await prisma.user.findFirst({
       where: { uuid: userUuid, isDeleted: false },
+    });
+
+    if (!user) {
+      return res
+        .status(404)
+        .json({ error: 'Пользователь не найден или удалён' });
+    }
+
+    const updatedUser = await prisma.user.update({
+      where: { uuid: userUuid },
       data: { avatarUrl: imgUrl, publicId: publicId || null },
       select: { avatarUrl: true },
     });

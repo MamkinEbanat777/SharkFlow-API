@@ -12,8 +12,8 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
   const ipAddress = getClientIP(req);
 
   try {
-    const user = await prisma.user.findUnique({
-      where: { uuid: userUuid },
+    const user = await prisma.user.findFirst({
+      where: { uuid: userUuid, isDeleted: false },
       select: {
         login: true,
         email: true,
@@ -21,6 +21,7 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
         twoFactorEnabled: true,
         avatarUrl: true,
         googleOAuthEnabled: true,
+        googleEmail: true,
       },
     });
 

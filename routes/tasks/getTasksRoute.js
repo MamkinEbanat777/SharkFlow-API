@@ -29,7 +29,8 @@ router.get(
           isDeleted: false,
           board: {
             uuid: boardUuid,
-            user: { uuid: userUuid },
+            isDeleted: false,
+            user: { uuid: userUuid, isDeleted: false },
           },
         },
         orderBy: [{ updatedAt: 'desc' }],

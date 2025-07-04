@@ -19,8 +19,8 @@ router.post(
     const ipAddress = getClientIP(req);
 
     try {
-      const user = await prisma.user.findUnique({
-        where: { uuid: userUuid },
+      const user = await prisma.user.findFirst({
+        where: { uuid: userUuid, isDeleted: false },
       });
 
       if (!user) {

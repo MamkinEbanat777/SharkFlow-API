@@ -46,14 +46,20 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
       }),
     ]);
 
-    const counts = await prisma.task.groupBy({
-      by: ['boardId'],
-      where: {
-        isDeleted: false,
-        board: { uuid: { in: boards.map((b) => b.uuid) } },
-      },
-      _count: { _all: true },
-    });
+    let counts = [];
+
+    if (boards.length > 0) {
+      const boardUuids = boards.map((b) => b.uuid);
+
+      counts = await prisma.task.groupBy({
+        by: ['boardId'],
+        where: {
+          isDeleted: false,
+          board: { uuid: { in: boardUuids } },
+        },
+        _count: { _all: true },
+      });
+    }
 
     const countMap = counts.reduce((acc, { boardId, _count }) => {
       acc[boardId] = _count._all;

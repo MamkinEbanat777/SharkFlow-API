@@ -18,7 +18,6 @@ app.use(morgan('dev'));
 
 import helmet from 'helmet';
 import hpp from 'hpp';
-import statusMonitor from 'express-status-monitor';
 
 app.use(helmet());
 app.use(hpp());
@@ -29,7 +28,6 @@ app.use(corsMiddleware);
 //   app.use('/', limiterMiddleware);
 // }
 
-app.use(statusMonitor());
 app.use(compression());
 app.use(cookieParser());
 app.use(express.json({ limit: '10kb' }));

@@ -3,20 +3,29 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import speakeasy from 'speakeasy';
 import { decrypt } from '../../../../utils/crypto/decrypt.js';
-import { clearEmailConfirmed } from '../../../../store/emailCodeStore.js';
+import { clearEmailConfirmed } from '../../../../store/emailConfirmedStore.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
-router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
+router.post('/api/auth/totp/setup', authenticateMiddleware, async (req, res) => {
   try {
     const { totpCode } = req.body;
     const userUuid = req.userUuid;
 
-    const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
+    const user = await prisma.user.findFirst({
+      where: { uuid: userUuid, isDeleted: false },
+      select: { twoFactorPendingSecret: true },
+    });
 
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    if (!user.twoFactorPendingSecret) {
+      return res.status(400).json({
+        error: 'Отсутствует ключ для завершения настройки 2FA',
+      });
     }
 
     const encrypted = user.twoFactorPendingSecret;
@@ -40,7 +49,7 @@ router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
         twoFactorEnabled: true,
       },
     });
-    clearEmailConfirmed(userUuid);
+    await clearEmailConfirmed('setupTotp', userUuid);
     res.json({ success: true, message: '2FA успешно подключена' });
   } catch (error) {
     handleRouteError(res, error, {

@@ -35,7 +35,9 @@ export async function issueRefreshToken({
     : Number(process.env.SESSION_EXPIRES_DEFAULT);
   const expiresAt = new Date(Date.now() + expiresMs);
 
-  const user = await prisma.user.findUnique({ where: { uuid: userUuid } });
+  const user = await prisma.user.findFirst({
+    where: { uuid: userUuid, isDeleted: false },
+  });
 
   if (!user) {
     return res.status(404).json({ error: 'Пользователь не найден' });

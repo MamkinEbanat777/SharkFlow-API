@@ -9,7 +9,7 @@ const router = Router();
 router.delete('/api/users/avatar', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   try {
-    const user = await prisma.user.findUnique({
+    const user = await prisma.user.findFirst({
       where: { uuid: userUuid, isDeleted: false },
       select: { avatarUrl: true, publicId: true },
     });

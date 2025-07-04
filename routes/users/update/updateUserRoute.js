@@ -24,12 +24,6 @@ router.patch(
     const ipAddress = getClientIP(req);
 
     try {
-      if (!userUuid) {
-        return res
-          .status(400)
-          .json({ error: 'UUID пользователя не найден в токене' });
-      }
-
       const { confirmationCode, updatedFields } = req.body;
       const { login, email } = updatedFields || {};
       const trimmedLogin = typeof login === 'string' ? login.trim() : undefined;
@@ -44,7 +38,11 @@ router.patch(
         return res.status(400).json({ error: 'Код подтверждения обязателен' });
       }
 
-      const valid = await validateConfirmationCode(userUuid, confirmationCode);
+      const valid = await validateConfirmationCode(
+        userUuid,
+        'updateUser',
+        confirmationCode,
+      );
       if (!valid) {
         return res
           .status(400)
@@ -59,15 +57,34 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const updatedUser = await prisma.user.update({
+      const user = await prisma.user.findFirst({
+        where: { uuid: userUuid, isDeleted: false },
+      });
+
+      if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+
+      const updateResult = await prisma.user.update({
         where: { uuid: userUuid },
         data: dataToUpdate,
+      });
+
+      if (!updateResult) {
+        logUserUpdateFailure(userUuid, dataToUpdate, ipAddress);
+        return res
+          .status(403)
+          .json({ error: 'Пользователь не найден или был удалён' });
+      }
+
+      const updatedUser = await prisma.user.findUnique({
+        where: { uuid: userUuid },
         select: { login: true, email: true },
       });
 
       logUserUpdate(userUuid, dataToUpdate, ipAddress);
 
-      deleteConfirmationCode(userUuid);
+      await deleteConfirmationCode('updateUser', userUuid);
 
       return res.json({
         message: 'Данные успешно обновлены',

@@ -10,8 +10,13 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     setupTotp: 'Подключение двуфакторной аутентификации',
     disableTotp: 'Отключение двуфакторной аутентификации',
     emailChange: 'Подтверждение нового email',
-    disableGoogle: 'Отключение авторизаци через Google',
+    disableGoogle: 'Отключение авторизации через Google',
+    connectGoogle: 'Подключение авторизации через Google',
   };
+
+  if (!subjectMap[type]) {
+    throw new Error(`Unknown confirmation email type: ${type}`);
+  }
 
   const html = await renderEmail(type, {
     title: subjectMap[type],

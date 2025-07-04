@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { registerValidate } from '../../../utils/validators/registerValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { setRegistrationData } from '../../../store/registrationStore.js';
+import { setUserTempData } from '../../../store/userTempData.js';
 import bcrypt from 'bcrypt';
 import { getRegistrationCookieOptions } from '../../../utils/cookie/registerCookie.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
@@ -78,11 +78,10 @@ router.post(
         },
       });
 
-      setRegistrationData(uuid, {
+      await setUserTempData('registration', uuid, {
         email: normalizedEmail,
         login: trimmedLogin,
         hashedPassword,
-        confirmationCode,
       });
 
       res.cookie('sd_f93j8f___', uuid, getRegistrationCookieOptions());

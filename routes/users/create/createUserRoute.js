@@ -3,9 +3,9 @@ import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import {
-  getRegistrationData,
-  deleteRegistrationData,
-} from '../../../store/registrationStore.js';
+  getUserTempData,
+  deleteUserTempData,
+} from '../../../store/userTempData.js';
 import {
   logRegistrationSuccess,
   logRegistrationFailure,
@@ -21,7 +21,7 @@ router.post(
   '/api/users',
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
-    const confirmationCodeFromClient = req.body.confirmationCode;
+    const { confirmationCode } = req.body;
     const regUuid = req.cookies.sd_f93j8f___;
     const guestUuid = req.cookies.log___sf_21s_t1;
     const ipAddress = getClientIP(req);
@@ -31,7 +31,7 @@ router.post(
         return res.status(400).json({ error: 'Регистрация не найдена' });
       }
 
-      const storedData = await getRegistrationData(regUuid);
+      const storedData = await getUserTempData('registration', regUuid);
       if (!storedData) {
         return res.status(400).json({ error: 'Код истёк или не найден' });
       }
@@ -40,7 +40,8 @@ router.post(
 
       const success = await validateConfirmationCode(
         regUuid,
-        confirmationCodeFromClient,
+        'registration',
+        confirmationCode,
         {
           failure: (uuid, reason) =>
             logRegistrationFailure(email, ipAddress, reason),
@@ -53,11 +54,15 @@ router.post(
 
       let userRecord;
 
-      if (guestUuid) {
-        const existingGuest = await prisma.user.findUnique({
-          where: { uuid: guestUuid },
-        });
+      const existingGuest = await prisma.user.findFirst({
+        where: { uuid: guestUuid, isDeleted: false, role: 'guest' },
+      });
 
+      if (!existingGuest) {
+        return res.status(400).json({ error: 'Пользователь не найден' });
+      }
+
+      if (guestUuid) {
         if (existingGuest && existingGuest.role === 'guest') {
           userRecord = await prisma.user.update({
             where: { uuid: guestUuid },
@@ -89,9 +94,9 @@ router.post(
         },
       });
 
-      await deleteRegistrationData(regUuid);
+      await deleteUserTempData('registration', regUuid);
 
-      await deleteConfirmationCode(regUuid);
+      await deleteConfirmationCode('registration', regUuid);
 
       logRegistrationSuccess(email, userRecord.id, ipAddress);
 

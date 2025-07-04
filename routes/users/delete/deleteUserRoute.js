@@ -46,7 +46,11 @@ router.post(
         .json({ error: 'Недействительный или чужой токен' });
     }
 
-    const valid = await validateConfirmationCode(userUuid, confirmationCode);
+    const valid = await validateConfirmationCode(
+      userUuid,
+      'deleteUser',
+      confirmationCode,
+    );
     if (!valid) {
       return res
         .status(400)
@@ -62,6 +66,7 @@ router.post(
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
+
       if (user?.publicId) {
         await cloudinary.v2.uploader.destroy(user.publicId);
       }
@@ -122,7 +127,7 @@ router.post(
         path: '/',
       });
 
-      deleteConfirmationCode(userUuid);
+      await deleteConfirmationCode('deleteUser', userUuid);
 
       logUserDelete(userUuid, ipAddress);
 

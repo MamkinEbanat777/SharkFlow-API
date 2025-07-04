@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { getClientIP } from '../../../../utils/helpers/ipHelper.js';
+import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
+import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
-} from '../../../utils/loggers/authLoggers.js';
+} from '../../../../utils/loggers/authLoggers.js';
 
 const router = Router();
 
