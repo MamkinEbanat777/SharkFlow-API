@@ -10,9 +10,14 @@ import morgan from 'morgan';
 
 const app = express();
 
-const accessLogStream = fs.createWriteStream(path.join('logs', 'access.log'), {
-  flags: 'a',
-});
+if (process.env.NODE_ENV !== 'production') {
+  const accessLogStream = fs.createWriteStream(
+    path.join('logs', 'access.log'),
+    {
+      flags: 'a',
+    },
+  );
+}
 app.use(morgan('combined', { stream: accessLogStream }));
 app.use(morgan('dev'));
 
