@@ -1,9 +1,6 @@
 import { Telegraf } from 'telegraf';
-import dotenv from 'dotenv';
 import prisma from '../utils/prismaConfig/prismaClient.js';
 import jwt from 'jsonwebtoken';
-
-dotenv.config();
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
