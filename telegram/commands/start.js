@@ -15,6 +15,7 @@ export default function registerStartCommand(bot) {
 
     try {
       const { userUuid } = jwt.verify(token, process.env.JWT_TELEGRAM_SECRET);
+      console.log('Получена команда /start с текстом:', ctx.message.text);
       console.info(userUuid);
       await prisma.user.update({
         where: { uuid: userUuid },
