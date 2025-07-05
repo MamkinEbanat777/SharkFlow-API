@@ -12,9 +12,9 @@ export async function deleteOldGuests() {
         },
       },
     });
-
+    console.info('SearchGuests....')
     if (deleted.count > 0) {
-      console.log(`[cron] Удалено ${deleted.count} гостевых аккаунтов`);
+      console.info(`[cron] Удалено ${deleted.count} гостевых аккаунтов`);
     }
   } catch (err) {
     console.error('[cron] Ошибка при удалении гостей:', err);

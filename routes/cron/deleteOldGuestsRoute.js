@@ -25,7 +25,9 @@ router.post(
       return res.status(403).send('Invalid signature');
     }
     try {
+      console.info('Process...');
       await deleteOldGuests();
+      console.info('Done!');
       res.status(200).send('Old guests deleted');
     } catch (err) {
       console.error(err);

@@ -33,6 +33,7 @@ model User {
   twoFactorPendingSecret String?   @db.VarChar(256)
   avatarUrl              String?   @db.VarChar(1024)
   publicId               String?   @db.VarChar(100)
+  telegramId             BigInt?   @unique
 
   boards        Board[]
   refreshTokens RefreshToken[]
@@ -100,8 +101,8 @@ model RefreshToken {
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@map("refresh_tokens")
   @@index([userId])
+  @@map("refresh_tokens")
 }
 
 enum Status {

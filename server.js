@@ -1,8 +1,6 @@
 import http from 'http';
 import app from './app.js';
 import dotenv from 'dotenv';
-import nodeCron from 'node-cron';
-import { deleteOldGuests } from './utils/jobs/deleteOldGuests.js';
 
 dotenv.config();
 
