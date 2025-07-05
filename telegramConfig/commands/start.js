@@ -33,27 +33,12 @@ export default function registerStartCommand(bot) {
         );
       }
 
-      console.info('[rawData]', JSON.stringify(rawData));
       console.info('[rawData]', rawData);
 
-      let userUuid;
-      try {
-        const parsedData = JSON.parse(rawData);
-        console.info(
-          '[setUserTempData]',
-          type,
-          uuid,
-          JSON.stringify(parsedData),
-        );
-        console.info('[setUserTempData]', type, uuid, parsedData);
+      const parsedData = rawData; // Уже объект!
+      console.info('[parsedData]', parsedData);
 
-        userUuid = parsedData.userUuid;
-      } catch (e) {
-        console.error('[start.js] Ошибка парсинга данных:', e);
-        return await ctx.reply(
-          'Ошибка привязки Telegram. Невозможно прочитать данные.',
-        );
-      }
+      const userUuid = parsedData?.userUuid;
 
       if (typeof userUuid !== 'string') {
         console.error(
