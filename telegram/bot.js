@@ -1,27 +1,16 @@
 import { Telegraf } from 'telegraf';
-import prisma from '../utils/prismaConfig/prismaClient.js';
-import jwt from 'jsonwebtoken';
+import registerStartCommand from './commands/start.js';
+import { telegramToken } from '../utils/tokens/telegramToken.js';
 
 const bot = new Telegraf(process.env.TELEGRAM_BOT_TOKEN);
 
-bot.start(async (ctx) => {
-  const args = ctx.message.text.split(' ');
-  const token = args[1];
-  const telegramId = ctx.from.id;
+registerStartCommand(bot);
 
-  if (!token) return ctx.reply('Токен не найден');
-
-  try {
-    const { userUuid } = jwt.verify(token, process.env.JWT_SECRET);
-    await prisma.user.update({
-      where: { uuid: userUuid },
-      data: { telegramId },
-    });
-    ctx.reply('Telegram привязан!');
-  } catch (e) {
-    console.error(e);
-    ctx.reply('Ошибка привязки Telegram');
-  }
-});
+if (process.env.NODE_ENV !== 'production') {
+  const testUuid = '156a5ce1-22b1-4c5b-a9f6-e671ca070c35';
+  const token = telegramToken(testUuid);
+  console.log('Тестовый Telegram токен:', token);
+  console.log(`https://t.me/TODO_SHARKFLOW_BOT?start=${token}`);
+}
 
 export default bot;

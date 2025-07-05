@@ -7,7 +7,6 @@ import cookieParser from 'cookie-parser';
 import fs from 'fs';
 import path from 'path';
 import morgan from 'morgan';
-import { launchTelegramBot } from './telegram/index.js';
 
 const app = express();
 
@@ -51,8 +50,6 @@ const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {
   app.use(path, router);
 });
-
-launchTelegramBot();
 
 app.use((err, req, res, next) => {
   console.error(err.stack);

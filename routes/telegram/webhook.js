@@ -5,6 +5,7 @@ const router = Router();
 
 router.post('/telegram/webhook', async (req, res) => {
   try {
+    console.log('Webhook получил данные:', req.body);
     await bot.handleUpdate(req.body, res);
   } catch (e) {
     console.error(e);
