@@ -33,6 +33,9 @@ export default function registerStartCommand(bot) {
         );
       }
 
+      console.info('[rawData]', type, uuid, JSON.stringify(rawData));
+      console.info('[rawData]', type, uuid, rawData);
+
       let userUuid;
       try {
         const parsedData = JSON.parse(rawData);
