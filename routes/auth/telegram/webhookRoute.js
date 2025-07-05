@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import bot from '../../telegram/bot.js';
+import bot from '../../../telegramConfig/bot.js';
 
 const router = Router();
 
