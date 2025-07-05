@@ -19,6 +19,7 @@ export async function generateUniqueLogin(base) {
   while (
     await prisma.user.findFirst({
       where: { login: uniqueLogin, isDeleted: false },
+      select: { id: true },
     })
   ) {
     uniqueLogin = `${login}${suffix++}`;

@@ -27,6 +27,7 @@ export async function issueRefreshToken({
   ipAddress = null,
   userAgent = null,
   referrer = null,
+  userId = null, 
 }) {
   const refreshToken = createRefreshToken(userUuid, rememberMe);
 
@@ -35,12 +36,18 @@ export async function issueRefreshToken({
     : Number(process.env.SESSION_EXPIRES_DEFAULT);
   const expiresAt = new Date(Date.now() + expiresMs);
 
-  const user = await prisma.user.findFirst({
-    where: { uuid: userUuid, isDeleted: false },
-  });
+  let user;
+  
+  if (userId) {
+    user = { id: userId };
+  } else {
+    user = await prisma.user.findFirst({
+      where: { uuid: userUuid, isDeleted: false },
+    });
 
-  if (!user) {
-    return res.status(404).json({ error: 'Пользователь не найден' });
+    if (!user) {
+      throw new Error('Пользователь не найден');
+    }
   }
 
   await prisma.refreshToken.create({
@@ -56,7 +63,7 @@ export async function issueRefreshToken({
     },
   });
 
-  if (setCookie && res) {
+  if (setCookie && res && !res.headersSent) {
     res.cookie(
       'log___tf_12f_t2',
       refreshToken,

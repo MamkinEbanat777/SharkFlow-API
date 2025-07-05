@@ -1,11 +1,7 @@
 import { Router } from 'express';
 import { loginValidate } from '../../../utils/validators/loginValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import bcrypt from 'bcrypt';
-import { createAccessToken } from '../../../utils/tokens/accessToken.js';
-import { issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
 import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
 import {
   checkLoginRateLimit,
@@ -20,7 +16,8 @@ import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
 import { setUserTempData } from '../../../store/userTempData.js';
-import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
+import { findUserByEmail } from '../../../utils/helpers/userHelpers.js';
+import { createAuthTokens, setAuthCookies } from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
@@ -47,16 +44,13 @@ router.post(
     }
 
     try {
-      const user = await prisma.user.findFirst({
-        where: { email: normalizedEmail, isDeleted: false },
-        select: {
-          uuid: true,
-          password: true,
-          login: true,
-          email: true,
-          role: true,
-          twoFactorEnabled: true,
-        },
+      const user = await findUserByEmail(normalizedEmail, {
+        uuid: true,
+        password: true,
+        login: true,
+        email: true,
+        role: true,
+        twoFactorEnabled: true,
       });
 
       if (!user || !user.password) {
@@ -90,26 +84,12 @@ router.post(
 
       resetLoginAttempts(ipAddress, normalizedEmail);
 
-      const accessToken = createAccessToken(user.uuid, user.role);
-      const csrfToken = createCsrfToken(user.uuid, user.role);
-      const refreshToken = await issueRefreshToken({
-        res,
-        userUuid: user.uuid,
-        rememberMe,
-        ipAddress,
-        userAgent,
-        referrer: req.get('Referer') || null,
-      });
-
-      res.cookie(
-        'log___tf_12f_t2',
-        refreshToken,
-        getRefreshCookieOptions(rememberMe),
-      );
+      const tokens = await createAuthTokens(user, rememberMe, req);
+      setAuthCookies(res, tokens.refreshToken, rememberMe);
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
 
-      return res.status(200).json({ accessToken, csrfToken });
+      return res.status(200).json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
     } catch (error) {
       incrementLoginAttempts(ipAddress, normalizedEmail);
       handleRouteError(res, error, {

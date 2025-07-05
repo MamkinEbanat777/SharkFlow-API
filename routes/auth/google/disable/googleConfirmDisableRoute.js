@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { getClientIP } from '../../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
@@ -8,6 +7,7 @@ import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
 } from '../../../../utils/loggers/authLoggers.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -19,9 +19,7 @@ router.post(
     const ipAddress = getClientIP(req);
 
     try {
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         logUserUpdateRequestFailure(userUuid, ipAddress, 'User not found');

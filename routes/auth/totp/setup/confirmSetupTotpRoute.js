@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
@@ -13,9 +13,7 @@ router.post(
     const userUuid = req.userUuid;
 
     try {
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

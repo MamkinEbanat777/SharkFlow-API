@@ -1,11 +1,12 @@
 import { Router } from 'express';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
 import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
@@ -31,9 +32,7 @@ router.post(
 
       await deleteConfirmationCode('disableGoogle', userUuid);
 
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

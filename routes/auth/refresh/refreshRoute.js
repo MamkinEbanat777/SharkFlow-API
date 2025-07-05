@@ -71,6 +71,7 @@ router.post('/api/auth/refresh', async (req, res) => {
       ipAddress,
       userAgent: req.get('User-Agent'),
       referrer,
+      userId: tokenRecord.userId, 
     });
 
     if (shouldRotateToken(tokenRecord.expiresAt)) {
@@ -129,11 +130,20 @@ router.post('/api/auth/refresh', async (req, res) => {
     });
   } catch (error) {
     logTokenRefreshFailure(userUuid, ipAddress, 'Server error');
-    handleRouteError(res, error, {
-      logPrefix: 'Ошибка при обновлении токена',
-      status: 500,
-      message: 'Произошла внутренняя ошибка сервера',
-    });
+    
+    if (!res.headersSent) {
+      if (error.message === 'Пользователь не найден') {
+        return res.status(401).json({ 
+          message: 'Пользователь не найден. Пожалуйста, войдите в систему заново' 
+        });
+      }
+      
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при обновлении токена',
+        status: 500,
+        message: 'Произошла внутренняя ошибка сервера',
+      });
+    }
   }
 });
 

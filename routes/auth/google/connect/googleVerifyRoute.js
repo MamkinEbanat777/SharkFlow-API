@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
 import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
@@ -7,6 +6,9 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 import { getUserTempData } from '../../../../store/userTempData.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+
 
 const router = Router();
 
@@ -37,9 +39,7 @@ router.post(
       }
       const { googleSub, normalizedGoogleEmail } = storedData;
 
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь' });

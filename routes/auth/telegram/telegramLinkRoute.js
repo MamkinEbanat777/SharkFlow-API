@@ -17,7 +17,7 @@ router.get('/api/telegram/link', authenticateMiddleware, async (req, res) => {
     const link = `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=${nonce}`;
 
     return res.json({ link });
-  } catch (e) {
+  } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка генерации ссылки',
       status: 500,

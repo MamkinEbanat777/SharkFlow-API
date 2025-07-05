@@ -45,11 +45,12 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
     });
 
     const user = await prisma.user.findFirst({
-      where: { uuid: userId, isDeleted: false },
+      where: { id: userId, isDeleted: false },
     });
 
     if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
+      console.warn('Пользователь не найден или удалён');
+      return;
     }
 
     const secureUrl = result?.secure_url || null;

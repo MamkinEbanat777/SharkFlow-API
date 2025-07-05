@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { getClientIP } from '../../../../utils/helpers/ipHelper.js';
 import { OAuth2Client } from 'google-auth-library';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
@@ -7,6 +6,7 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '../../../../store/userTempData.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -26,13 +26,13 @@ router.post(
     const { code } = req.body;
 
     try {
-      const { tokens } = await oauth2Client.getToken({
+      const { tokens: googleTokens } = await oauth2Client.getToken({
         code,
         redirect_uri: 'postmessage',
       });
 
       const ticket = await oauth2Client.verifyIdToken({
-        idToken: tokens.id_token,
+        idToken: googleTokens.id_token,
         audience: process.env.CLIENT_GOOGLE_ID,
       });
 
@@ -54,9 +54,7 @@ router.post(
         });
       }
 
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

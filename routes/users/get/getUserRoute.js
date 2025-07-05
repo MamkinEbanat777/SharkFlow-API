@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { logUserFetch } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -12,18 +12,15 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
   const ipAddress = getClientIP(req);
 
   try {
-    const user = await prisma.user.findFirst({
-      where: { uuid: userUuid, isDeleted: false },
-      select: {
-        login: true,
-        email: true,
-        role: true,
-        twoFactorEnabled: true,
-        avatarUrl: true,
-        googleOAuthEnabled: true,
-        googleEmail: true,
-        telegramEnabled: true,
-      },
+    const user = await findUserByUuid(userUuid, {
+      login: true,
+      email: true,
+      role: true,
+      twoFactorEnabled: true,
+      avatarUrl: true,
+      googleOAuthEnabled: true,
+      googleEmail: true,
+      telegramEnabled: true,
     });
 
     if (!user) {

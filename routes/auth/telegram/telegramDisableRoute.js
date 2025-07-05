@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -12,9 +12,7 @@ router.delete(
     try {
       const userUuid = req.userUuid;
 
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

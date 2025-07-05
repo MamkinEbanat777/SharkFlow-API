@@ -54,15 +54,29 @@ router.post(
 
       let userRecord;
 
-      const existingGuest = await prisma.user.findFirst({
-        where: { uuid: guestUuid, isDeleted: false, role: 'guest' },
+      const existingUser = await prisma.user.findFirst({
+        where: { email },
       });
 
-      if (!existingGuest) {
-        return res.status(400).json({ error: 'Пользователь не найден' });
+      if (existingUser) {
+        if (existingUser.isDeleted) {
+          return res
+            .status(403)
+            .json({ 
+              error: 'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.' 
+            });
+        } else {
+          return res
+            .status(409)
+            .json({ error: 'Пользователь с таким email уже существует' });
+        }
       }
 
       if (guestUuid) {
+        const existingGuest = await prisma.user.findFirst({
+          where: { uuid: guestUuid, isDeleted: false, role: 'guest' },
+        });
+
         if (existingGuest && existingGuest.role === 'guest') {
           userRecord = await prisma.user.update({
             where: { uuid: guestUuid },

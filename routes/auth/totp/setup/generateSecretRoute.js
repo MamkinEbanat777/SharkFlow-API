@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import speakeasy from 'speakeasy';
 import { encrypt } from '../../../../utils/crypto/encrypt.js';
@@ -7,6 +7,8 @@ import { decrypt } from '../../../../utils/crypto/decrypt.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
 import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
+import { createOtpAuthUrl } from '../../../../utils/helpers/totpHelpers.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
@@ -14,9 +16,9 @@ router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     const { confirmationCode } = req.body;
-    const user = await prisma.user.findFirst({
-      where: { uuid: userUuid, isDeleted: false },
-      select: { twoFactorPendingSecret: true, email: true },
+    const user = await findUserByUuid(userUuid, { 
+      twoFactorPendingSecret: true, 
+      email: true 
     });
 
     if (!user) {
@@ -51,12 +53,7 @@ router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
       secret = decrypt(user.twoFactorPendingSecret);
     }
 
-    const otpauthUrl = speakeasy.otpauthURL({
-      secret,
-      label: `SharkFlow (${user.email})`,
-      encoding: 'base32',
-      issuer: 'SharkFlow',
-    });
+    const otpauthUrl = createOtpAuthUrl(secret, user.email);
 
     res.json({ message: 'Код подтверждения верен', otpauthUrl, secret });
   } catch (error) {

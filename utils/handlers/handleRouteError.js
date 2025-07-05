@@ -5,6 +5,11 @@ export function handleRouteError(res, error, {
   logPrefix = 'Ошибка в маршруте',
   requestId = null,
 } = {}) {
+  if (res.headersSent) {
+    console.error(`${logPrefix}: Response already sent, cannot send error response`);
+    return;
+  }
+
   if (error && error.code && mappings[error.code]) {
     const { status: mappedStatus, message: mappedMessage } = mappings[error.code];
     if (requestId) {

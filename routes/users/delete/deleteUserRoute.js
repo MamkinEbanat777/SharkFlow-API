@@ -116,6 +116,11 @@ router.post(
             twoFactorSecret: null,
             twoFactorPendingSecret: null,
             twoFactorEnabled: false,
+            googleSub: null,
+            googleEmail: null,
+            googleOAuthEnabled: false,
+            telegramId: null,
+            telegramEnabled: false,
           },
         }),
       ]);

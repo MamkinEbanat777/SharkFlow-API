@@ -55,15 +55,44 @@ router.post('/api/auth/google', async (req, res) => {
     const avatarUrl = pic;
 
     const userByEmail = await prisma.user.findFirst({
-      where: { email, isDeleted: false },
+      where: { email },
     });
+
+    const userByGoogleSub = await prisma.user.findFirst({
+      where: { googleSub },
+    });
+
     if (userByEmail) {
+      if (!userByEmail.isActive) {
+        return res
+          .status(403)
+          .json({ error: 'Аккаунт заблокирован. Обратитесь в поддержку.' });
+      }
+
       if (userByEmail.googleSub === googleSub) {
-        user = userByEmail;
-      } else if (userByEmail.googleSub) {
+        if (userByEmail.isDeleted) {
+          user = await prisma.user.update({
+            where: { id: userByEmail.id },
+            data: {
+              isDeleted: false,
+              deletedAt: null,
+              googleOAuthEnabled: true,
+              avatarUrl: avatarUrl || userByEmail.avatarUrl,
+            },
+          });
+        } else {
+          user = userByEmail;
+        }
+      } else if (userByEmail.googleSub && userByEmail.googleSub !== googleSub) {
         return res
           .status(403)
           .json({ error: 'Email уже привязан к другому Google аккаунту' });
+      } else if (userByEmail.isDeleted) {
+        return res
+          .status(403)
+          .json({ 
+            error: 'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.' 
+          });
       } else {
         user = await prisma.user.update({
           where: { id: userByEmail.id },
@@ -71,28 +100,23 @@ router.post('/api/auth/google', async (req, res) => {
             googleSub,
             googleOAuthEnabled: true,
             avatarUrl: avatarUrl || userByEmail.avatarUrl,
-            isDeleted: false,
-            deletedAt: null,
           },
         });
-
-        if (
-          avatarUrl &&
-          (!user.avatarUrl || !user.avatarUrl.includes('res.cloudinary.com'))
-        ) {
-          await uploadAvatarAndUpdateUser(
-            user.id,
-            avatarUrl,
-            `google_${googleSub}`,
-          );
-        }
       }
-    }
-
-    if (!user) {
-      user = await prisma.user.findFirst({
-        where: { googleSub, isDeleted: false },
-      });
+    } else if (userByGoogleSub) {
+      if (userByGoogleSub.isDeleted) {
+        return res
+          .status(403)
+          .json({ 
+            error: 'Google аккаунт был связан с удаленным профилем. Пожалуйста, используйте другой Google аккаунт или обратитесь в поддержку.' 
+          });
+      } else {
+        return res
+          .status(403)
+          .json({ 
+            error: 'Google аккаунт уже связан с другим профилем. Пожалуйста, используйте другой Google аккаунт.' 
+          });
+      }
     }
 
     if (!user) {
@@ -102,33 +126,35 @@ router.post('/api/auth/google', async (req, res) => {
         data: {
           login,
           googleEmail: email,
+          email: email,
           googleSub,
           googleOAuthEnabled: true,
           avatarUrl: null,
           password: null,
+          role: 'user', 
         },
       });
-      if (avatarUrl) {
-        await uploadAvatarAndUpdateUser(
-          user.id,
-          avatarUrl,
-          `google_${googleSub}`,
-        );
-      }
     }
 
-    // if (user.isDeleted) {
-    //   user = await prisma.user.update({
-    //     where: { id: user.id },
-    //     data: {
-    //       isDeleted: false,
-    //       deletedAt: null,
-    //       googleOAuthEnabled: true,
-    //       googleSub,
-    //       avatarUrl: avatarUrl || user.avatarUrl,
-    //     },
-    //   });
-    // }
+    if (avatarUrl && (!user.avatarUrl || !user.avatarUrl.includes('res.cloudinary.com'))) {
+      await uploadAvatarAndUpdateUser(
+        user.id,
+        avatarUrl,
+        `google_${googleSub}`,
+      );
+    }
+
+    if (user.isDeleted || !user.isActive) {
+      return res
+        .status(403)
+        .json({ error: 'Аккаунт недоступен. Обратитесь в поддержку.' });
+    }
+
+    if (user.role === 'guest') {
+      return res
+        .status(403)
+        .json({ error: 'Гостевые аккаунты не могут использовать OAuth.' });
+    }
 
     const refreshToken = await issueRefreshToken({
       res,
@@ -137,6 +163,7 @@ router.post('/api/auth/google', async (req, res) => {
       ipAddress,
       userAgent,
       referrer: req.get('Referer') || null,
+      userId: user.id, 
     });
 
     const accessToken = createAccessToken(user.uuid, user.role);
@@ -149,11 +176,13 @@ router.post('/api/auth/google', async (req, res) => {
       googleOAuthEnabled: user.googleOAuthEnabled,
     });
   } catch (error) {
-    handleRouteError(res, error, {
-      logPrefix: 'Ошибка при логине через Google',
-      status: 500,
-      message: 'Ошибка при логине через Google. Попробуйте позже.',
-    });
+    if (!res.headersSent) {
+      handleRouteError(res, error, {
+        logPrefix: 'Ошибка при логине через Google',
+        status: 500,
+        message: 'Ошибка при логине через Google. Попробуйте позже.',
+      });
+    }
   }
 });
 
