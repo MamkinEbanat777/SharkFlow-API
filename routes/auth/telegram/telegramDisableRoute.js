@@ -1,5 +1,7 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -8,15 +10,33 @@ router.delete(
   authenticateMiddleware,
   async (req, res) => {
     try {
-      await prisma.user.update({
-        where: { uuid: req.userUuid },
-        data: { telegramId: null },
+      const userUuid = req.userUuid;
+
+      const user = await prisma.user.findFirst({
+        where: { uuid: userUuid, isDeleted: false },
       });
 
-      res.json({ message: 'Telegram успешно отвязан' });
-    } catch (e) {
-      console.error('[telegram/unlink] Ошибка:', e);
-      res.status(500).json({ error: 'Не удалось отвязать Telegram' });
+      if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+
+      if (!user.telegramId) {
+        return res.status(400).json({ error: 'Telegram не был привязан' });
+      }
+
+      await prisma.user.update({
+        where: { uuid: userUuid },
+        data: { telegramId: null, telegramEnabled: false },
+      });
+
+      return res.json({ message: 'Telegram успешно отвязан' });
+    } catch (error) {
+      console.error('[telegram/unlink] Ошибка:', error);
+      handleRouteError(res, error, {
+        logPrefix: 'Не удалось отвязать Telegram',
+        status: 500,
+        message: 'Не удалось отвязать Telegram. Попробуйте позже.',
+      });
     }
   },
 );

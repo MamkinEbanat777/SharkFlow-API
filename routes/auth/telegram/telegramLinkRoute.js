@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { setUserTempData } from '../../../store/userTempData.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
@@ -15,10 +16,13 @@ router.get('/api/telegram/link', authenticateMiddleware, async (req, res) => {
 
     const link = `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=${nonce}`;
 
-    res.json({ link });
+    return res.json({ link });
   } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: 'Ошибка генерации ссылки' });
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка генерации ссылки',
+      status: 500,
+      message: 'Ошибка генерации ссылки. Попробуйте позже.',
+    });
   }
 });
 
