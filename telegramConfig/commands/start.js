@@ -36,13 +36,13 @@ export default function registerStartCommand(bot) {
       let userUuid;
       try {
         const parsedData = JSON.parse(rawData);
-        console.log(
+        console.info(
           '[setUserTempData]',
           type,
           uuid,
           JSON.stringify(parsedData),
         );
-        console.log('[setUserTempData]', type, uuid, parsedData);
+        console.info('[setUserTempData]', type, uuid, parsedData);
 
         userUuid = parsedData.userUuid;
       } catch (e) {
