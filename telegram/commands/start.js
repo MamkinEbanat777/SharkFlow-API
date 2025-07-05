@@ -3,6 +3,7 @@ import jwt from 'jsonwebtoken';
 
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {
+    console.info('Получена команда /start с текстом:', ctx.message.text);
     const args = ctx.message.text.split(' ');
     console.info('args', args);
     const token = args[1];
@@ -15,7 +16,6 @@ export default function registerStartCommand(bot) {
 
     try {
       const { userUuid } = jwt.verify(token, process.env.JWT_TELEGRAM_SECRET);
-      console.log('Получена команда /start с текстом:', ctx.message.text);
       console.info(userUuid);
       await prisma.user.update({
         where: { uuid: userUuid },
