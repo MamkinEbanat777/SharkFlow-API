@@ -6,7 +6,10 @@ import {
 
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {
-    const authUrl = 'https://sharkflow.onrender.com/';
+    const authUrl =
+      process.env.NODE_ENV === 'production'
+        ? 'https://sharkflow.onrender.com/'
+        : 'http://localhost:8080/';
     const messageText = ctx.message?.text || '';
     console.info('Получена команда /start с текстом:', messageText);
 
