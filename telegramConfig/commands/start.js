@@ -25,20 +25,15 @@ export default function registerStartCommand(bot) {
     }
 
     try {
-      const rawData = await getUserTempData('telegramAuth', nonce);
+      const data = await getUserTempData('telegramAuth', nonce);
 
-      if (!rawData) {
+      if (!data) {
         return await ctx.reply(
           `Пожалуйста, пройдите авторизацию на нашем сайте: ${authUrl}`,
         );
       }
 
-      console.info('[rawData]', rawData);
-
-      const parsedData = rawData; // Уже объект!
-      console.info('[parsedData]', parsedData);
-
-      const userUuid = parsedData?.userUuid;
+      const userUuid = data?.userUuid;
 
       if (typeof userUuid !== 'string') {
         console.error(
@@ -65,6 +60,19 @@ export default function registerStartCommand(bot) {
 
       if (user.telegramId) {
         return await ctx.reply('Вы уже привязали Telegram к своему аккаунту.');
+      }
+
+      const existingUserWithTelegramId = await prisma.user.findFirst({
+        where: {
+          telegramId,
+          uuid: { not: userUuid },
+        },
+      });
+
+      if (existingUserWithTelegramId) {
+        return await ctx.reply(
+          'Этот Telegram уже привязан к другому аккаунту.',
+        );
       }
 
       await prisma.user.update({
