@@ -36,6 +36,14 @@ export default function registerStartCommand(bot) {
       let userUuid;
       try {
         const parsedData = JSON.parse(rawData);
+        console.log(
+          '[setUserTempData]',
+          type,
+          uuid,
+          JSON.stringify(parsedData),
+        );
+        console.log('[setUserTempData]', type, uuid, parsedData);
+
         userUuid = parsedData.userUuid;
       } catch (e) {
         console.error('[start.js] Ошибка парсинга данных:', e);
