@@ -6,7 +6,7 @@ import {
   logUserDelete,
   logUserDeleteFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import cloudinary from 'cloudinary';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';

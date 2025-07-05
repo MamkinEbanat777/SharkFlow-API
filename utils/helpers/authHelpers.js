@@ -2,7 +2,14 @@ import { createAccessToken } from '../tokens/accessToken.js';
 import { createCsrfToken } from '../tokens/csrfToken.js';
 import { issueRefreshToken } from '../tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
-import { getClientIP } from './ipHelper.js';
+
+export const getClientIP = (req) => {
+  return (
+    req.headers['x-forwarded-for']?.split(',').shift() ||
+    req.socket.remoteAddress ||
+    'unknown'
+  );
+};
 
 export const createAuthTokens = async (user, rememberMe, req) => {
   const accessToken = createAccessToken(user.uuid, user.role);

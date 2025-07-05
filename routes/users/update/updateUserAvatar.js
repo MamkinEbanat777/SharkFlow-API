@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 

@@ -1,31 +1,27 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
+import { validateBoardUuid } from '../../middlewares/http/boardMiddleware.js';
 import {
-  isValidUUID,
   validateBoardTitle,
   isValidColor,
   sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
 import { logBoardUpdate } from '../../utils/loggers/boardLoggers.js';
-import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { findBoardByUuid } from '../../utils/helpers/boardHelpers.js';
 
 const router = Router();
 
 router.patch(
   '/api/boards/:boardUuid',
   authenticateMiddleware,
+  validateBoardUuid,
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid } = req.params;
     const ipAddress = getClientIP(req);
-
-    if (!isValidUUID(boardUuid)) {
-      return res
-        .status(400)
-        .json({ error: 'Неверный формат идентификатора доски' });
-    }
 
     let { title, color, isPinned, isFavorite } = req.body;
     const dataToUpdate = {};
@@ -81,13 +77,7 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const board = await prisma.board.findFirst({
-        where: {
-          uuid: boardUuid,
-          user: { uuid: userUuid, isDeleted: false },
-          isDeleted: false,
-        },
-      });
+      const board = await findBoardByUuid(boardUuid, userUuid);
       if (!board) {
         return res
           .status(404)

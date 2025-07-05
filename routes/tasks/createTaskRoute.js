@@ -1,37 +1,26 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import {
-  validateTaskTitle,
-  isValidUUID,
-} from '../../utils/validators/taskValidators.js';
+import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
+import { validateTaskTitle } from '../../utils/validators/taskValidators.js';
 import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
-import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { Priority, Status } from '@prisma/client';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { findBoardByUuidForUser, getUserTaskCount } from '../../utils/helpers/taskHelpers.js';
 
 const router = Router();
 
 router.post(
   '/api/boards/:boardUuid/tasks',
   authenticateMiddleware,
+  validateTaskUuids,
   async (req, res) => {
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
     const ipAddress = getClientIP(req);
 
-    if (!isValidUUID(boardUuid)) {
-      return res.status(400).json({ error: 'Некорректный UUID доски' });
-    }
-
-    const board = await prisma.board.findFirst({
-      where: {
-        uuid: boardUuid,
-        user: { uuid: userUuid },
-        isDeleted: false,
-      },
-      select: { id: true },
-    });
+    const board = await findBoardByUuidForUser(boardUuid, userUuid, { id: true });
 
     if (!board) {
       return res.status(403).json({
@@ -80,9 +69,7 @@ router.post(
     }
 
     try {
-      const taskCount = await prisma.task.count({
-        where: { board: { user: { uuid: userUuid } } },
-      });
+      const taskCount = await getUserTaskCount(userUuid);
 
       const MAX_TASKS_PER_USER = 500;
       if (taskCount >= MAX_TASKS_PER_USER) {

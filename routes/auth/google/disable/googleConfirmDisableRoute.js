@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getClientIP } from '../../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';

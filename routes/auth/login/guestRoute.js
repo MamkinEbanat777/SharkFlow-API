@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';

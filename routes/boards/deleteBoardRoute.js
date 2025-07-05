@@ -1,42 +1,31 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { isValidUUID } from '../../utils/validators/boardValidators.js';
+import { validateBoardUuid } from '../../middlewares/http/boardMiddleware.js';
 import { logBoardDeletion } from '../../utils/loggers/boardLoggers.js';
-import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { findBoardByUuid, softDeleteBoardWithTasks } from '../../utils/helpers/boardHelpers.js';
 
 const router = Router();
 
 router.delete(
   '/api/boards/:boardUuid',
   authenticateMiddleware,
+  validateBoardUuid,
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid } = req.params;
     const ipAddress = getClientIP(req);
 
-    if (!isValidUUID(boardUuid)) {
-      return res
-        .status(400)
-        .json({ error: 'Неверный формат идентификатора доски' });
-    }
-
     try {
-      const boardToDelete = await prisma.board.findFirst({
-        where: {
-          uuid: boardUuid,
-          user: { uuid: userUuid },
-          isDeleted: false,
-        },
-        select: {
-          id: true,
-          uuid: true,
-          title: true,
-          _count: {
-            select: {
-              tasks: true,
-            },
+      const boardToDelete = await findBoardByUuid(boardUuid, userUuid, {
+        id: true,
+        uuid: true,
+        title: true,
+        _count: {
+          select: {
+            tasks: true,
           },
         },
       });
@@ -49,16 +38,7 @@ router.delete(
 
       const taskCount = boardToDelete._count.tasks;
 
-      await prisma.$transaction([
-        prisma.board.update({
-          where: { id: boardToDelete.id },
-          data: { isDeleted: true, deletedAt: new Date() },
-        }),
-        prisma.task.updateMany({
-          where: { boardId: boardToDelete.id, isDeleted: false },
-          data: { isDeleted: true, deletedAt: new Date() },
-        }),
-      ]);
+      await softDeleteBoardWithTasks(boardToDelete.id);
 
       logBoardDeletion(boardToDelete.title, taskCount, userUuid, ipAddress);
 

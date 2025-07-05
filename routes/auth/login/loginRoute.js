@@ -12,7 +12,7 @@ import {
   logLoginSuccess,
   logLoginFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
 import { setUserTempData } from '../../../store/userTempData.js';

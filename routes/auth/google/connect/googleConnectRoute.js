@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getClientIP } from '../../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
 import { OAuth2Client } from 'google-auth-library';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';

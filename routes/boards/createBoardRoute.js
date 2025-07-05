@@ -7,8 +7,9 @@ import {
   sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
 import { logBoardCreation } from '../../utils/loggers/boardLoggers.js';
-import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { getUserBoardCount } from '../../utils/helpers/boardHelpers.js';
 
 const router = Router();
 
@@ -41,9 +42,7 @@ router.post('/api/boards', authenticateMiddleware, async (req, res) => {
   }
 
   try {
-    const boardCount = await prisma.board.count({
-      where: { user: { uuid: userUuid } },
-    });
+    const boardCount = await getUserBoardCount(userUuid);
 
     const MAX_BOARDS_PER_USER = 100;
     if (boardCount >= MAX_BOARDS_PER_USER) {

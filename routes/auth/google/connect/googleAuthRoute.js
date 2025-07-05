@@ -3,7 +3,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../../utils/tokens/accessToken.js';
 import { issueRefreshToken } from '../../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../../utils/cookie/loginCookie.js';
-import { getClientIP } from '../../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
 import { OAuth2Client } from 'google-auth-library';
 import { generateUniqueLogin } from '../../../../utils/generators/generateUniqueLogin.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';

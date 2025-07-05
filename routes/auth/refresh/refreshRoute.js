@@ -12,7 +12,7 @@ import {
   logTokenRefresh,
   logTokenRefreshFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
 

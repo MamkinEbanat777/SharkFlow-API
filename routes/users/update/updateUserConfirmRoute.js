@@ -5,7 +5,7 @@ import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/ipHelper.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 

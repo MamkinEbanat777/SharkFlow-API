@@ -1,106 +1,39 @@
 import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import { getClientIP } from '../../utils/helpers/ipHelper.js';
+import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
+import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { logTaskUpdate } from '../../utils/loggers/taskLoggers.js';
-import { Priority, Status } from '@prisma/client';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { findBoardByUuidForUser, findTaskByUuid, validateTaskData } from '../../utils/helpers/taskHelpers.js';
 
 const router = Router();
 
 router.patch(
   '/api/boards/:boardUuid/tasks/:taskUuid',
   authenticateMiddleware,
+  validateTaskUuids,
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid, taskUuid } = req.params;
     const ipAddress = getClientIP(req);
 
-    if (!isValidUUID(boardUuid)) {
-      return res.status(400).json({ error: 'Неверный UUID доски' });
-    }
-    if (!isValidUUID(taskUuid)) {
-      return res.status(400).json({ error: 'Неверный UUID задачи' });
-    }
-
     const { title, dueDate, description, priority, status } = req.body;
-    const dataToUpdate = {};
 
     try {
-      if (title !== undefined) {
-        if (typeof title !== 'string') {
-          return res
-            .status(400)
-            .json({ error: 'Название должен быть строкой' });
-        }
-        const trimmedTitle = title.trim();
-        if (trimmedTitle.length === 0 || trimmedTitle.length > 64) {
-          return res.status(400).json({
-            error: 'Название должно быть не более 64 символов',
-          });
-        }
-        dataToUpdate.title = trimmedTitle;
+      const validation = validateTaskData({ title, dueDate, description, priority, status });
+      
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.errors[0] });
       }
 
-      if (dueDate !== undefined) {
-        const d = new Date(dueDate);
-        if (isNaN(d.valueOf())) {
-          return res
-            .status(400)
-            .json({ error: 'Дедлайн должен быть валидной датой' });
-        }
-        dataToUpdate.dueDate = d;
-      }
-
-      if (description !== undefined) {
-        if (typeof description !== 'string') {
-          return res
-            .status(400)
-            .json({ error: 'Описание должно быть строкой' });
-        }
-        dataToUpdate.description = description.trim();
-      }
-
-      if (priority !== undefined) {
-        if (
-          priority !== null &&
-          (typeof priority !== 'string' ||
-            !Object.values(Priority).includes(priority))
-        ) {
-          return res.status(400).json({
-            error: `Приоритет должен быть одним из: ${Object.values(
-              Priority,
-            ).join(', ')}`,
-          });
-        }
-
-        dataToUpdate.priority = priority;
-      }
-
-      if (status !== undefined) {
-        if (status !== null && !Object.values(Status).includes(status)) {
-          return res.status(400).json({
-            error: `Статус должен быть одним из: ${Object.values(Status).join(
-              ', ',
-            )}`,
-          });
-        }
-        dataToUpdate.status = status;
-      }
+      const dataToUpdate = validation.data;
 
       if (Object.keys(dataToUpdate).length === 0) {
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const board = await prisma.board.findFirst({
-        where: {
-          uuid: boardUuid,
-          isDeleted: false,
-          user: { uuid: userUuid, isDeleted: false },
-        },
-        select: { id: true },
-      });
+      const board = await findBoardByUuidForUser(boardUuid, userUuid, { id: true });
 
       if (!board) {
         return res
@@ -113,13 +46,7 @@ router.patch(
         select[key] = true;
       }
 
-      const task = await prisma.task.findFirst({
-        where: {
-          uuid: taskUuid,
-          boardId: board.id,
-          isDeleted: false,
-        },
-      });
+      const task = await findTaskByUuid(taskUuid, board.id);
 
       if (!task) {
         return res
