@@ -8,6 +8,7 @@ import { OAuth2Client } from 'google-auth-library';
 import { generateUniqueLogin } from '../../../../utils/generators/generateUniqueLogin.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvatarAndUpdateUser.js';
+import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
 
 const router = Router();
 
@@ -137,11 +138,14 @@ router.post('/api/auth/google', async (req, res) => {
       userAgent,
       referrer: req.get('Referer') || null,
     });
+
     const accessToken = createAccessToken(user.uuid, user.role);
+    const csrfToken = createCsrfToken(user.uuid);
 
     res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
     return res.status(200).json({
       accessToken: accessToken,
+      csrfToken: csrfToken,
       googleOAuthEnabled: user.googleOAuthEnabled,
     });
   } catch (error) {

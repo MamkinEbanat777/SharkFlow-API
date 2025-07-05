@@ -20,6 +20,7 @@ import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
 import { setUserTempData } from '../../../store/userTempData.js';
+import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
 
 const router = Router();
 
@@ -90,6 +91,7 @@ router.post(
       resetLoginAttempts(ipAddress, normalizedEmail);
 
       const accessToken = createAccessToken(user.uuid, user.role);
+      const csrfToken = createCsrfToken(user.uuid, user.role);
       const refreshToken = await issueRefreshToken({
         res,
         userUuid: user.uuid,
@@ -107,7 +109,7 @@ router.post(
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
 
-      return res.status(200).json({ accessToken });
+      return res.status(200).json({ accessToken, csrfToken });
     } catch (error) {
       incrementLoginAttempts(ipAddress, normalizedEmail);
       handleRouteError(res, error, {

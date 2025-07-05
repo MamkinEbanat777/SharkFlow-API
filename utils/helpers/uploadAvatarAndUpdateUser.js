@@ -12,7 +12,6 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
         'User-Agent': 'TaskFlowBot/1.0',
       },
     });
-    console.info('Image data length:', imageResp.data.length);
 
     const buffer = Buffer.from(imageResp.data);
 

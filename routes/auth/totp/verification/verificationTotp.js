@@ -13,6 +13,7 @@ import { deleteUserTempData } from '../../../../store/userTempData.js';
 import { decrypt } from '../../../../utils/crypto/decrypt.js';
 import speakeasy from 'speakeasy';
 import { getUserTempData } from '../../../../store/userTempData.js';
+import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
 
 const router = Router();
 
@@ -72,6 +73,7 @@ router.post('/api/auth/totp/verify', async (req, res) => {
     resetLoginAttempts(ipAddress, user.email);
 
     const accessToken = createAccessToken(user.uuid, user.role);
+    const csrfToken = createCsrfToken(user.uuid, user.role);
     const refreshToken = await issueRefreshToken({
       res,
       userUuid: user.uuid,
@@ -89,7 +91,7 @@ router.post('/api/auth/totp/verify', async (req, res) => {
 
     logLoginSuccess(user.email, user.uuid, ipAddress);
     await deleteUserTempData('twoFactorAuth', sessionKey);
-    return res.status(200).json({ accessToken });
+    return res.status(200).json({ accessToken, csrfToken });
   } catch (error) {
     incrementLoginAttempts(ipAddress, user.email);
     handleRouteError(res, error, {

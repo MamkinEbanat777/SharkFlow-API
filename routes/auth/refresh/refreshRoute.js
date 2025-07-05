@@ -14,6 +14,7 @@ import {
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/ipHelper.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
 
 const router = Router();
 
@@ -116,11 +117,13 @@ router.post('/api/auth/refresh', async (req, res) => {
     }
 
     const newAccessToken = createAccessToken(userUuid, user.role);
+    const newCsrfToken = createCsrfToken(userUuid, user.role);
 
     logTokenRefresh(userUuid, ipAddress, rotated);
 
     res.status(200).json({
       accessToken: newAccessToken,
+      csrfToken: newCsrfToken,
       uuid: userUuid,
       role: user.role,
     });

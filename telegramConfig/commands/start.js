@@ -11,19 +11,14 @@ export default function registerStartCommand(bot) {
         ? 'https://sharkflow.onrender.com/'
         : 'http://localhost:8080/';
     const messageText = ctx.message?.text || '';
-    console.info('Получена команда /start с текстом:', messageText);
 
     const args = messageText.split(' ');
     const nonce = args[1];
     const telegramId = ctx.from?.id;
 
-    console.info('args:', args);
-    console.info('nonce:', nonce);
-    console.info('telegramId:', telegramId);
-
     if (!nonce || typeof nonce !== 'string' || nonce.length > 100) {
       return await ctx.reply(
-        `Пожалуйста, пройдите авторизацию на нашем сайте: ${authUrl}`,
+        `Неверный или отсутствующий код авторизации. Пожалуйста, перейдите на сайт для получения новой ссылки: ${authUrl}`,
       );
     }
 
@@ -32,10 +27,9 @@ export default function registerStartCommand(bot) {
 
       if (!data) {
         return await ctx.reply(
-          `Пожалуйста, пройдите авторизацию на нашем сайте: ${authUrl}`,
+          `Срок действия кода истёк или он недействителен. Перейдите на сайт для повторной авторизации: ${authUrl}`,
         );
       }
-
       const userUuid = data?.userUuid;
 
       if (typeof userUuid !== 'string') {

@@ -1,1 +1,1 @@
-export const allowedHeaders = ['Content-Type', 'Authorization', 'Accept'];
+export const allowedHeaders = ['Content-Type', 'Authorization', 'X-CSRF-TOKEN'];
