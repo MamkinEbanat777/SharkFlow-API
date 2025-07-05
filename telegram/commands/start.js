@@ -4,15 +4,18 @@ import jwt from 'jsonwebtoken';
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {
     const args = ctx.message.text.split(' ');
+    console.info('args', args);
     const token = args[1];
+    console.info('token', token);
     const telegramId = ctx.from.id;
+    console.info('telegramId', telegramId);
 
     if (!token) return ctx.reply('Токен не найден');
-    console.log('Привязка...');
+    console.info('Привязка...');
 
     try {
       const { userUuid } = jwt.verify(token, process.env.JWT_TELEGRAM_SECRET);
-      console.log(userUuid);
+      console.info(userUuid);
       await prisma.user.update({
         where: { uuid: userUuid },
         data: { telegramId },
