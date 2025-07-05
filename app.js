@@ -48,6 +48,7 @@ app.use('/api/users', limiterMiddleware);
 
 const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {
+  console.log({ path, router });
   app.use(path, router);
 });
 

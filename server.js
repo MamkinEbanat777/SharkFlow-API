@@ -24,12 +24,3 @@ initSocket(server);
 server.listen(PORT, '0.0.0.0', () => {
   console.log(`🚀 Сервер запущен на порту ${PORT} (HTTP + WebSocket)`);
 });
-
-nodeCron.schedule('0 * * * *', async () => {
-  try {
-    console.info('[nodeCron] Проверка на старых гостей...');
-    await deleteOldGuests();
-  } catch (err) {
-    console.error('[nodeCron] Ошибка во время удаления гостей:', err);
-  }
-});
