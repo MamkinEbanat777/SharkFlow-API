@@ -11,7 +11,7 @@ router.get('/api/telegram/link', authenticateMiddleware, async (req, res) => {
 
     const nonce = generateUUID();
 
-    await setUserTempData('telegramAuth', nonce, userUuid);
+    await setUserTempData('telegramAuth', nonce, { userUuid });
 
     const link = `https://t.me/${process.env.TELEGRAM_BOT_USERNAME}?start=${nonce}`;
 
