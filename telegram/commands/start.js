@@ -10,6 +10,8 @@ export default function registerStartCommand(bot) {
     console.info('token', token);
     const telegramId = ctx.from.id;
     console.info('telegramId', telegramId);
+    console.info('Получена команда /start с текстом:', ctx.message.text);
+    console.info('ctx.update', JSON.stringify(ctx.update, null, 2));
 
     if (!token) return ctx.reply('Токен не найден');
     console.info('Привязка...');
