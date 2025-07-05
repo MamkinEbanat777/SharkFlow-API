@@ -33,8 +33,8 @@ export default function registerStartCommand(bot) {
         );
       }
 
-      console.info('[rawData]', type, uuid, JSON.stringify(rawData));
-      console.info('[rawData]', type, uuid, rawData);
+      console.info('[rawData]', JSON.stringify(rawData));
+      console.info('[rawData]', rawData);
 
       let userUuid;
       try {
