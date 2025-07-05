@@ -71,7 +71,7 @@ router.post(
 
       if (user.twoFactorEnabled) {
         const sessionKey = generateUUID();
-        setUserTempData('twoFactorAuth', sessionKey, {
+        await setUserTempData('twoFactorAuth', sessionKey, {
           uuid: user.uuid,
           twoFactorEnabled: user.twoFactorEnabled,
           rememberMe,

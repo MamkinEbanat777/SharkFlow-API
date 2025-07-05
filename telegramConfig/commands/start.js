@@ -24,10 +24,13 @@ export default function registerStartCommand(bot) {
       const userUuid = await getUserTempData('telegramAuth', nonce);
 
       if (!userUuid) {
-        return ctx.reply('Неверный или просроченный токен');
+        return ctx.reply(
+          'Пожалуйста пройдите авторизацию на нашем сайте: https://sharkflow.onrender.com/',
+        );
       }
 
-      await deleteUserTempData('telegramAuth', nonce);
+      const result = await deleteUserTempData('telegramAuth', nonce);
+      console.log(result);
 
       await prisma.user.update({
         where: { uuid: userUuid },
