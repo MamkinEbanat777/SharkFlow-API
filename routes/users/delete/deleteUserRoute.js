@@ -70,6 +70,7 @@ router.post(
       if (user?.publicId) {
         await cloudinary.v2.uploader.destroy(user.publicId);
       }
+      
       await prisma.$transaction([
         prisma.refreshToken.updateMany({
           where: { token: refreshToken },

@@ -1,8 +1,8 @@
-import prisma from '../../utils/prismaConfig/prismaClient.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import {
   getUserTempData,
   deleteUserTempData,
-} from '../../store/userTempData.js';
+} from '../../../store/userTempData.js';
 
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {
