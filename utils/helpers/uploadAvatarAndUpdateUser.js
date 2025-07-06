@@ -3,6 +3,15 @@ import { v2 as cloudinary } from 'cloudinary';
 import axios from 'axios';
 import prisma from '../prismaConfig/prismaClient.js';
 
+/**
+ * Загрузка аватара в Cloudinary и обновление пользователя
+ * @param {number} userId - ID пользователя
+ * @param {string} avatarUrl - URL аватара для загрузки
+ * @param {string} publicId - Public ID в Cloudinary
+ * @returns {Promise<void>} Ничего не возвращает, обновляет пользователя в БД
+ * @example
+ * await uploadAvatarAndUpdateUser(123, 'https://example.com/avatar.jpg', 'user_123');
+ */
 export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
   try {
     const imageResp = await axios.get(avatarUrl, {

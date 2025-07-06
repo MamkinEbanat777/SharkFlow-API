@@ -1,5 +1,15 @@
 import prisma from '../prismaConfig/prismaClient.js';
 
+/**
+ * Поиск доски по UUID с проверкой владельца
+ * @param {string} boardUuid - UUID доски
+ * @param {string} userUuid - UUID пользователя-владельца
+ * @param {Object} select - Объект для выбора полей (опционально)
+ * @returns {Promise<Object|null>} Доска или null если не найдена
+ * @example
+ * const board = await findBoardByUuid('board-uuid', 'user-uuid');
+ * const boardWithTasks = await findBoardByUuid('board-uuid', 'user-uuid', { tasks: true });
+ */
 export const findBoardByUuid = async (boardUuid, userUuid, select = {}) => {
   return await prisma.board.findFirst({
     where: {
@@ -11,12 +21,27 @@ export const findBoardByUuid = async (boardUuid, userUuid, select = {}) => {
   });
 };
 
+/**
+ * Получение количества досок пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Promise<number>} Количество досок
+ * @example
+ * const boardCount = await getUserBoardCount('user-uuid');
+ */
 export const getUserBoardCount = async (userUuid) => {
   return await prisma.board.count({
     where: { user: { uuid: userUuid } },
   });
 };
 
+/**
+ * Получение досок пользователя с количеством задач
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Promise<Object>} Объект с досками и общим количеством
+ * @example
+ * const result = await getBoardsWithTaskCounts('user-uuid');
+ * // result = { boards: [...], totalBoards: 5 }
+ */
 export const getBoardsWithTaskCounts = async (userUuid) => {
   const [boards, totalBoards] = await Promise.all([
     prisma.board.findMany({
@@ -75,6 +100,13 @@ export const getBoardsWithTaskCounts = async (userUuid) => {
   };
 };
 
+/**
+ * Мягкое удаление доски со всеми задачами
+ * @param {number} boardId - ID доски
+ * @returns {Promise<Array>} Результат транзакции
+ * @example
+ * await softDeleteBoardWithTasks(123);
+ */
 export const softDeleteBoardWithTasks = async (boardId) => {
   return await prisma.$transaction([
     prisma.board.update({

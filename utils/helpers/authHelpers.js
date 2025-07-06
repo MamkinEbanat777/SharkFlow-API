@@ -3,6 +3,13 @@ import { createCsrfToken } from '../tokens/csrfToken.js';
 import { issueRefreshToken } from '../tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
 
+/**
+ * Получение IP адреса клиента из запроса
+ * @param {Object} req - Express request объект
+ * @returns {string} IP адрес клиента или 'unknown'
+ * @example
+ * const ipAddress = getClientIP(req);
+ */
 export const getClientIP = (req) => {
   return (
     req.headers['x-forwarded-for']?.split(',').shift() ||
@@ -11,6 +18,15 @@ export const getClientIP = (req) => {
   );
 };
 
+/**
+ * Создание всех токенов аутентификации для пользователя
+ * @param {Object} user - Объект пользователя
+ * @param {boolean} rememberMe - Флаг "запомнить меня"
+ * @param {Object} req - Express request объект
+ * @returns {Promise<Object>} Объект с accessToken, csrfToken, refreshToken
+ * @example
+ * const tokens = await createAuthTokens(user, true, req);
+ */
 export const createAuthTokens = async (user, rememberMe, req) => {
   const accessToken = createAccessToken(user.uuid, user.role);
   const csrfToken = createCsrfToken(user.uuid, user.role);
@@ -28,6 +44,14 @@ export const createAuthTokens = async (user, rememberMe, req) => {
 };
 
 
+/**
+ * Установка refresh token в cookie
+ * @param {Object} res - Express response объект
+ * @param {string} refreshToken - Refresh token для установки
+ * @param {boolean} rememberMe - Флаг "запомнить меня" для настроек cookie
+ * @example
+ * setAuthCookies(res, 'refresh_token_here', true);
+ */
 export const setAuthCookies = (res, refreshToken, rememberMe) => {
   res.cookie(
     'log___tf_12f_t2',
@@ -36,6 +60,13 @@ export const setAuthCookies = (res, refreshToken, rememberMe) => {
   );
 };
 
+/**
+ * Получение информации о запросе (IP и User-Agent)
+ * @param {Object} req - Express request объект
+ * @returns {Object} Объект с ipAddress и userAgent
+ * @example
+ * const requestInfo = getRequestInfo(req);
+ */
 export const getRequestInfo = (req) => {
   return {
     ipAddress: getClientIP(req),

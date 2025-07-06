@@ -5,6 +5,16 @@ import {
   resetConfirmationAttempts,
 } from '../../store/userVerifyStore.js';
 
+/**
+ * Валидация кода подтверждения с защитой от брутфорса
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} type - Тип подтверждения (email, totp, etc.)
+ * @param {string} code - Код подтверждения
+ * @param {Object} loggers - Объект с логгерами для логирования
+ * @returns {Promise<boolean>} true если код валиден
+ * @example
+ * const isValid = await validateConfirmationCode(userUuid, 'email', '123456', loggers);
+ */
 export async function validateConfirmationCode(userUuid, type, code, loggers) {
   console.log('code:', JSON.stringify(code));
 

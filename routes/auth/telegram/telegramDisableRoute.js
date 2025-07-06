@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -12,11 +12,7 @@ router.delete(
     try {
       const userUuid = req.userUuid;
 
-      const user = await findUserByUuid(userUuid);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid);
 
       if (!user.telegramId) {
         return res.status(400).json({ error: 'Telegram не был привязан' });

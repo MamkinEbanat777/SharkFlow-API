@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
@@ -13,11 +13,7 @@ router.post(
     const userUuid = req.userUuid;
 
     try {
-      const user = await findUserByUuid(userUuid);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid);
 
       const email = user.email;
       if (!email) {

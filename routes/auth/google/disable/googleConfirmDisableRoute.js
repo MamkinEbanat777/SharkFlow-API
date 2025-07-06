@@ -7,7 +7,7 @@ import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
 } from '../../../../utils/loggers/authLoggers.js';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -19,12 +19,7 @@ router.post(
     const ipAddress = getClientIP(req);
 
     try {
-      const user = await findUserByUuid(userUuid);
-
-      if (!user) {
-        logUserUpdateRequestFailure(userUuid, ipAddress, 'User not found');
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid);
 
       const email = user.email;
       if (!email) {

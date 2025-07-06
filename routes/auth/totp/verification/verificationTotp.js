@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 import { createAuthTokens, setAuthCookies } from '../../../../utils/helpers/authHelpers.js';
 import {
   incrementLoginAttempts,
@@ -30,7 +30,7 @@ router.post('/api/auth/totp/verify', async (req, res) => {
 
     const { uuid, rememberMe, ipAddress, userAgent } = session;
 
-    const user = await findUserByUuid(uuid, {
+    const user = await findUserByUuidOrThrow(uuid, {
       uuid: true,
       password: true,
       login: true,
@@ -39,10 +39,6 @@ router.post('/api/auth/totp/verify', async (req, res) => {
       twoFactorEnabled: true,
       twoFactorSecret: true,
     });
-
-    if (!user) {
-      return res.status(401).json({ error: 'Пользователь не найден' });
-    }
 
     if (!user.twoFactorEnabled || !user.twoFactorSecret) {
       return res

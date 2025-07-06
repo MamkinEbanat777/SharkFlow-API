@@ -3,6 +3,23 @@ import { sendConfirmationEmail } from '../mail/sendConfirmationEmail.js';
 import { setConfirmationCode } from '../../store/userVerifyStore.js';
 import prisma from '../prismaConfig/prismaClient.js';
 
+/**
+ * Отправка кода подтверждения пользователю
+ * @param {Object} params - Параметры функции
+ * @param {string} params.userUuid - UUID пользователя
+ * @param {string} params.type - Тип подтверждения (email, totp, etc.)
+ * @param {Object} params.loggers - Объект с логгерами
+ * @param {string} [params.email] - Email для отправки (если skipUserCheck = true)
+ * @param {boolean} [params.skipUserCheck=false] - Пропустить проверку пользователя
+ * @returns {Promise<string>} Сгенерированный код подтверждения
+ * @throws {Error} Если пользователь не найден или email отсутствует
+ * @example
+ * const code = await sendUserConfirmationCode({
+ *   userUuid: 'user-uuid',
+ *   type: 'email',
+ *   loggers: authLoggers
+ * });
+ */
 export async function sendUserConfirmationCode({
   userUuid,
   type,
