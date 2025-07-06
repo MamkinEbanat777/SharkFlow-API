@@ -34,7 +34,7 @@ model User {
   avatarUrl              String?   @db.VarChar(1024)
   publicId               String?   @db.VarChar(100)
   telegramId             BigInt?   @unique
-  telegramEnabled        Boolean?   @default(false)
+  telegramEnabled        Boolean?  @default(false)
 
   boards        Board[]
   refreshTokens RefreshToken[]

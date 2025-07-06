@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 

@@ -42,7 +42,7 @@ router.post(
       const user = await findUserByUuid(userUuid);
 
       if (!user) {
-        return res.status(404).json({ error: 'Пользователь' });
+        return res.status(404).json({ error: 'Пользователь не найден' });
       }
 
       await prisma.user.update({
@@ -59,7 +59,7 @@ router.post(
       });
     } catch (error) {
       handleRouteError(res, error, {
-        logPrefix: 'Ошибка при регистрации',
+        logPrefix: 'Ошибка при подтверждении Google OAuth',
         status: 500,
         message: 'Ошибка при проверке кода подтверждения',
       });

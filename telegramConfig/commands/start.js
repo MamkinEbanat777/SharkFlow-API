@@ -6,15 +6,22 @@ import {
 
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {
-    const authUrl =
-      process.env.NODE_ENV === 'production'
-        ? 'https://sharkflow.onrender.com/'
-        : 'http://localhost:8080/';
+    const authUrl = 'https://sharkflow.onrender.com/';
+
     const messageText = ctx.message?.text || '';
 
     const args = messageText.split(' ');
     const nonce = args[1];
-    const telegramId = ctx.from?.id;
+    
+    const telegramId = BigInt(ctx.from?.id);
+
+    const existingUser = await prisma.user.findFirst({
+      where: { telegramId, isDeleted: false },
+    });
+
+    if (existingUser) {
+      return await ctx.reply('Вы уже авторизованы.');
+    }
 
     if (!nonce || typeof nonce !== 'string' || nonce.length > 100) {
       return await ctx.reply(
@@ -30,11 +37,12 @@ export default function registerStartCommand(bot) {
           `Срок действия кода истёк или он недействителен. Перейдите на сайт для повторной авторизации: ${authUrl}`,
         );
       }
+
       const userUuid = data?.userUuid;
 
       if (typeof userUuid !== 'string') {
         console.error(
-          '[start.js] Ожидалась строка для userUuid, получено:',
+          '[start] Ожидалась строка для userUuid, получено:',
           userUuid,
         );
         return await ctx.reply(
@@ -44,8 +52,8 @@ export default function registerStartCommand(bot) {
 
       await deleteUserTempData('telegramAuth', nonce);
 
-      const user = await prisma.user.findUnique({
-        where: { uuid: userUuid },
+      const user = await prisma.user.findFirst({
+        where: { uuid: userUuid, isDeleted: false },
         select: { telegramId: true },
       });
 
@@ -62,6 +70,7 @@ export default function registerStartCommand(bot) {
       const existingUserWithTelegramId = await prisma.user.findFirst({
         where: {
           telegramId,
+          isDeleted: false,
           uuid: { not: userUuid },
         },
       });
@@ -79,7 +88,7 @@ export default function registerStartCommand(bot) {
 
       return await ctx.reply('Telegram успешно привязан к вашему аккаунту!');
     } catch (e) {
-      console.error('[start.js] Ошибка при привязке Telegram:', e);
+      console.error('[start] Ошибка при привязке Telegram:', e);
       return await ctx.reply('Произошла внутренняя ошибка. Попробуйте позже.');
     }
   });

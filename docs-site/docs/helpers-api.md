@@ -4,7 +4,7 @@ title: Helpers API Documentation
 description: Автогенерированная документация из JSDoc комментариев
 ---
 
-# TaskFlow Helpers API
+# SharkFlow Helpers API
 
 Документация автоматически сгенерирована из JSDoc комментариев в коде.
 

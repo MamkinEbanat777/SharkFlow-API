@@ -24,7 +24,7 @@ router.post('/api/auth/guest-login', async (req, res) => {
         res.cookie(
           'log___sf_21s_t1',
           existingGuest.uuid,
-          getRefreshCookieOptions(false),
+          getGuestCookieOptions(),
         );
 
         return res.status(200).json({

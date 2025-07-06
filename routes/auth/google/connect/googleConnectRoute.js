@@ -7,6 +7,7 @@ import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '../../../../store/userTempData.js';
 import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 

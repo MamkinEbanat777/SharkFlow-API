@@ -18,7 +18,7 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
       responseType: 'arraybuffer',
       timeout: 10000,
       headers: {
-        'User-Agent': 'TaskFlowBot/1.0',
+        'User-Agent': 'SharkFlowBot/1.0',
       },
     });
 
