@@ -5,7 +5,7 @@ import send from '../../send.js';
 
 export async function boardsHandler(ctx) {
   const user = ctx.state.user;
-  const userUuid = user.userUuid;
+  const userUuid = user.uuid;
 
   console.info('[user] user:', user);
 
