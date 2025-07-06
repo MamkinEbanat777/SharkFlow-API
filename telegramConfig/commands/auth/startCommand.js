@@ -3,6 +3,7 @@ import {
   getUserTempData,
   deleteUserTempData,
 } from '../../../store/userTempData.js';
+import send from '../../send.js';
 
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {
@@ -20,11 +21,12 @@ export default function registerStartCommand(bot) {
     });
 
     if (existingUser) {
-      return await ctx.reply('Вы уже авторизованы.');
+      return await send(ctx, 'Вы уже авторизованы.');
     }
 
     if (!nonce || typeof nonce !== 'string' || nonce.length > 100) {
-      return await ctx.reply(
+      return await send(
+        ctx,
         `Неверный или отсутствующий код авторизации. Пожалуйста, перейдите на сайт для получения новой ссылки: ${authUrl}`,
       );
     }
@@ -33,7 +35,8 @@ export default function registerStartCommand(bot) {
       const data = await getUserTempData('telegramAuth', nonce);
 
       if (!data) {
-        return await ctx.reply(
+        return await send(
+          ctx,
           `Срок действия кода истёк или он недействителен. Перейдите на сайт для повторной авторизации: ${authUrl}`,
         );
       }
@@ -45,7 +48,8 @@ export default function registerStartCommand(bot) {
           '[start] Ожидалась строка для userUuid, получено:',
           userUuid,
         );
-        return await ctx.reply(
+        return await send(
+          ctx,
           'Ошибка привязки Telegram. Неверный формат идентификатора пользователя.',
         );
       }
@@ -58,13 +62,14 @@ export default function registerStartCommand(bot) {
       });
 
       if (!user) {
-        return await ctx.reply(
+        return await send(
+          ctx,
           'Пользователь не найден. Возможно, срок действия ссылки истёк.',
         );
       }
 
       if (user.telegramId) {
-        return await ctx.reply('Вы уже привязали Telegram к своему аккаунту.');
+        return await send(ctx, 'Вы уже привязали Telegram к своему аккаунту.');
       }
 
       const existingUserWithTelegramId = await prisma.user.findFirst({
@@ -76,7 +81,8 @@ export default function registerStartCommand(bot) {
       });
 
       if (existingUserWithTelegramId) {
-        return await ctx.reply(
+        return await send(
+          ctx,
           'Этот Telegram уже привязан к другому аккаунту.',
         );
       }
@@ -86,10 +92,10 @@ export default function registerStartCommand(bot) {
         data: { telegramId },
       });
 
-      return await ctx.reply('Telegram успешно привязан к вашему аккаунту!');
+      return await send(ctx, 'Telegram успешно привязан к вашему аккаунту!');
     } catch (e) {
       console.error('[start] Ошибка при привязке Telegram:', e);
-      return await ctx.reply('Произошла внутренняя ошибка. Попробуйте позже.');
+      return await send(ctx, 'Произошла внутренняя ошибка. Попробуйте позже.');
     }
   });
 }
