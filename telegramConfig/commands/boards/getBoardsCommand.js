@@ -2,5 +2,5 @@ import { authenticateTelegramMiddleware } from '../../../middlewares/http/authen
 import { boardsHandler } from '../../handlers/boards/boardsHandler.js';
 
 export default function registerGetBoardsCommand(bot) {
-  bot.command('allBoards', authenticateTelegramMiddleware, boardsHandler);
+  bot.command('boards', authenticateTelegramMiddleware, boardsHandler);
 }

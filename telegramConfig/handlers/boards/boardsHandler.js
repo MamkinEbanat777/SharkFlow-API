@@ -1,3 +1,4 @@
+import { Markup } from 'telegraf';
 import { getBoardsWithTaskCounts } from '../../../utils/helpers/boardHelpers.js';
 import { getColorEmoji } from '../../utils/color/getColorEmoji.js';
 import send from '../../send.js';
@@ -22,15 +23,20 @@ export async function boardsHandler(ctx) {
         return (
           `${index + 1}. ${pinMark}${favMark}<b>${board.title}</b>\n` +
           `   Задач: ${board.taskCount}\n` +
-          `   Цвет: ${colorEmoji} (${board.color || '—'})\n` +
-          `   Обновлено: ${new Date(board.updatedAt).toLocaleDateString()}`
+          `   Цвет: ${colorEmoji}\n` +
+          `   Обновлено: ${new Date(board.updatedAt).toLocaleDateString('ru-RU', {weekday: 'short', day: 'numeric', month: 'long', year: 'numeric',   hour: '2-digit', minute: '2-digit'})}`
         );
       })
       .join('\n\n');
 
+    const keyboard = Markup.inlineKeyboard([
+      Markup.button.callback('🔙 Назад в меню', 'back_to_main'),
+    ]);
+
     await send(
       ctx,
       `🗂 <b>Ваши доски (${totalBoards}):</b>\n\n${boardListText}`,
+      keyboard
     );
   } catch (error) {
     console.error('[boardsHandler] Ошибка при получении досок:', error);

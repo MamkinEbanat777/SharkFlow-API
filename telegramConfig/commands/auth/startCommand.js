@@ -1,3 +1,4 @@
+import { Markup } from 'telegraf';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import {
   getUserTempData,
@@ -92,7 +93,17 @@ export default function registerStartCommand(bot) {
         data: { telegramId },
       });
 
-      return await send(ctx, 'Telegram успешно привязан к вашему аккаунту!');
+      const message = `
+        ✅ <b>Telegram успешно привязан к вашему аккаунту!</b>
+        
+        Теперь вы можете использовать бота для управления досками и задачами!.
+      `.trim();
+
+      const keyboard = Markup.inlineKeyboard([
+        Markup.button.callback('🎯 Открыть меню', 'back_to_main'),
+      ]);
+
+      return await send(ctx, message, keyboard);
     } catch (e) {
       console.error('[start] Ошибка при привязке Telegram:', e);
       return await send(ctx, 'Произошла внутренняя ошибка. Попробуйте позже.');

@@ -1,6 +1,7 @@
 import { Telegraf } from 'telegraf';
 import path from 'path';
 import { loadConfig } from './loadConfig.js';
+import { callbackHandler } from './handlers/callbackHandler.js';
 import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -14,5 +15,6 @@ const eventsDir = path.resolve(__dirname, 'events');
 await loadConfig(bot, commandsDir);
 await loadConfig(bot, eventsDir);
 
+bot.on('callback_query', callbackHandler);
 
 export default bot;
