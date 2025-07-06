@@ -9,7 +9,7 @@ export async function boardsHandler(ctx) {
 
   console.info('[user] user:', user);
 
-  if (!user || !user.userUuid) {
+  if (!user || !user.uuid) {
     console.error(
       '[boardsHandler] Пользователь не найден или userUuid отсутствует:',
       user,
