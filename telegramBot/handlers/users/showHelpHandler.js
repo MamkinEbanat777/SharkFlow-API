@@ -9,7 +9,7 @@ export async function showHelpHandler(ctx) {
       <b>Основные команды:</b>
       /start - Начать работу с ботом
       /menu - Главное меню
-      /me - Показать профиль
+      /profile - Показать профиль
       /boards - Показать все доски
       /logout - Выйти из аккаунта
       
