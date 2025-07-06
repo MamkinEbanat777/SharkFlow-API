@@ -14,6 +14,9 @@ export async function showHelpHandler(ctx) {
       /logout - Выйти из аккаунта
       
       <b>Или используйте кнопки в меню!</b>
+
+      <b>Наш сайт:</b>
+      <a>https://sharkflow.onrender.com</a>
     `.trim();
   
     const keyboard = Markup.inlineKeyboard([

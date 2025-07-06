@@ -14,6 +14,7 @@ import {
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
+import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 
 const router = Router();
 
@@ -21,9 +22,33 @@ router.post(
   '/api/users/confirm-registration',
   validateMiddleware(registerValidate),
   async (req, res) => {
-    const { user } = req.validatedBody;
+    const { user, captchaToken } = req.validatedBody;
     const { email, login, password } = user;
     const ipAddress = getClientIP(req);
+
+    if (!captchaToken) {
+      return res
+        .status(400)
+        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
+    }
+
+    const turnstileUuid = generateUUID();
+
+    try {
+      const captchaSuccess = await verifyTurnstileCaptcha(
+        captchaToken,
+        ipAddress,
+        turnstileUuid,
+      );
+      if (!captchaSuccess) {
+        return res
+          .status(400)
+          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
     const uuid = generateUUID();
     const hashedPassword = await bcrypt.hash(password, 10);
     const normalizedEmail = normalizeEmail(email);

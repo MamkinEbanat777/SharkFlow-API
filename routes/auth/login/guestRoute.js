@@ -6,13 +6,42 @@ import bcrypt from 'bcrypt';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { getGuestCookieOptions } from '../../../utils/cookie/registerCookie.js';
 import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
-import { createAuthTokens, setAuthCookies } from '../../../utils/helpers/authHelpers.js';
+import {
+  createAuthTokens,
+  setAuthCookies,
+} from '../../../utils/helpers/authHelpers.js';
+import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 
 const router = Router();
 
 router.post('/api/auth/guest-login', async (req, res) => {
   const ipAddress = getClientIP(req);
-  const userAgent = req.get('user-agent') || null;
+  // const userAgent = req.get('user-agent') || null;
+  const { captchaToken } = req.validatedBody;
+
+  if (!captchaToken) {
+    return res
+      .status(400)
+      .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
+  }
+
+  const turnstileUuid = generateUUID();
+
+  try {
+    const captchaSuccess = await verifyTurnstileCaptcha(
+      captchaToken,
+      ipAddress,
+      turnstileUuid,
+    );
+    if (!captchaSuccess) {
+      return res
+        .status(400)
+        .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+    }
+  } catch (error) {
+    return res.status(500).json({ error: error.message });
+  }
+
   try {
     const guestUuid = req.cookies.log___sf_21s_t1;
 
@@ -52,7 +81,11 @@ router.post('/api/auth/guest-login', async (req, res) => {
     setAuthCookies(res, tokens.refreshToken, false);
     res.cookie('log___sf_21s_t1', guest.uuid, getGuestCookieOptions());
 
-    return res.status(200).json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken, role: guest.role });
+    return res.status(200).json({
+      accessToken: tokens.accessToken,
+      csrfToken: tokens.csrfToken,
+      role: guest.role,
+    });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при гостевом входе',

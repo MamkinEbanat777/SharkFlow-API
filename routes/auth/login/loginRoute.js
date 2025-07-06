@@ -17,7 +17,10 @@ import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
 import { setUserTempData } from '../../../store/userTempData.js';
 import { findUserByEmail } from '../../../utils/helpers/userHelpers.js';
-import { createAuthTokens, setAuthCookies } from '../../../utils/helpers/authHelpers.js';
+import {
+  createAuthTokens,
+  setAuthCookies,
+} from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
@@ -27,8 +30,32 @@ router.post(
   async (req, res) => {
     const ipAddress = getClientIP(req);
     const userAgent = req.get('user-agent') || null;
-    const { user } = req.validatedBody;
+    const { user, captchaToken } = req.validatedBody;
     const { email, password, rememberMe } = user;
+
+    if (!captchaToken) {
+      return res
+        .status(400)
+        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
+    }
+
+    const turnstileUuid = generateUUID();
+
+    try {
+      const captchaSuccess = await verifyTurnstileCaptcha(
+        captchaToken,
+        ipAddress,
+        turnstileUuid,
+      );
+      if (!captchaSuccess) {
+        return res
+          .status(400)
+          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+
     const normalizedEmail =
       typeof email === 'string' ? normalizeEmail(email) : null;
 
@@ -89,7 +116,9 @@ router.post(
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
 
-      return res.status(200).json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
+      return res
+        .status(200)
+        .json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
     } catch (error) {
       incrementLoginAttempts(ipAddress, normalizedEmail);
       handleRouteError(res, error, {
