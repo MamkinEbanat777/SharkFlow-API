@@ -40,7 +40,7 @@ export const getUserBoardCount = async (userUuid) => {
  * @returns {Promise<Object>} Объект с досками и общим количеством
  * @example
  * const result = await getBoardsWithTaskCounts('user-uuid');
- * // result = { boards: [...], totalBoards: 5 }
+ * result = { boards: [...], totalBoards: 5 }
  */
 export const getBoardsWithTaskCounts = async (userUuid) => {
   const [boards, totalBoards] = await Promise.all([
@@ -118,4 +118,4 @@ export const softDeleteBoardWithTasks = async (boardId) => {
       data: { isDeleted: true, deletedAt: new Date() },
     }),
   ]);
-}; 
+};
