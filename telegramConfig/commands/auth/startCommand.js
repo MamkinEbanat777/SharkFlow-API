@@ -14,7 +14,7 @@ export default function registerStartCommand(bot) {
 
     const args = messageText.split(' ');
     const nonce = args[1];
-    
+
     const telegramId = BigInt(ctx.from?.id);
 
     const existingUser = await prisma.user.findFirst({
@@ -90,7 +90,7 @@ export default function registerStartCommand(bot) {
 
       await prisma.user.update({
         where: { uuid: userUuid },
-        data: { telegramId },
+        data: { telegramId, telegramEnabled: true },
       });
 
       const message = `
