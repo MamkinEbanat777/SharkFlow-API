@@ -21,6 +21,7 @@ import {
   createAuthTokens,
   setAuthCookies,
 } from '../../../utils/helpers/authHelpers.js';
+import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 
 const router = Router();
 
