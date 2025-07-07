@@ -28,10 +28,10 @@ router.post(
       console.info('Process...');
       await deleteOldGuests();
       console.info('Done!');
-      res.status(200).send('Old guests deleted');
+      return res.status(200).send('Old guests deleted');
     } catch (err) {
       console.error(err);
-      res.status(500).send('Error deleting old guests');
+      return res.status(500).send('Error deleting old guests');
     }
   },
 );

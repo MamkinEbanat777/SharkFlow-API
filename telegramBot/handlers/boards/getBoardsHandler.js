@@ -3,7 +3,7 @@ import { getBoardsWithTaskCounts } from '../../../utils/helpers/boardHelpers.js'
 import { getColorEmoji } from '../../utils/color/getColorEmoji.js';
 import send from '../../send.js';
 
-export async function boardsHandler(ctx) {
+export async function getBoardsHandler(ctx) {
   const user = ctx.state.user;
   const userUuid = user.uuid;
 
@@ -11,19 +11,19 @@ export async function boardsHandler(ctx) {
 
   if (!user || !user.uuid) {
     console.error(
-      '[boardsHandler] Пользователь не найден или userUuid отсутствует:',
+      '[getBoardsHandler] Пользователь не найден или userUuid отсутствует:',
       user,
     );
     return send(ctx, '❌ Пользователь не найден.');
   }
 
-  console.info('[boardsHandler] userUuid:', userUuid);
+  console.info('[getBoardsHandler] userUuid:', userUuid);
 
   try {
     const { boards, totalBoards } = await getBoardsWithTaskCounts(userUuid);
 
-    console.info('[boardsHandler] boards:', boards);
-    console.info('[boardsHandler] totalBoards:', totalBoards);
+    console.info('[getBoardsHandler] boards:', boards);
+    console.info('[getBoardsHandler] totalBoards:', totalBoards);
 
     if (boards.length === 0) {
       return send(ctx, 'У вас пока нет досок.');
@@ -39,7 +39,15 @@ export async function boardsHandler(ctx) {
           `${index + 1}. ${pinMark}${favMark}<b>${board.title}</b>\n` +
           `   Задач: ${board.taskCount}\n` +
           `   Цвет: ${colorEmoji}\n` +
-          `   Обновлено: ${new Date(board.updatedAt).toLocaleDateString(
+          `   Создана: ${new Date(board.createdAt).toLocaleDateString('ru-RU', {
+            weekday: 'short',
+            day: 'numeric',
+            month: 'long',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit',
+          })}\n` +
+          `   Обновлена: ${new Date(board.updatedAt).toLocaleDateString(
             'ru-RU',
             {
               weekday: 'short',
@@ -55,6 +63,7 @@ export async function boardsHandler(ctx) {
       .join('\n\n');
 
     const keyboard = Markup.inlineKeyboard([
+      Markup.button.callback('➕ Создать доску', 'create_board'),
       Markup.button.callback('🔙 Назад в меню', 'back_to_main'),
     ]);
 
@@ -64,7 +73,7 @@ export async function boardsHandler(ctx) {
       keyboard,
     );
   } catch (error) {
-    console.error('[boardsHandler] Ошибка при получении досок:', error);
+    console.error('[getBoardsHandler] Ошибка при получении досок:', error);
     await send(ctx, '❌ Произошла ошибка при получении досок.');
   }
 }

@@ -1,23 +1,24 @@
 import { authenticateTelegramMiddleware } from '../../middlewares/http/authenticateTelegramMiddleware.js';
 import { showProfileHandler } from './users/showProfileHandler.js';
-import { boardsHandler } from './boards/boardsHandler.js';
+import { getBoardsHandler } from './boards/getBoardsHandler.js';
 import { logoutHandler } from './users/logoutHandler.js';
 import { mainMenuHandler } from './mainMenuHandler.js';
 import { showHelpHandler } from './users/showHelpHandler.js';
 import send from '../send.js';
+import { createBoardsHandler } from './boards/createBoardHandler.js';
 
 /**
  * Регистрация экшенов
  * @param {string} ctx - контекст от TG
- * @returns {void} - ничего 
+ * @returns {void} - ничего
  * @example
  * bot.on('callback_query', callbackHandler);
  * В данной функции необходимо регистрировать новые экшены для вызова по нажатию на кнопки
- * Пример вызова в кнопке: 
- * @example  
+ * Пример вызова в кнопке:
+ * @example
  * Markup.button.callback('👤 Мой профиль', 'show_profile'),
  * Затем внутри case вызываем миддлварь для защищенных экшенов и после вызываем хендлер содержащий логику вызова
-*/
+ */
 export async function callbackHandler(ctx) {
   const callbackData = ctx.callbackQuery?.data;
 
@@ -30,13 +31,19 @@ export async function callbackHandler(ctx) {
   switch (callbackData) {
     case 'show_profile':
       await authenticateTelegramMiddleware(ctx, async () => {
-        await showProfileHandler(ctx); 
+        await showProfileHandler(ctx);
       });
       break;
 
     case 'show_boards':
       await authenticateTelegramMiddleware(ctx, async () => {
-        await boardsHandler(ctx);
+        await getBoardsHandler(ctx);
+      });
+      break;
+
+    case 'create_board':
+      await authenticateTelegramMiddleware(ctx, async () => {
+        await createBoardsHandler(ctx);
       });
       break;
 
@@ -60,4 +67,3 @@ export async function callbackHandler(ctx) {
       await send(ctx, '❌ Неизвестная команда');
   }
 }
-

@@ -25,30 +25,30 @@ router.post(
     const { user, captchaToken } = req.validatedBody;
     const { email, login, password } = user;
     const ipAddress = getClientIP(req);
-
-    if (!captchaToken) {
-      return res
-        .status(400)
-        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
-    }
-
-    const turnstileUuid = generateUUID();
-
-    try {
-      const captchaSuccess = await verifyTurnstileCaptcha(
-        captchaToken,
-        ipAddress,
-        turnstileUuid,
-      );
-      if (!captchaSuccess) {
+    if (process.env.NODE_ENV === 'production') {
+      if (!captchaToken) {
         return res
           .status(400)
-          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+          .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
       }
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
 
+      const turnstileUuid = generateUUID();
+
+      try {
+        const captchaSuccess = await verifyTurnstileCaptcha(
+          captchaToken,
+          ipAddress,
+          turnstileUuid,
+        );
+        if (!captchaSuccess) {
+          return res
+            .status(400)
+            .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+        }
+      } catch (error) {
+        return res.status(500).json({ error: error.message });
+      }
+    }
     const uuid = generateUUID();
     const hashedPassword = await bcrypt.hash(password, 10);
     const normalizedEmail = normalizeEmail(email);
@@ -111,7 +111,7 @@ router.post(
 
       res.cookie('sd_f93j8f___', uuid, getRegistrationCookieOptions());
 
-      res
+      return res
         .status(200)
         .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {

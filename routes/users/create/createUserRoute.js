@@ -60,11 +60,10 @@ router.post(
 
       if (existingUser) {
         if (existingUser.isDeleted) {
-          return res
-            .status(403)
-            .json({ 
-              error: 'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.' 
-            });
+          return res.status(403).json({
+            error:
+              'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.',
+          });
         } else {
           return res
             .status(409)
@@ -114,7 +113,7 @@ router.post(
 
       logRegistrationSuccess(email, userRecord.id, ipAddress);
 
-      res.status(201).json({
+      return res.status(201).json({
         message: 'Пользователь успешно зарегистрирован',
       });
     } catch (error) {

@@ -31,7 +31,7 @@ router.post(
         },
       });
 
-      res
+      return res
         .status(200)
         .json({ message: 'Код подтверждения отправлен на вашу почту' });
     } catch (error) {

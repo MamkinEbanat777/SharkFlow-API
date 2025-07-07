@@ -2,7 +2,11 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { findUserForAvatar, validateImageUrl, updateUserAvatar } from '../../../utils/helpers/avatarHelpers.js';
+import {
+  findUserForAvatar,
+  validateImageUrl,
+  updateUserAvatar,
+} from '../../../utils/helpers/avatarHelpers.js';
 
 const router = Router();
 
@@ -25,13 +29,17 @@ router.patch('/api/users/avatar', authenticateMiddleware, async (req, res) => {
         .json({ error: 'Пользователь не найден или удалён' });
     }
 
-    const updatedUser = await updateUserAvatar(userUuid, imgUrl, publicId || null);
+    const updatedUser = await updateUserAvatar(
+      userUuid,
+      imgUrl,
+      publicId || null,
+    );
 
     console.log(
       `Аватар обновлён для пользователя ${userUuid} с IP ${ipAddress}`,
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: 'Аватар успешно обновлён',
       avatarUrl: updatedUser.avatarUrl,
     });

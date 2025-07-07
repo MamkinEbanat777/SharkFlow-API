@@ -1,5 +1,5 @@
 import { authenticateTelegramMiddleware } from '../../middlewares/http/authenticateTelegramMiddleware.js';
-import { boardsHandler } from '../handlers/boards/boardsHandler.js';
+import { getBoardsHandler } from '../handlers/boards/getBoardsHandler.js';
 
 export default function registerBoardTriggerEvent(bot) {
   bot.on('text', async (ctx) => {
@@ -7,7 +7,7 @@ export default function registerBoardTriggerEvent(bot) {
     
     if (text === 'SF доски' || text === 'SF boards') {
       await authenticateTelegramMiddleware(ctx, async () => {
-        await boardsHandler(ctx);
+        await getBoardsHandler(ctx);
       });
     }
   });

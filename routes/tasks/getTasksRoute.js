@@ -22,7 +22,7 @@ router.get(
 
       logTaskFetch(tasks.length, tasks.length, userUuid, ipAddress);
 
-      res.json({ tasks });
+      return res.json({ tasks });
     } catch (error) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при загрузке задач',

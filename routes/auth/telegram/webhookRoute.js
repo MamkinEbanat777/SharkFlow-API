@@ -9,7 +9,7 @@ router.post('/telegram/webhook', async (req, res) => {
     await bot.handleUpdate(req.body, res);
   } catch (e) {
     console.error(e);
-    res.status(500).send('Ошибка');
+    return res.status(500).send('Ошибка');
   }
 });
 

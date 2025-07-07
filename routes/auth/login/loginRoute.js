@@ -34,27 +34,29 @@ router.post(
     const { user, captchaToken } = req.validatedBody;
     const { email, password, rememberMe } = user;
 
-    if (!captchaToken) {
-      return res
-        .status(400)
-        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
-    }
-
-    const turnstileUuid = generateUUID();
-
-    try {
-      const captchaSuccess = await verifyTurnstileCaptcha(
-        captchaToken,
-        ipAddress,
-        turnstileUuid,
-      );
-      if (!captchaSuccess) {
+    if (process.env.NODE_ENV === 'production') {
+      if (!captchaToken) {
         return res
           .status(400)
-          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+          .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
       }
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
+
+      const turnstileUuid = generateUUID();
+
+      try {
+        const captchaSuccess = await verifyTurnstileCaptcha(
+          captchaToken,
+          ipAddress,
+          turnstileUuid,
+        );
+        if (!captchaSuccess) {
+          return res
+            .status(400)
+            .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+        }
+      } catch (error) {
+        return res.status(500).json({ error: error.message });
+      }
     }
 
     const normalizedEmail =

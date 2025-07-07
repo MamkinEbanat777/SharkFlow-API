@@ -29,7 +29,7 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
 
     logUserFetch(userUuid, ipAddress);
 
-    res.json(user);
+    return res.json(user);
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при получении пользователя',

@@ -51,17 +51,19 @@ routes.forEach(({ path, router }) => {
   app.use(path, router);
 });
 
+console.log(`Всего подключено роутов: ${routes.length}`);
+
 app.use((err, req, res, next) => {
   console.error(err.stack);
   const status = err.status || 500;
-  res.status(status).json({
+  return res.status(status).json({
     error: err.message || 'Внутренняя ошибка сервера',
     ...(process.env.NODE_ENV !== 'production' && { stack: err.stack }),
   });
 });
 
 app.use((req, res) => {
-  res.status(404).json({ error: 'Ресурс не найден' });
+  return res.status(404).json({ error: 'Ресурс не найден' });
 });
 
 export default app;

@@ -61,7 +61,7 @@ router.post('/api/auth/logout', authenticateMiddleware, async (req, res) => {
       path: '/',
     });
 
-    res.status(200).json({ message: 'Вы успешно вышли из системы' });
+    return res.status(200).json({ message: 'Вы успешно вышли из системы' });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при выходе из системы',

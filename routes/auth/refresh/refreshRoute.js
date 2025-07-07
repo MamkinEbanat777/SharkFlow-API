@@ -71,7 +71,7 @@ router.post('/api/auth/refresh', async (req, res) => {
       ipAddress,
       userAgent: req.get('User-Agent'),
       referrer,
-      userId: tokenRecord.userId, 
+      userId: tokenRecord.userId,
     });
 
     if (shouldRotateToken(tokenRecord.expiresAt)) {
@@ -122,7 +122,7 @@ router.post('/api/auth/refresh', async (req, res) => {
 
     logTokenRefresh(userUuid, ipAddress, rotated);
 
-    res.status(200).json({
+    return res.status(200).json({
       accessToken: newAccessToken,
       csrfToken: newCsrfToken,
       uuid: userUuid,
@@ -130,14 +130,15 @@ router.post('/api/auth/refresh', async (req, res) => {
     });
   } catch (error) {
     logTokenRefreshFailure(userUuid, ipAddress, 'Server error');
-    
+
     if (!res.headersSent) {
       if (error.message === 'Пользователь не найден') {
-        return res.status(401).json({ 
-          message: 'Пользователь не найден. Пожалуйста, войдите в систему заново' 
+        return res.status(401).json({
+          message:
+            'Пользователь не найден. Пожалуйста, войдите в систему заново',
         });
       }
-      
+
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при обновлении токена',
         status: 500,

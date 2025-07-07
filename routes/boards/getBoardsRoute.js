@@ -16,7 +16,7 @@ router.get('/api/boards', authenticateMiddleware, async (req, res) => {
 
     logBoardFetch(boards.length, totalBoards, userUuid, ipAddress);
 
-    res.json({
+    return res.json({
       boards,
       totalBoards,
     });

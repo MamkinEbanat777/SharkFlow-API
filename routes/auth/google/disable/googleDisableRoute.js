@@ -21,14 +21,14 @@ router.post(
       const validation = await validateAndDeleteConfirmationCode(
         userUuid,
         'disableGoogle',
-        confirmationCode
+        confirmationCode,
       );
-      
+
       if (!validation.isValid) {
         return res.status(400).json({ error: validation.error });
       }
 
-      const user = await findUserByUuidOrThrow(userUuid);
+      const user = await findUserByUuidOrThrow(userUuid, { uuid: true });
 
       await prisma.user.update({
         where: { uuid: userUuid },

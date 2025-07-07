@@ -33,7 +33,7 @@ router.get(
       .update(toSign + api_secret)
       .digest('hex');
 
-    res.json({
+    return res.json({
       api_key,
       timestamp,
       signature,

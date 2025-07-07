@@ -16,30 +16,33 @@ const router = Router();
 
 router.post('/api/auth/guest-login', async (req, res) => {
   const ipAddress = getClientIP(req);
-  // const userAgent = req.get('user-agent') || null;
-  const { captchaToken } = req.validatedBody;
+  const userAgent = req.get('user-agent') || null;
 
-  if (!captchaToken) {
-    return res
-      .status(400)
-      .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
-  }
+  if (process.env.NODE_ENV === 'production') {
+    const { captchaToken } = req.validatedBody;
 
-  const turnstileUuid = generateUUID();
-
-  try {
-    const captchaSuccess = await verifyTurnstileCaptcha(
-      captchaToken,
-      ipAddress,
-      turnstileUuid,
-    );
-    if (!captchaSuccess) {
+    if (!captchaToken) {
       return res
         .status(400)
-        .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
     }
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
+
+    const turnstileUuid = generateUUID();
+
+    try {
+      const captchaSuccess = await verifyTurnstileCaptcha(
+        captchaToken,
+        ipAddress,
+        turnstileUuid,
+      );
+      if (!captchaSuccess) {
+        return res
+          .status(400)
+          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
   }
 
   try {

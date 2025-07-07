@@ -5,7 +5,11 @@ import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
 import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { logTaskUpdate } from '../../utils/loggers/taskLoggers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { findBoardByUuidForUser, findTaskByUuid, validateTaskData } from '../../utils/helpers/taskHelpers.js';
+import {
+  findBoardByUuidForUser,
+  findTaskByUuid,
+  validateTaskData,
+} from '../../utils/helpers/taskHelpers.js';
 
 const router = Router();
 
@@ -21,8 +25,14 @@ router.patch(
     const { title, dueDate, description, priority, status } = req.body;
 
     try {
-      const validation = validateTaskData({ title, dueDate, description, priority, status });
-      
+      const validation = validateTaskData({
+        title,
+        dueDate,
+        description,
+        priority,
+        status,
+      });
+
       if (!validation.isValid) {
         return res.status(400).json({ error: validation.errors[0] });
       }
@@ -33,7 +43,9 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const board = await findBoardByUuidForUser(boardUuid, userUuid, { id: true });
+      const board = await findBoardByUuidForUser(boardUuid, userUuid, {
+        id: true,
+      });
 
       if (!board) {
         return res
@@ -64,7 +76,7 @@ router.patch(
 
       logTaskUpdate(taskUuid, dataToUpdate, userUuid, ipAddress);
 
-      res.status(200).json({
+      return res.status(200).json({
         message: 'Задача успешно обновлена',
         updated: updatedTask,
       });

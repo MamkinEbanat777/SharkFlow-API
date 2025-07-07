@@ -15,18 +15,18 @@ router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     const { confirmationCode } = req.body;
-    
-    const user = await findUserByUuidOrThrow(userUuid, { 
-      twoFactorPendingSecret: true, 
-      email: true 
+
+    const user = await findUserByUuidOrThrow(userUuid, {
+      twoFactorPendingSecret: true,
+      email: true,
     });
 
     const validation = await validateAndDeleteConfirmationCode(
       userUuid,
       'setupTotp',
-      confirmationCode
+      confirmationCode,
     );
-    
+
     if (!validation.isValid) {
       return res.status(400).json({ error: validation.error });
     }
@@ -48,7 +48,7 @@ router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
 
     const otpauthUrl = createOtpAuthUrl(secret, user.email);
 
-    res.json({ message: 'Код подтверждения верен', otpauthUrl, secret });
+    return res.json({ message: 'Код подтверждения верен', otpauthUrl, secret });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка генерации или получения TOTP secret',

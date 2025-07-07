@@ -9,7 +9,7 @@ router.get('/monitor', async (req, res) => {
   );
 
   try {
-    res.status(200).send('API is working');
+    return res.status(200).send('API is working');
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка мониторинга',
