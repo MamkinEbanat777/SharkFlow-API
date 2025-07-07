@@ -14,13 +14,11 @@ export async function verifyTurnstileCaptcha(token, ipAddress, idempotencyKey) {
         headers: { 'Content-Type': 'application/json' },
       },
     );
-
+    console.info(response);
     if (!response.data.success) {
       console.warn('Turnstile captcha failed:', response.data['error-codes']);
       return false;
     }
-
-    return true;
   } catch (error) {
     console.error('Error during Turnstile captcha verification:', error);
     throw new Error('Ошибка сервера при проверке капчи');
