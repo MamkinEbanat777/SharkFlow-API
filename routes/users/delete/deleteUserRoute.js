@@ -60,17 +60,23 @@ router.post(
     try {
       const user = await prisma.user.findFirst({
         where: { uuid: userUuid, isDeleted: false },
-        select: { publicId: true },
+        select: { publicId: true, role: true },
       });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
 
+      if (user.role === 'guest') {
+        return res
+          .status(403)
+          .json({ error: 'Гостевой аккаунт нельзя удалить' });
+      }
+
       if (user?.publicId) {
         await cloudinary.v2.uploader.destroy(user.publicId);
       }
-      
+
       await prisma.$transaction([
         prisma.refreshToken.updateMany({
           where: { token: refreshToken },

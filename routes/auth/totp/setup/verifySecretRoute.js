@@ -18,11 +18,18 @@ router.post(
 
       const user = await findUserByUuidOrThrow(userUuid, {
         twoFactorPendingSecret: true,
+        role: true,
       });
 
       if (!user.twoFactorPendingSecret) {
         return res.status(400).json({
           error: 'Отсутствует ключ для завершения настройки 2FA',
+        });
+      }
+
+      if (user.role === 'guest') {
+        return res.status(403).json({
+          error: 'Гостевые аккаунты не могут подключать 2FA',
         });
       }
 

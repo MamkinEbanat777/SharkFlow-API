@@ -59,10 +59,17 @@ router.patch(
 
       const user = await prisma.user.findFirst({
         where: { uuid: userUuid, isDeleted: false },
+        select: { role: true },
       });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+
+      if (!user.role === 'guest') {
+        return res
+          .status(403)
+          .json({ error: 'Нельзя обновлять данные гостевого аккаунта' });
       }
 
       const updateResult = await prisma.user.update({

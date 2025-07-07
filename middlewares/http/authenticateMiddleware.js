@@ -4,6 +4,7 @@ import { isValidUUID } from '../../utils/validators/boardValidators.js';
 export function authenticateMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   const csrfHeader = req.headers['x-csrf-token'];
+  console.log(req.headers);
 
   if (!authHeader?.startsWith('Bearer ')) {
     console.error(`Invalid auth header from ${req.ip}`);
@@ -20,29 +21,24 @@ export function authenticateMiddleware(req, res, next) {
       console.error(`Invalid userUuid in token from ${req.ip}`);
       return res.status(401).json({ error: 'Unauthorized' });
     }
-    if (req.method !== 'GET' && req.method !== 'HEAD') {
-      if (!csrfHeader) {
-        console.error(`Missing CSRF token from ${req.ip}`);
-        return res.status(403).json({ error: 'Missing CSRF token' });
-      }
 
-      try {
-        const csrfPayload = jwt.verify(
-          csrfHeader,
-          process.env.JWT_CSRF_SECRET,
-          {
-            algorithms: ['HS256'],
-          },
-        );
+    if (!csrfHeader) {
+      console.error(`Missing CSRF token from ${req.ip}`);
+      return res.status(403).json({ error: 'Missing CSRF token' });
+    }
 
-        if (csrfPayload.userUuid !== decoded.userUuid) {
-          console.error(`CSRF token mismatch from ${req.ip}`);
-          return res.status(403).json({ error: 'Invalid CSRF token' });
-        }
-      } catch (csrfErr) {
-        console.error(`Invalid CSRF token from ${req.ip}: ${csrfErr.message}`);
+    try {
+      const csrfPayload = jwt.verify(csrfHeader, process.env.JWT_CSRF_SECRET, {
+        algorithms: ['HS256'],
+      });
+
+      if (csrfPayload.userUuid !== decoded.userUuid) {
+        console.error(`CSRF token mismatch from ${req.ip}`);
         return res.status(403).json({ error: 'Invalid CSRF token' });
       }
+    } catch (csrfErr) {
+      console.error(`Invalid CSRF token from ${req.ip}: ${csrfErr.message}`);
+      return res.status(403).json({ error: 'Invalid CSRF token' });
     }
 
     req.userUuid = decoded.userUuid;
