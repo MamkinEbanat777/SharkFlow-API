@@ -11,6 +11,7 @@ import {
   setAuthCookies,
 } from '../../../utils/helpers/authHelpers.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
+import { generateUUID } from '../../../utils/generators/generateUUID.js';
 
 const router = Router();
 
