@@ -20,7 +20,7 @@ router.post('/api/auth/guest-login', async (req, res) => {
   const userAgent = req.get('user-agent') || null;
 
   if (process.env.NODE_ENV === 'production') {
-    const { captchaToken } = req.validatedBody;
+    const { captchaToken } = req.body;
 
     if (!captchaToken) {
       return res
