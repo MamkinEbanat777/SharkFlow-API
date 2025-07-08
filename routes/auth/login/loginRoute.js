@@ -33,7 +33,7 @@ router.post(
     const userAgent = req.get('user-agent') || null;
     const { user, captchaToken } = req.validatedBody;
     const { email, password, rememberMe } = user;
-    console.log('captchaToken: ',captchaToken)
+    console.info('captchaToken: ', captchaToken);
 
     if (process.env.NODE_ENV === 'production') {
       if (!captchaToken) {
