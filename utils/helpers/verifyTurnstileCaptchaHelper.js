@@ -19,6 +19,7 @@ export async function verifyTurnstileCaptcha(token, ipAddress, idempotencyKey) {
       console.warn('Turnstile captcha failed:', response.data['error-codes']);
       return false;
     }
+    return true;
   } catch (error) {
     console.error('Error during Turnstile captcha verification:', error);
     throw new Error('Ошибка сервера при проверке капчи');
