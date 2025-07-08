@@ -7,8 +7,6 @@ export async function getBoardsHandler(ctx) {
   const user = ctx.state.user;
   const userUuid = user.uuid;
 
-  console.info('[user] user:', user);
-
   if (!user || !user.uuid) {
     console.error(
       '[getBoardsHandler] Пользователь не найден или userUuid отсутствует:',
@@ -17,13 +15,8 @@ export async function getBoardsHandler(ctx) {
     return send(ctx, '❌ Пользователь не найден.');
   }
 
-  console.info('[getBoardsHandler] userUuid:', userUuid);
-
   try {
     const { boards, totalBoards } = await getBoardsWithTaskCounts(userUuid);
-
-    console.info('[getBoardsHandler] boards:', boards);
-    console.info('[getBoardsHandler] totalBoards:', totalBoards);
 
     if (boards.length === 0) {
       return send(ctx, 'У вас пока нет досок.');
