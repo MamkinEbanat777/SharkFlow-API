@@ -72,8 +72,6 @@ router.patch(
         select,
       });
 
-      console.log(updatedTask);
-
       logTaskUpdate(taskUuid, dataToUpdate, userUuid, ipAddress);
 
       return res.status(200).json({

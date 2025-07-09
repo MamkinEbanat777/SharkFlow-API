@@ -19,7 +19,7 @@ export async function sendEmail({ to, subject, text = '', html }) {
       html,
     });
 
-    console.log('Письмо отправлено:', info.messageId);
+    console.info('Письмо отправлено:', info.messageId);
   } catch (error) {
     console.error('Ошибка при отправке письма:', error);
     throw error;

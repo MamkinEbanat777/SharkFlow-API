@@ -25,7 +25,6 @@ function getUserTempKey(type, uuid) {
 }
 
 export async function setUserTempData(type, uuid, data) {
-  console.log('[setUserTempData]', type, uuid, data);
   await redis.set(getUserTempKey(type, uuid), JSON.stringify(data), {
     ex: EXPIRE_SECONDS,
   });
@@ -33,7 +32,6 @@ export async function setUserTempData(type, uuid, data) {
 
 export async function getUserTempData(type, uuid) {
   const value = await redis.get(getUserTempKey(type, uuid));
-  console.log('[getUserTempData]', type, uuid, value);
   if (!value) return null;
   try {
     return typeof value === 'string' ? JSON.parse(value) : value;

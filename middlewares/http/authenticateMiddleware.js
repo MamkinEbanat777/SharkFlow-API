@@ -4,7 +4,6 @@ import { isValidUUID } from '../../utils/validators/boardValidators.js';
 export function authenticateMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   const csrfHeader = req.headers['x-csrf-token'];
-  console.log(req.headers);
 
   if (!authHeader?.startsWith('Bearer ')) {
     console.error(`Invalid auth header from ${req.ip}`);

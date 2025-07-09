@@ -35,10 +35,6 @@ router.patch('/api/users/avatar', authenticateMiddleware, async (req, res) => {
       publicId || null,
     );
 
-    console.log(
-      `Аватар обновлён для пользователя ${userUuid} с IP ${ipAddress}`,
-    );
-
     return res.status(200).json({
       message: 'Аватар успешно обновлён',
       avatarUrl: updatedUser.avatarUrl,

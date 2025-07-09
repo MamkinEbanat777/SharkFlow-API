@@ -40,23 +40,19 @@ export async function setConfirmationCode(type, key, code) {
   await redis.set(getConfirmationKey(type, key), code, {
     ex: EXPIRE_SECONDS,
   });
-  console.log('[setConfirmationCode]', type, key, code);
 }
 
 export async function getConfirmationCode(type, key) {
   const value = await redis.get(getConfirmationKey(type, key));
-  console.log('[getConfirmationCode]', type, key, value);
   return value || null;
 }
 
 export async function deleteConfirmationCode(type, key) {
   await redis.del(getConfirmationKey(type, key));
-  console.log('[deleteConfirmationCode]', type, key);
 }
 
 export async function isConfirmationBlocked(type, key) {
   const blocked = await redis.exists(getBlockKey(type, key));
-  console.log('[isConfirmationBlocked]', type, key, blocked);
   return blocked === 1;
 }
 
@@ -66,16 +62,13 @@ export async function registerFailedAttempt(type, key) {
   if (current === 1) {
     await redis.expire(attemptKey, ATTEMPT_WINDOW_SECONDS);
   }
-  console.log('[registerFailedAttempt]', type, key, current);
 
   if (current >= MAX_ATTEMPTS) {
     await redis.set(getBlockKey(type, key), '1', { ex: BLOCK_TIME_SECONDS });
-    console.log(`[BLOCKED] ${type}:${key} на ${BLOCK_TIME_SECONDS} секунд`);
   }
 }
 
 export async function resetConfirmationAttempts(type, key) {
   await redis.del(getAttemptKey(type, key));
   await redis.del(getBlockKey(type, key));
-  console.log('[resetConfirmationAttempts]', type, key);
 }

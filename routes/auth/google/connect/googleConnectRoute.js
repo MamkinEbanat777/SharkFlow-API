@@ -38,7 +38,6 @@ router.post(
       });
 
       const payload = ticket.getPayload();
-      console.log(payload);
       const googleSub = payload.sub;
       const email = payload.email;
       const emailVerified = payload.email_verified;
