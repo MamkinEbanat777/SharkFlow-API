@@ -18,6 +18,7 @@ model User {
   uuid                   String    @unique @default(uuid()) @db.Uuid
   email                  String    @unique @db.VarChar(320)
   googleEmail            String?   @unique @db.VarChar(320)
+  githubEmail            String?   @unique @db.VarChar(320)
   login                  String    @unique @db.VarChar(30)
   password               String?
   googleSub              String?   @unique @db.VarChar(255)

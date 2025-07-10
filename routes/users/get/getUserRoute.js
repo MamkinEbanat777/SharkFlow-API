@@ -21,6 +21,7 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
       googleOAuthEnabled: true,
       googleEmail: true,
       telegramEnabled: true,
+      githubOAuthEnabled: true,
     });
 
     if (!user) {

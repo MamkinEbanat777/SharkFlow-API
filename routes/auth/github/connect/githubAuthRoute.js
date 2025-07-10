@@ -17,8 +17,6 @@ router.post('/api/auth/github', async (req, res) => {
   const userAgent = req.get('user-agent') || null;
   const { code, state } = req.body;
 
-  console.info(req.body);
-
   if (!code || typeof code !== 'string') {
     return res.status(400).json({ error: 'Код обязателен' });
   }
@@ -147,7 +145,8 @@ router.post('/api/auth/github', async (req, res) => {
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
 
-    res.cookie('refresh_token', refreshToken, getRefreshCookieOptions(true));
+    res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(true));
+
     return res.status(200).json({
       accessToken,
       csrfToken,
