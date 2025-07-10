@@ -9,45 +9,16 @@ import { generateUniqueLogin } from '../../../../utils/generators/generateUnique
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvatarAndUpdateUser.js';
 import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
-import { generateUUID } from '../../../../utils/generators/generateUUID.js';
-import { verifyTurnstileCaptcha } from '../../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 
 const router = Router();
 
 router.post('/api/auth/github', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
-  const { code, captchaToken } = req.body;
-
-  console.info('captchaToken: ', captchaToken);
+  const { code } = req.body;
 
   if (!code) {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
-  }
-
-  if (process.env.NODE_ENV === 'production') {
-    if (!captchaToken) {
-      return res
-        .status(400)
-        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
-    }
-
-    const turnstileUuid = generateUUID();
-
-    try {
-      const captchaSuccess = await verifyTurnstileCaptcha(
-        captchaToken,
-        ipAddress,
-        turnstileUuid,
-      );
-      if (!captchaSuccess) {
-        return res
-          .status(400)
-          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
-      }
-    } catch (error) {
-      return res.status(500).json({ error: error.message });
-    }
   }
 
   try {
@@ -145,7 +116,7 @@ router.post('/api/auth/github', async (req, res) => {
       referrer: req.get('referer') || null,
       userId: user.id,
     });
-    
+
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
 
