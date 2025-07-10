@@ -17,6 +17,8 @@ router.post('/api/auth/github', async (req, res) => {
   const userAgent = req.get('user-agent') || null;
   const { code, state } = req.body;
 
+  console.info(req.body);
+
   if (!code || typeof code !== 'string') {
     return res.status(400).json({ error: 'Код обязателен' });
   }
