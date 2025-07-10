@@ -15,10 +15,24 @@ const router = Router();
 router.post('/api/auth/github', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
-  const { code } = req.body;
+  const { code, state } = req.body;
 
-  if (!code) {
-    return res.status(400).json({ error: 'Код авторизации обязателен' });
+  if (!code || typeof code !== 'string') {
+    return res.status(400).json({ error: 'Код обязателен' });
+  }
+
+  if (!state || typeof state !== 'string') {
+    return res.status(400).json({ error: 'State обязателен' });
+  }
+
+  const [stateToken, nextPath = '/dashboard'] = state.split('|');
+
+  if (
+    !stateToken ||
+    stateToken.length < 10 ||
+    !/^[a-f0-9\-]+$/i.test(stateToken)
+  ) {
+    return res.status(400).json({ error: 'Некорректный state' });
   }
 
   try {
@@ -43,15 +57,19 @@ router.post('/api/auth/github', async (req, res) => {
     const [userRes, emailsRes] = await Promise.all([
       axios.get('https://api.github.com/user', {
         headers: { Authorization: `Bearer ${accessTokenGH}` },
+        timeout: 10000,
       }),
       axios.get('https://api.github.com/user/emails', {
         headers: { Authorization: `Bearer ${accessTokenGH}` },
+        timeout: 10000,
       }),
     ]);
 
     const githubUser = userRes.data;
-    const primaryEmailObj = emailsRes.data.find((e) => e.primary && e.verified);
-    const email = primaryEmailObj?.email;
+    const primary = Array.isArray(emailsRes.data)
+      ? emailsRes.data.find((e) => e.primary && e.verified)
+      : null;
+    const email = primary?.email;
 
     if (!email) {
       return res
@@ -64,41 +82,48 @@ router.post('/api/auth/github', async (req, res) => {
     });
 
     if (!user) {
-      const byEmail = await prisma.user.findFirst({ where: { email } });
-      if (byEmail) {
-        if (byEmail.githubId && byEmail.githubId !== String(githubUser.id)) {
+      const existing = await prisma.user.findFirst({ where: { email } });
+      if (existing) {
+        if (existing.githubId && existing.githubId !== String(githubUser.id)) {
           return res
             .status(403)
-            .json({ error: 'Этот email уже занят другим аккаунтом' });
+            .json({ error: 'Email уже занят другим аккаунтом' });
         }
         user = await prisma.user.update({
-          where: { id: byEmail.id },
-          data: { githubId: String(githubUser.id) },
+          where: { id: existing.id },
+          data: {
+            githubId: String(githubUser.id),
+            githubOAuthEnabled: true,
+          },
         });
       } else {
-        const baseLogin = githubUser.login || email.split('@')[0];
-        const login = await generateUniqueLogin(baseLogin);
+        const base = githubUser.login || email.split('@')[0] || 'user';
+        const login = await generateUniqueLogin(base);
         user = await prisma.user.create({
           data: {
             login,
             email,
+            githubEmail: email,
             githubId: String(githubUser.id),
-            avatarUrl: githubUser.avatar_url,
+            githubOAuthEnabled: true,
+            avatarUrl: null,
+            password: null,
             role: 'user',
           },
         });
       }
     }
 
-    if (
-      githubUser.avatar_url &&
-      !user.avatarUrl?.includes('res.cloudinary.com')
-    ) {
-      await uploadAvatarAndUpdateUser(
-        user.id,
-        githubUser.avatar_url,
-        `github_${githubUser.id}`,
-      );
+    if (githubUser.avatar_url) {
+      const hasAvatar = Boolean(user.avatarUrl);
+      const isCloudinary = user.avatarUrl?.includes('res.cloudinary.com');
+      if (!hasAvatar || !isCloudinary) {
+        await uploadAvatarAndUpdateUser(
+          user.id,
+          githubUser.avatar_url,
+          `github_${githubUser.id}`,
+        );
+      }
     }
 
     if (user.role === 'guest' || !user.isActive) {
@@ -119,13 +144,11 @@ router.post('/api/auth/github', async (req, res) => {
 
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
-    console.info('accessToken: ', accessToken)
-    console.info('csrfToken: ', csrfToken)
 
-    res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
+    res.cookie('refresh_token', refreshToken, getRefreshCookieOptions(true));
     return res.status(200).json({
-      accessToken: accessToken,
-      csrfToken: csrfToken,
+      accessToken,
+      csrfToken,
       githubOAuthEnabled: user.githubOAuthEnabled,
     });
   } catch (error) {

@@ -77,7 +77,6 @@ router.post('/api/auth/google', async (req, res) => {
               isDeleted: false,
               deletedAt: null,
               googleOAuthEnabled: true,
-              avatarUrl: avatarUrl || userByEmail.avatarUrl,
             },
           });
         } else {
@@ -98,7 +97,6 @@ router.post('/api/auth/google', async (req, res) => {
           data: {
             googleSub,
             googleOAuthEnabled: true,
-            avatarUrl: avatarUrl || userByEmail.avatarUrl,
           },
         });
       }
@@ -133,15 +131,16 @@ router.post('/api/auth/google', async (req, res) => {
       });
     }
 
-    if (
-      avatarUrl &&
-      (!user.avatarUrl || !user.avatarUrl.includes('res.cloudinary.com'))
-    ) {
-      await uploadAvatarAndUpdateUser(
-        user.id,
-        avatarUrl,
-        `google_${googleSub}`,
-      );
+    if (avatarUrl) {
+      const hasAvatar = Boolean(user.avatarUrl);
+      const isCloud = user.avatarUrl?.includes('res.cloudinary.com');
+      if (!hasAvatar || !isCloud) {
+        await uploadAvatarAndUpdateUser(
+          user.id,
+          avatarUrl,
+          `google_${googleSub}`,
+        );
+      }
     }
 
     if (user.isDeleted || !user.isActive) {
