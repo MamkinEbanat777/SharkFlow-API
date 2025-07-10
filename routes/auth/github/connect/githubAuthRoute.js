@@ -119,6 +119,8 @@ router.post('/api/auth/github', async (req, res) => {
 
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
+    console.info('accessToken: ', accessToken)
+    console.info('csrfToken: ', csrfToken)
 
     res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
     return res.status(200).json({
