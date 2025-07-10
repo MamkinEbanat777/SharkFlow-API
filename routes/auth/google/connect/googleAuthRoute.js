@@ -9,6 +9,7 @@ import { generateUniqueLogin } from '../../../../utils/generators/generateUnique
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvatarAndUpdateUser.js';
 import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
+import { generateUUID } from '../../../../utils/generators/generateUUID.js';
 
 const router = Router();
 
