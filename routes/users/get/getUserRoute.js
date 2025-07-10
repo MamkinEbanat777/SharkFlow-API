@@ -20,6 +20,7 @@ router.get('/api/users', authenticateMiddleware, async (req, res) => {
       avatarUrl: true,
       googleOAuthEnabled: true,
       googleEmail: true,
+      githubEmail: true,
       telegramEnabled: true,
       githubOAuthEnabled: true,
     });
