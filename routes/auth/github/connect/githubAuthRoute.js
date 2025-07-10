@@ -15,7 +15,36 @@ const router = Router();
 router.post('/api/auth/github', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
-  const { code, state } = req.body;
+  const { code, state, captchaToken } = req.body;
+
+  if (!code) {
+    return res.status(400).json({ error: 'Код авторизации обязателен' });
+  }
+
+  if (process.env.NODE_ENV === 'production') {
+    if (!captchaToken) {
+      return res
+        .status(400)
+        .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
+    }
+
+    const turnstileUuid = generateUUID();
+
+    try {
+      const captchaSuccess = await verifyTurnstileCaptcha(
+        captchaToken,
+        ipAddress,
+        turnstileUuid,
+      );
+      if (!captchaSuccess) {
+        return res
+          .status(400)
+          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
+    }
+  }
 
   if (!code || typeof code !== 'string') {
     return res.status(400).json({ error: 'Код обязателен' });

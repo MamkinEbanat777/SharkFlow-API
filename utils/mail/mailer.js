@@ -25,3 +25,22 @@ export async function sendEmail({ to, subject, text = '', html }) {
     throw error;
   }
 }
+
+// import { Resend } from 'resend';
+// const resend = new Resend(process.env.RESEND_API_KEY);
+
+// export async function sendEmail({ to, subject, text = '', html }) {
+//   try {
+//     const message = await resend.emails.send({
+//       from: 'SharkFlow <no-reply@sharkflow.com>',
+//       to,
+//       subject,
+//       text,
+//       html,
+//     });
+//     console.info('Email sent via Resend:', message.id);
+//   } catch (err) {
+//     console.error('Resend error:', err);
+//     throw err;
+//   }
+// }
