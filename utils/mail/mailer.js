@@ -27,20 +27,26 @@ export async function sendEmail({ to, subject, text = '', html }) {
 }
 
 // import { Resend } from 'resend';
-// const resend = new Resend(process.env.RESEND_API_KEY);
+// const resend = new Resend(process.env.MAIL_RESEND_API_KEY);
 
 // export async function sendEmail({ to, subject, text = '', html }) {
 //   try {
-//     const message = await resend.emails.send({
-//       from: 'SharkFlow <no-reply@sharkflow.com>',
+//     const { data, error } = await resend.emails.send({
+//       from: 'SharkFlow <onboarding@resend.dev>',
 //       to,
 //       subject,
 //       text,
 //       html,
 //     });
-//     console.info('Email sent via Resend:', message.id);
+
+//     if (error) {
+//       console.error('Resend error:', error);
+//       throw new Error(error.message);
+//     }
+
+//     console.info('Email sent via Resend:', data?.id);
 //   } catch (err) {
-//     console.error('Resend error:', err);
+//     console.error('Resend fatal error:', err);
 //     throw err;
 //   }
 // }
