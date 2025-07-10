@@ -81,6 +81,7 @@ router.post(
         email: true,
         role: true,
         twoFactorEnabled: true,
+        githubOAuthEnabled: true,
       });
 
       if (!user || !user.password) {
