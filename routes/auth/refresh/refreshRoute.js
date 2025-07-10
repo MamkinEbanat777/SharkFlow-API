@@ -63,23 +63,28 @@ router.post('/api/auth/refresh', async (req, res) => {
     }
 
     let rotated = false;
-
-    const newRefreshToken = await issueRefreshToken({
-      res,
-      userUuid,
-      rememberMe: tokenRecord.rememberMe,
-      ipAddress,
-      userAgent: req.get('User-Agent'),
-      referrer,
-      userId: tokenRecord.userId,
-    });
+    let newRefreshToken = null;
 
     if (shouldRotateToken(tokenRecord.expiresAt)) {
+      rotated = true;
+
+      newRefreshToken = await issueRefreshToken({
+        res,
+        userUuid,
+        rememberMe: tokenRecord.rememberMe,
+        ipAddress,
+        userAgent: req.get('User-Agent'),
+        referrer,
+        userId: tokenRecord.userId,
+      });
+
+      // Отозвать старый токен
       await prisma.refreshToken.update({
         where: { id: tokenRecord.id },
         data: { revoked: true },
       });
 
+      // Сохранить новый токен
       await prisma.refreshToken.create({
         data: {
           token: newRefreshToken,
@@ -97,15 +102,37 @@ router.post('/api/auth/refresh', async (req, res) => {
         },
       });
 
-      rotated = true;
-    }
-
-    if (rotated) {
+      // Отдать новую куку
       res.cookie(
         'log___tf_12f_t2',
         newRefreshToken,
         getRefreshCookieOptions(tokenRecord.rememberMe),
       );
+
+      // Оставлять максимум 5 активных токенов
+      const activeTokens = await prisma.refreshToken.findMany({
+        where: {
+          userId: tokenRecord.userId,
+          revoked: false,
+        },
+        orderBy: {
+          createdAt: 'asc',
+        },
+      });
+
+      const MAX_TOKENS = 5;
+      if (activeTokens.length > MAX_TOKENS) {
+        const toRevoke = activeTokens.slice(
+          0,
+          activeTokens.length - MAX_TOKENS,
+        );
+        const ids = toRevoke.map((t) => t.id);
+
+        await prisma.refreshToken.updateMany({
+          where: { id: { in: ids } },
+          data: { revoked: true },
+        });
+      }
     }
 
     const user = await prisma.user.findFirst({
