@@ -35,6 +35,8 @@ model User {
   publicId               String?   @db.VarChar(100)
   telegramId             BigInt?   @unique
   telegramEnabled        Boolean?  @default(false)
+  githubId               BigInt?   @unique
+  githubOAuthEnabled     Boolean?  @default(false)
 
   boards        Board[]
   refreshTokens RefreshToken[]

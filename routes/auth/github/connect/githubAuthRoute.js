@@ -19,7 +19,7 @@ router.post('/api/auth/github', async (req, res) => {
   const userAgent = req.get('user-agent') || null;
   const { code, captchaToken } = req.body;
 
-  console.log('captchaToken: ', captchaToken);
+  console.info('captchaToken: ', captchaToken);
 
   if (!code) {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
@@ -31,12 +31,22 @@ router.post('/api/auth/github', async (req, res) => {
         .status(400)
         .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
     }
-    const uuid = generateUUID();
-    const ok = await verifyTurnstileCaptcha(captchaToken, ipAddress, uuid);
-    if (!ok) {
-      return res
-        .status(400)
-        .json({ error: 'Captcha не пройдена. Попробуйте ещё раз.' });
+
+    const turnstileUuid = generateUUID();
+
+    try {
+      const captchaSuccess = await verifyTurnstileCaptcha(
+        captchaToken,
+        ipAddress,
+        turnstileUuid,
+      );
+      if (!captchaSuccess) {
+        return res
+          .status(400)
+          .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+      }
+    } catch (error) {
+      return res.status(500).json({ error: error.message });
     }
   }
 
@@ -50,7 +60,9 @@ router.post('/api/auth/github', async (req, res) => {
       },
       { headers: { Accept: 'application/json' } },
     );
+
     const accessTokenGH = tokenRes.data.access_token;
+
     if (!accessTokenGH) {
       return res
         .status(400)
@@ -65,9 +77,11 @@ router.post('/api/auth/github', async (req, res) => {
         headers: { Authorization: `Bearer ${accessTokenGH}` },
       }),
     ]);
+
     const githubUser = userRes.data;
     const primaryEmailObj = emailsRes.data.find((e) => e.primary && e.verified);
     const email = primaryEmailObj?.email;
+
     if (!email) {
       return res
         .status(400)
@@ -131,17 +145,16 @@ router.post('/api/auth/github', async (req, res) => {
       referrer: req.get('referer') || null,
       userId: user.id,
     });
+    
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
 
-    res
-      .cookie('refresh_token', refreshToken, getRefreshCookieOptions(true))
-      .status(200)
-      .json({
-        accessToken,
-        csrfToken,
-        githubOAuthEnabled: true,
-      });
+    res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
+    return res.status(200).json({
+      accessToken: accessToken,
+      csrfToken: csrfToken,
+      githubOAuthEnabled: user.githubOAuthEnabled,
+    });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при логине через GitHub',
