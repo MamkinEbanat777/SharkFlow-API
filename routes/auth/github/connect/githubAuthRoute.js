@@ -32,7 +32,7 @@ router.post('/api/auth/github', async (req, res) => {
   if (
     !stateToken ||
     stateToken.length < 10 ||
-    !/^[a-f0-9\-]+$/i.test(stateToken)
+    !/^[a-zA-Z0-9\-_]+$/.test(stateToken)
   ) {
     return res.status(400).json({ error: 'Некорректный state' });
   }
