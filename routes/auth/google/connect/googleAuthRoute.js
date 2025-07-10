@@ -25,6 +25,8 @@ router.post('/api/auth/google', async (req, res) => {
   const userAgent = req.get('user-agent') || null;
   const { code, captchaToken } = req.body;
 
+  console.log('captchaToken: ', captchaToken);
+
   if (!code) {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
   }
