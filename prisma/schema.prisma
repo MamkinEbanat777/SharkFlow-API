@@ -19,6 +19,7 @@ model User {
   email                  String    @unique @db.VarChar(320)
   googleEmail            String?   @unique @db.VarChar(320)
   githubEmail            String?   @unique @db.VarChar(320)
+  yandexEmail            String?   @unique @db.VarChar(320)
   login                  String    @unique @db.VarChar(30)
   password               String?
   googleSub              String?   @unique @db.VarChar(255)
@@ -38,13 +39,50 @@ model User {
   telegramEnabled        Boolean?  @default(false)
   githubId               String?   @unique
   githubOAuthEnabled     Boolean?  @default(false)
+  yandexId               String?   @unique
+  yandexOAuthEnabled     Boolean?  @default(false)
 
-  boards        Board[]
-  refreshTokens RefreshToken[]
+  boards             Board[]
+  refreshTokens      RefreshToken[]
+  userDeviceSessions UserDeviceSession[]
 
   @@index([uuid, isDeleted])
   @@index([email, isDeleted])
   @@map("users")
+}
+
+model UserDeviceSession {
+  id     Int  @id @default(autoincrement())
+  userId Int
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  deviceId    String  @db.VarChar(255)
+  deviceType  String? @db.VarChar(100)
+  deviceBrand String? @db.VarChar(100)
+  deviceModel String? @db.VarChar(100)
+
+  osName    String? @db.VarChar(100)
+  osVersion String? @db.VarChar(100)
+
+  clientName    String? @db.VarChar(100)
+  clientVersion String? @db.VarChar(100)
+
+  ipAddress   String? @db.VarChar(45)
+  geoLocation Json?
+
+  userAgent String? @db.VarChar(512)
+  referrer  String? @db.VarChar(2048)
+
+  createdAt   DateTime  @default(now())
+  lastUsedAt  DateTime?
+  lastLoginAt DateTime?
+
+  isActive      Boolean        @default(true)
+  refreshTokens RefreshToken[]
+
+  @@index([userId])
+  @@index([deviceId])
+  @@map("user_device_sessions")
 }
 
 model Board {
@@ -98,14 +136,14 @@ model RefreshToken {
   expiresAt  DateTime
   revoked    Boolean   @default(false)
   ipAddress  String?   @db.VarChar(45)
-  userAgent  String?   @db.VarChar(512)
-  deviceId   String?   @db.VarChar(255)
-  referrer   String?   @db.VarChar(2048)
   rememberMe Boolean   @default(false)
   lastUsedAt DateTime?
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  deviceSessionId Int?
+  deviceSession   UserDeviceSession? @relation(fields: [deviceSessionId], references: [id])
 
   @@index([userId])
   @@index([userId, revoked])

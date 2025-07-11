@@ -33,6 +33,11 @@ router.post(
     const userAgent = req.get('user-agent') || null;
     const { user, captchaToken } = req.validatedBody;
     const { email, password, rememberMe } = user;
+    const deviceId = req.headers['x-device-id'];
+
+    if (!deviceId) {
+      return res.status(401).json({ message: 'Устройство не найдено' });
+    }
 
     if (process.env.NODE_ENV === 'production') {
       if (!captchaToken) {

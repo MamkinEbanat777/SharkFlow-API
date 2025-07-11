@@ -2,6 +2,7 @@ import { createAccessToken } from '../tokens/accessToken.js';
 import { createCsrfToken } from '../tokens/csrfToken.js';
 import { issueRefreshToken } from '../tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
+import DeviceDetector from 'device-detector-js';
 
 /**
  * Получение IP адреса клиента из запроса
@@ -37,12 +38,11 @@ export const createAuthTokens = async (user, rememberMe, req) => {
     ipAddress: getClientIP(req),
     userAgent: req.get('user-agent') || null,
     referrer: req.get('Referer') || null,
-    userId: user.id, 
+    userId: user.id,
   });
 
   return { accessToken, csrfToken, refreshToken };
 };
-
 
 /**
  * Установка refresh token в cookie
@@ -72,4 +72,22 @@ export const getRequestInfo = (req) => {
     ipAddress: getClientIP(req),
     userAgent: req.get('user-agent') || null,
   };
-}; 
+};
+
+const deviceDetector = new DeviceDetector();
+
+export function parseDeviceInfo(userAgent) {
+  const result = deviceDetector.parse(userAgent);
+
+  return {
+    clientType: result.client?.type,
+    clientName: result.client?.name,
+    clientVersion: result.client?.version,
+    osName: result.os?.name,
+    osVersion: result.os?.version,
+    deviceType: result.device?.type,
+    deviceBrand: result.device?.brand,
+    deviceModel: result.device?.model,
+    bot: result.bot?.name ?? null,
+  };
+}

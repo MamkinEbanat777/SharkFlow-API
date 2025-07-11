@@ -27,7 +27,8 @@ export async function issueRefreshToken({
   ipAddress = null,
   userAgent = null,
   referrer = null,
-  userId = null, 
+  userId = null,
+  deviceId = null,
 }) {
   const refreshToken = createRefreshToken(userUuid, rememberMe);
 
@@ -37,7 +38,7 @@ export async function issueRefreshToken({
   const expiresAt = new Date(Date.now() + expiresMs);
 
   let user;
-  
+
   if (userId) {
     user = { id: userId };
   } else {
@@ -60,6 +61,7 @@ export async function issueRefreshToken({
       ipAddress,
       userAgent,
       referrer,
+      deviceId,
     },
   });
 

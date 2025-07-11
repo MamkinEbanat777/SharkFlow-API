@@ -15,6 +15,9 @@ import {
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
+import { UAParser } from 'ua-parser-js';
+import axios from 'axios';
+import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
@@ -22,6 +25,28 @@ router.post('/api/auth/refresh', async (req, res) => {
   const referrer = req.get('Referer') || null;
   const refreshToken = req.cookies.log___tf_12f_t2;
   const ipAddress = getClientIP(req);
+  const deviceId = req.headers['x-device-id'];
+
+  if (!deviceId) {
+    return res.status(401).json({ message: 'Устройство не найдено' });
+  }
+
+  if (!refreshToken) {
+    return res.status(401).json({ message: 'Refresh token отсутствует' });
+  }
+
+  let geoLocation = null;
+  try {
+    const { data } = await axios.get(`https://ipwho.is/${ipAddress}`);
+    console.info(data);
+    geoLocation = data;
+  } catch (error) {
+    console.error('Не удалось определить местоположение');
+  }
+  console.info(geoLocation);
+
+  const deviceinfo = parseDeviceInfo(req.get('user-agent'));
+  console.info('Device info:', deviceinfo);
 
   const tokenValidation = validateRefreshToken(refreshToken);
   if (!tokenValidation.isValid) {
@@ -40,6 +65,7 @@ router.post('/api/auth/refresh', async (req, res) => {
         expiresAt: true,
         revoked: true,
         rememberMe: true,
+        deviceId: true,
       },
     });
 
@@ -51,16 +77,26 @@ router.post('/api/auth/refresh', async (req, res) => {
       });
     }
 
+    if (tokenRecord.deviceId !== deviceId) {
+      logTokenRefreshFailure(userUuid, ipAddress, 'Device ID mismatch');
+      return res.status(401).json({ message: 'Несоответствие устройства' });
+    }
+
     if (isTokenExpired(tokenRecord.expiresAt)) {
       await prisma.refreshToken.update({
         where: { id: tokenRecord.id },
-        data: { revoked: true },
+        data: { revoked: true, lastUsedAt: new Date() },
       });
       logTokenRefreshFailure(userUuid, ipAddress, 'Token expired');
       return res.status(401).json({
         message: 'Ваша сессия истекла. Пожалуйста, войдите в систему заново',
       });
     }
+
+    await prisma.refreshToken.update({
+      where: { id: tokenRecord.id },
+      data: { lastUsedAt: new Date() },
+    });
 
     let rotated = false;
     let newRefreshToken = null;
@@ -76,6 +112,7 @@ router.post('/api/auth/refresh', async (req, res) => {
         userAgent: req.get('User-Agent'),
         referrer,
         userId: tokenRecord.userId,
+        deviceId,
       });
 
       await prisma.refreshToken.update({
@@ -97,6 +134,10 @@ router.post('/api/auth/refresh', async (req, res) => {
           userAgent: req.get('User-Agent'),
           referrer,
           rememberMe: tokenRecord.rememberMe,
+          deviceId,
+          // deviceName,
+          geoLocation,
+          lastLoginAt: new Date(),
         },
       });
 
@@ -148,7 +189,6 @@ router.post('/api/auth/refresh', async (req, res) => {
     return res.status(200).json({
       accessToken: newAccessToken,
       csrfToken: newCsrfToken,
-      // uuid: userUuid,
       role: user.role,
     });
   } catch (error) {
