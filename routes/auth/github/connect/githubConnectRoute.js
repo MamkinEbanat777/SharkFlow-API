@@ -90,13 +90,13 @@ router.post('/api/auth/github/connect', async (req, res) => {
     const githubIdStr = githubIdNumber.toString();
 
     if (userGithubIdStr && userGithubIdStr !== githubIdStr) {
-      console.log(
+      console.info(
         'user.githubId:',
         user.githubId,
         'type:',
         typeof user.githubId,
       );
-      console.log(
+      console.info(
         'githubIdNumber:',
         githubIdNumber.toString(),
         'type:',
