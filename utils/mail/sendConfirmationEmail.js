@@ -11,7 +11,8 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     disableTotp: 'Отключение двуфакторной аутентификации',
     emailChange: 'Подтверждение нового email',
     disableGoogle: 'Отключение авторизации через Google',
-    connectGoogle: 'Подключение авторизации через Google',
+    connectGoogle: 'Подключение Google',
+    connectGithub: 'Подключение Github',
   };
 
   if (!subjectMap[type]) {

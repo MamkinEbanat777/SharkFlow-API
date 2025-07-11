@@ -15,6 +15,7 @@ const ALLOWED_TYPES = [
   'checkCode',
   'twoFactorAuth',
   'telegramAuth',
+  'connectGithub',
 ];
 
 function getUserTempKey(type, uuid) {

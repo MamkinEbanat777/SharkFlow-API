@@ -13,6 +13,7 @@ const ALLOWED_TYPES = [
   'disableGoogle',
   'connectGoogle',
   'checkCode',
+  'connectGithub',
 ];
 
 function getEmailConfirmedKey(type, userUuid) {

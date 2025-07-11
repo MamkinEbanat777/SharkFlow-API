@@ -1,9 +1,9 @@
 import { redis } from '../config/redisconfig.js';
 
-const EXPIRE_SECONDS = 15 * 60; 
-const MAX_ATTEMPTS = 5; 
-const ATTEMPT_WINDOW_SECONDS = 5 * 60; 
-const BLOCK_TIME_SECONDS = 10 * 60; 
+const EXPIRE_SECONDS = 15 * 60;
+const MAX_ATTEMPTS = 5;
+const ATTEMPT_WINDOW_SECONDS = 5 * 60;
+const BLOCK_TIME_SECONDS = 10 * 60;
 
 const ALLOWED_TYPES = [
   'registration',
@@ -16,6 +16,7 @@ const ALLOWED_TYPES = [
   'disableGoogle',
   'connectGoogle',
   'checkCode',
+  'connectGithub',
 ];
 
 function getAttemptKey(type, key) {

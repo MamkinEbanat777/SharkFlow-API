@@ -10,6 +10,9 @@ import prisma from '../prismaConfig/prismaClient.js';
  * const userWithEmail = await findUserByUuid('123e4567-e89b-12d3-a456-426614174000', { email: true, login: true });
  */
 export const findUserByUuid = async (uuid, select = {}) => {
+  if (!uuid || typeof uuid !== 'string') {
+    throw new Error('Invalid UUID');
+  }
   return await prisma.user.findFirst({
     where: { uuid, isDeleted: false },
     ...(Object.keys(select).length > 0 ? { select } : {}),
@@ -58,7 +61,10 @@ export const findUserByGoogleSub = async (googleSub, select = {}) => {
  * const user = requireUserExists(foundUser);
  * const user = requireUserExists(foundUser, 'Пользователь не найден в системе');
  */
-export const requireUserExists = (user, errorMessage = 'Пользователь не найден') => {
+export const requireUserExists = (
+  user,
+  errorMessage = 'Пользователь не найден',
+) => {
   if (!user) {
     throw new Error(errorMessage);
   }
@@ -106,6 +112,9 @@ export const requireUserNotDeleted = (user) => {
  * const userWithEmail = await findUserByUuidOrThrow('123e4567-e89b-12d3-a456-426614174000', { email: true });
  */
 export const findUserByUuidOrThrow = async (uuid, select = {}) => {
+  if (!uuid || typeof uuid !== 'string') {
+    throw new Error('Invalid UUID');
+  }
   const user = await findUserByUuid(uuid, select);
   return requireUserExists(user);
 };
@@ -123,4 +132,4 @@ export const findUserByUuidOrThrow = async (uuid, select = {}) => {
 export const findUserByEmailOrThrow = async (email, select = {}) => {
   const user = await findUserByEmail(email, select);
   return requireUserExists(user);
-}; 
+};
