@@ -150,7 +150,6 @@ export const validateTaskData = (data) => {
   const errors = [];
   const validatedData = {};
 
-  // Валидация title
   if (data.title !== undefined) {
     if (typeof data.title !== 'string') {
       errors.push('Название должно быть строкой');
@@ -164,7 +163,6 @@ export const validateTaskData = (data) => {
     }
   }
 
-  // Валидация dueDate
   if (data.dueDate !== undefined) {
     if (data.dueDate === null) {
       validatedData.dueDate = null;
@@ -178,7 +176,6 @@ export const validateTaskData = (data) => {
     }
   }
 
-  // Валидация description
   if (data.description !== undefined) {
     if (typeof data.description !== 'string') {
       errors.push('Описание должно быть строкой');
@@ -187,7 +184,6 @@ export const validateTaskData = (data) => {
     }
   }
 
-  // Валидация priority
   if (data.priority !== undefined) {
     if (data.priority === null) {
       validatedData.priority = null;
@@ -198,7 +194,6 @@ export const validateTaskData = (data) => {
     }
   }
 
-  // Валидация status
   if (data.status !== undefined) {
     if (data.status === null) {
       validatedData.status = null;

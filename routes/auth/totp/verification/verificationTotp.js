@@ -10,6 +10,8 @@ import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js
 import { deleteUserTempData } from '../../../../store/userTempData.js';
 import { getUserTempData } from '../../../../store/userTempData.js';
 import { verifyTotpCode, validateTotpCodeFormat } from '../../../../utils/helpers/totpHelpers.js';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+
 
 const router = Router();
 
@@ -52,7 +54,37 @@ router.post('/api/auth/totp/verify', async (req, res) => {
 
     resetLoginAttempts(ipAddress, user.email);
 
-    const tokens = await createAuthTokens(user, rememberMe, req);
+    const deviceId = req.headers['x-device-id'];
+    if (!deviceId) {
+      return res.status(401).json({ error: 'Устройство не найдено' });
+    }
+    let deviceSession = await prisma.userDeviceSession.findFirst({
+      where: { userId: user.id, deviceId, isActive: true },
+    });
+    if (deviceSession) {
+      deviceSession = await prisma.userDeviceSession.update({
+        where: { id: deviceSession.id },
+        data: {
+          userAgent: userAgent,
+          ipAddress: ipAddress,
+          lastLoginAt: new Date(),
+          isActive: true,
+        },
+      });
+    } else {
+      deviceSession = await prisma.userDeviceSession.create({
+        data: {
+          userId: user.id,
+          deviceId,
+          userAgent: userAgent,
+          ipAddress: ipAddress,
+          lastLoginAt: new Date(),
+          isActive: true,
+        },
+      });
+    }
+
+    const tokens = await createAuthTokens(user, rememberMe, deviceSession.id);
     setAuthCookies(res, tokens.refreshToken, rememberMe);
 
     logLoginSuccess(user.email, user.uuid, ipAddress);

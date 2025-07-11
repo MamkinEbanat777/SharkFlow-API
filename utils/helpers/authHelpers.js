@@ -23,22 +23,19 @@ export const getClientIP = (req) => {
  * Создание всех токенов аутентификации для пользователя
  * @param {Object} user - Объект пользователя
  * @param {boolean} rememberMe - Флаг "запомнить меня"
- * @param {Object} req - Express request объект
+ * @param {number} deviceSessionId - id сессии устройства
  * @returns {Promise<Object>} Объект с accessToken, csrfToken, refreshToken
  * @example
  * const tokens = await createAuthTokens(user, true, req);
  */
-export const createAuthTokens = async (user, rememberMe, req) => {
+export const createAuthTokens = async (user, rememberMe, deviceSessionId) => {
   const accessToken = createAccessToken(user.uuid, user.role);
   const csrfToken = createCsrfToken(user.uuid, user.role);
   const refreshToken = await issueRefreshToken({
-    res: req.res,
     userUuid: user.uuid,
     rememberMe,
-    ipAddress: getClientIP(req),
-    userAgent: req.get('user-agent') || null,
-    referrer: req.get('Referer') || null,
     userId: user.id,
+    deviceSessionId,
   });
 
   return { accessToken, csrfToken, refreshToken };

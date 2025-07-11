@@ -22,6 +22,8 @@ import {
   setAuthCookies,
 } from '../../../utils/helpers/authHelpers.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
+import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
@@ -80,6 +82,7 @@ router.post(
 
     try {
       const user = await findUserByEmail(normalizedEmail, {
+        id: true, 
         uuid: true,
         password: true,
         login: true,
@@ -120,7 +123,51 @@ router.post(
 
       resetLoginAttempts(ipAddress, normalizedEmail);
 
-      const tokens = await createAuthTokens(user, rememberMe, req);
+      const deviceinfo = parseDeviceInfo(userAgent);
+      let deviceSession = await prisma.userDeviceSession.findFirst({
+        where: { userId: user.id, deviceId, isActive: true },
+      });
+
+      if (deviceSession) {
+        deviceSession = await prisma.userDeviceSession.update({
+          where: { id: deviceSession.id },
+          data: {
+            userAgent,
+            ipAddress,
+            referrer: req.get('Referer') || null,
+            lastLoginAt: new Date(),
+            isActive: true,
+            deviceType: deviceinfo.deviceType,
+            deviceBrand: deviceinfo.deviceBrand,
+            deviceModel: deviceinfo.deviceModel,
+            osName: deviceinfo.osName,
+            osVersion: deviceinfo.osVersion,
+            clientName: deviceinfo.clientName,
+            clientVersion: deviceinfo.clientVersion,
+          },
+        });
+      } else {
+        deviceSession = await prisma.userDeviceSession.create({
+          data: {
+            userId: user.id,
+            deviceId,
+            userAgent,
+            ipAddress,
+            referrer: req.get('Referer') || null,
+            lastLoginAt: new Date(),
+            isActive: true,
+            deviceType: deviceinfo.deviceType,
+            deviceBrand: deviceinfo.deviceBrand,
+            deviceModel: deviceinfo.deviceModel,
+            osName: deviceinfo.osName,
+            osVersion: deviceinfo.osVersion,
+            clientName: deviceinfo.clientName,
+            clientVersion: deviceinfo.clientVersion,
+          },
+        });
+      }
+
+      const tokens = await createAuthTokens(user, rememberMe, deviceSession.id);
       setAuthCookies(res, tokens.refreshToken, rememberMe);
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);

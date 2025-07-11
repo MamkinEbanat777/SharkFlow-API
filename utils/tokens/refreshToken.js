@@ -28,7 +28,7 @@ export async function issueRefreshToken({
   userAgent = null,
   referrer = null,
   userId = null,
-  deviceId = null,
+  deviceSessionId = null,
 }) {
   const refreshToken = createRefreshToken(userUuid, rememberMe);
 
@@ -58,10 +58,7 @@ export async function issueRefreshToken({
       expiresAt,
       revoked: false,
       rememberMe,
-      ipAddress,
-      userAgent,
-      referrer,
-      deviceId,
+      deviceSessionId,
     },
   });
 

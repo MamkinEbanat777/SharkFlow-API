@@ -15,7 +15,6 @@ import {
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
-import { UAParser } from 'ua-parser-js';
 import axios from 'axios';
 import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
 
@@ -38,15 +37,12 @@ router.post('/api/auth/refresh', async (req, res) => {
   let geoLocation = null;
   try {
     const { data } = await axios.get(`https://ipwho.is/${ipAddress}`);
-    console.info(data);
     geoLocation = data;
   } catch (error) {
     console.error('Не удалось определить местоположение');
   }
-  console.info(geoLocation);
 
   const deviceinfo = parseDeviceInfo(req.get('user-agent'));
-  console.info('Device info:', deviceinfo);
 
   const tokenValidation = validateRefreshToken(refreshToken);
   if (!tokenValidation.isValid) {
@@ -65,7 +61,7 @@ router.post('/api/auth/refresh', async (req, res) => {
         expiresAt: true,
         revoked: true,
         rememberMe: true,
-        deviceId: true,
+        deviceSessionId: true,
       },
     });
 
@@ -77,8 +73,16 @@ router.post('/api/auth/refresh', async (req, res) => {
       });
     }
 
-    if (tokenRecord.deviceId !== deviceId) {
-      logTokenRefreshFailure(userUuid, ipAddress, 'Device ID mismatch');
+    const deviceSession = await prisma.userDeviceSession.findFirst({
+      where: { userId: tokenRecord.userId, deviceId, isActive: true },
+    });
+    if (!deviceSession) {
+      logTokenRefreshFailure(userUuid, ipAddress, 'Device session not found or inactive');
+      return res.status(401).json({ message: 'Сессия устройства неактивна, войдите заново' });
+    }
+
+    if (tokenRecord.deviceSessionId !== deviceSession.id) {
+      logTokenRefreshFailure(userUuid, ipAddress, 'Device session mismatch');
       return res.status(401).json({ message: 'Несоответствие устройства' });
     }
 
@@ -93,6 +97,21 @@ router.post('/api/auth/refresh', async (req, res) => {
       });
     }
 
+    await prisma.userDeviceSession.update({
+      where: { id: deviceSession.id },
+      data: {
+        lastUsedAt: new Date(),
+        deviceType: deviceinfo.deviceType,
+        deviceBrand: deviceinfo.deviceBrand,
+        deviceModel: deviceinfo.deviceModel,
+        osName: deviceinfo.osName,
+        osVersion: deviceinfo.osVersion,
+        clientName: deviceinfo.clientName,
+        clientVersion: deviceinfo.clientVersion,
+        userAgent: req.get('user-agent'),
+      },
+    });
+
     await prisma.refreshToken.update({
       where: { id: tokenRecord.id },
       data: { lastUsedAt: new Date() },
@@ -105,19 +124,10 @@ router.post('/api/auth/refresh', async (req, res) => {
       rotated = true;
 
       newRefreshToken = await issueRefreshToken({
-        res,
         userUuid,
         rememberMe: tokenRecord.rememberMe,
-        ipAddress,
-        userAgent: req.get('User-Agent'),
-        referrer,
         userId: tokenRecord.userId,
-        deviceId,
-      });
-
-      await prisma.refreshToken.update({
-        where: { id: tokenRecord.id },
-        data: { revoked: true },
+        deviceSessionId: deviceSession.id,
       });
 
       await prisma.refreshToken.create({
@@ -130,14 +140,8 @@ router.post('/api/auth/refresh', async (req, res) => {
                 ? Number(process.env.SESSION_EXPIRES_REMEMBER_ME)
                 : Number(process.env.SESSION_EXPIRES_DEFAULT)),
           ),
-          ipAddress,
-          userAgent: req.get('User-Agent'),
-          referrer,
           rememberMe: tokenRecord.rememberMe,
-          deviceId,
-          // deviceName,
-          geoLocation,
-          lastLoginAt: new Date(),
+          deviceSessionId: deviceSession.id,
         },
       });
 

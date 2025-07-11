@@ -167,14 +167,43 @@ router.post('/api/auth/github', async (req, res) => {
         .json({ error: 'Этот аккаунт не может использовать OAuth' });
     }
 
+    const deviceId = req.headers['x-device-id'];
+    if (!deviceId) {
+      return res.status(401).json({ error: 'Устройство не найдено' });
+    }
+    let deviceSession = await prisma.userDeviceSession.findFirst({
+      where: { userId: user.id, deviceId, isActive: true },
+    });
+    if (deviceSession) {
+      deviceSession = await prisma.userDeviceSession.update({
+        where: { id: deviceSession.id },
+        data: {
+          userAgent,
+          ipAddress,
+          referrer: req.get('referer') || null,
+          lastLoginAt: new Date(),
+          isActive: true,
+        },
+      });
+    } else {
+      deviceSession = await prisma.userDeviceSession.create({
+        data: {
+          userId: user.id,
+          deviceId,
+          userAgent,
+          ipAddress,
+          referrer: req.get('referer') || null,
+          lastLoginAt: new Date(),
+          isActive: true,
+        },
+      });
+    }
+
     const refreshToken = await issueRefreshToken({
-      res,
       userUuid: user.uuid,
       rememberMe: true,
-      ipAddress,
-      userAgent,
-      referrer: req.get('referer') || null,
       userId: user.id,
+      deviceSessionId: deviceSession.id,
     });
 
     const accessToken = createAccessToken(user.uuid, user.role);

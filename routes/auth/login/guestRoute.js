@@ -52,7 +52,37 @@ router.post('/api/auth/guest-login', async (req, res) => {
     if (guestUuid) {
       const existingGuest = await findUserByUuid(guestUuid);
       if (existingGuest && existingGuest.role === 'guest') {
-        const tokens = await createAuthTokens(existingGuest, false, req);
+        // --- Создание или обновление UserDeviceSession ---
+        const deviceId = req.headers['x-device-id'];
+        if (!deviceId) {
+          return res.status(401).json({ error: 'Устройство не найдено' });
+        }
+        let deviceSession = await prisma.userDeviceSession.findFirst({
+          where: { userId: existingGuest.id, deviceId, isActive: true },
+        });
+        if (deviceSession) {
+          deviceSession = await prisma.userDeviceSession.update({
+            where: { id: deviceSession.id },
+            data: {
+              userAgent,
+              ipAddress,
+              lastLoginAt: new Date(),
+              isActive: true,
+            },
+          });
+        } else {
+          deviceSession = await prisma.userDeviceSession.create({
+            data: {
+              userId: existingGuest.id,
+              deviceId,
+              userAgent,
+              ipAddress,
+              lastLoginAt: new Date(),
+              isActive: true,
+            },
+          });
+        }
+        const tokens = await createAuthTokens(existingGuest, false, deviceSession.id);
         setAuthCookies(res, tokens.refreshToken, false);
         res.cookie(
           'log___sf_21s_t1',
@@ -81,7 +111,37 @@ router.post('/api/auth/guest-login', async (req, res) => {
       },
     });
 
-    const tokens = await createAuthTokens(guest, false, req);
+    const deviceId = req.headers['x-device-id'];
+    if (!deviceId) {
+      return res.status(401).json({ error: 'Устройство не найдено' });
+    }
+    let deviceSession = await prisma.userDeviceSession.findFirst({
+      where: { userId: guest.id, deviceId, isActive: true },
+    });
+    if (deviceSession) {
+      deviceSession = await prisma.userDeviceSession.update({
+        where: { id: deviceSession.id },
+        data: {
+          userAgent,
+          ipAddress,
+          lastLoginAt: new Date(),
+          isActive: true,
+        },
+      });
+    } else {
+      deviceSession = await prisma.userDeviceSession.create({
+        data: {
+          userId: guest.id,
+          deviceId,
+          userAgent,
+          ipAddress,
+          lastLoginAt: new Date(),
+          isActive: true,
+        },
+      });
+    }
+    // --- END ---
+    const tokens = await createAuthTokens(guest, false, deviceSession.id);
     setAuthCookies(res, tokens.refreshToken, false);
     res.cookie('log___sf_21s_t1', guest.uuid, getGuestCookieOptions());
 
