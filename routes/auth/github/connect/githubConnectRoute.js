@@ -59,6 +59,7 @@ router.post('/api/auth/github/connect', async (req, res) => {
       ? emailsRes.data.find((e) => e.primary && e.verified)
       : null;
     const email = primary?.email;
+    const githubIdNumber = BigInt(githubUser.id);
 
     if (!email) {
       return res
@@ -73,7 +74,7 @@ router.post('/api/auth/github/connect', async (req, res) => {
     }
 
     const existingUserWithGithubId = await prisma.user.findFirst({
-      where: { githubId: String(githubUser.id) },
+      where: { githubId: githubIdNumber },
     });
 
     if (
@@ -85,13 +86,13 @@ router.post('/api/auth/github/connect', async (req, res) => {
       });
     }
 
-    if (user.githubId && user.githubId !== String(githubUser.id)) {
+    if (user.githubId && user.githubId !== githubIdNumber) {
       return res.status(409).json({
         error: 'К аккаунту уже привязан другой GitHub аккаунт',
       });
     }
 
-    if (user.githubId === String(githubUser.id)) {
+    if (user.githubId === githubIdNumber) {
       return res
         .status(200)
         .json({ message: 'GitHub уже привязан к аккаунту' });
@@ -113,7 +114,7 @@ router.post('/api/auth/github/connect', async (req, res) => {
       });
 
       await setUserTempData('connectGithub', userUuid, {
-        githubId: githubUser.id,
+        githubId: githubIdNumber,
         normalizedGithubEmail,
       });
 
@@ -127,7 +128,7 @@ router.post('/api/auth/github/connect', async (req, res) => {
     await prisma.user.update({
       where: { uuid: userUuid },
       data: {
-        githubId: githubUser.id,
+        githubId: githubIdNumber,
         githubOAuthEnabled: true,
       },
     });
