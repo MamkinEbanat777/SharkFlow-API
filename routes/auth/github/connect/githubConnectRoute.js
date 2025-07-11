@@ -87,6 +87,8 @@ router.post('/api/auth/github/connect', async (req, res) => {
     }
 
     if (user.githubId && user.githubId !== githubIdNumber) {
+      console.info('user.githubId:', typeof user.githubId, user.githubId);
+      console.info('githubIdNumber:', typeof githubIdNumber, githubIdNumber);
       return res.status(409).json({
         error: 'К аккаунту уже привязан другой GitHub аккаунт',
       });
