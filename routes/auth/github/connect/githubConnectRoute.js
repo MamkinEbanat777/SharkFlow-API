@@ -86,13 +86,29 @@ router.post('/api/auth/github/connect', async (req, res) => {
       });
     }
 
-    if (user.githubId && user.githubId !== githubIdNumber.toString()) {
+    const userGithubIdStr = user.githubId ? user.githubId.toString() : null;
+    const githubIdStr = githubIdNumber.toString();
+
+    if (userGithubIdStr && userGithubIdStr !== githubIdStr) {
+      console.log(
+        'user.githubId:',
+        user.githubId,
+        'type:',
+        typeof user.githubId,
+      );
+      console.log(
+        'githubIdNumber:',
+        githubIdNumber.toString(),
+        'type:',
+        typeof githubIdNumber.toString(),
+      );
+
       return res.status(409).json({
         error: 'К аккаунту уже привязан другой GitHub аккаунт',
       });
     }
 
-    if (user.githubId === githubIdNumber.toString()) {
+    if (userGithubIdStr === githubIdStr) {
       return res
         .status(200)
         .json({ message: 'GitHub уже привязан к аккаунту' });
