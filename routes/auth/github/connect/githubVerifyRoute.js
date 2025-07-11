@@ -13,7 +13,7 @@ import { deleteUserTempData } from '../../../../store/userTempData.js';
 const router = Router();
 
 router.post(
-  '/api/auth/google/confirm-connect',
+  '/api/auth/github/confirm-connect',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
@@ -22,7 +22,7 @@ router.post(
     try {
       const valid = await validateConfirmationCode(
         userUuid,
-        'connectGoogle',
+        'connectGithub',
         confirmationCode,
       );
       if (!valid) {
@@ -31,16 +31,16 @@ router.post(
           .json({ error: 'Неверный или просроченный код подтверждения' });
       }
 
-      await deleteConfirmationCode('connectGoogle', userUuid);
+      await deleteConfirmationCode('connectGithub', userUuid);
 
-      const storedData = await getUserTempData('connectGoogle', userUuid);
+      const storedData = await getUserTempData('connectGithub', userUuid);
       if (!storedData) {
         return res.status(400).json({ error: 'Код истёк или не найден' });
       }
 
-      await deleteUserTempData('connectGoogle', userUuid);
+      await deleteUserTempData('connectGithub', userUuid);
 
-      const { googleSub, normalizedGoogleEmail } = storedData;
+      const { githubId, normalizedGithubEmail } = storedData;
 
       const user = await findUserByUuid(userUuid);
 
@@ -51,18 +51,18 @@ router.post(
       await prisma.user.update({
         where: { uuid: userUuid },
         data: {
-          googleEmail: normalizedGoogleEmail,
-          googleSub,
-          googleOAuthEnabled: true,
+          githubEmail: normalizedGithubEmail,
+          githubId,
+          githubOAuthEnabled: true,
         },
       });
 
       res.status(200).json({
-        message: 'Код подтверждения верен, привязка Google успешна',
+        message: 'Код подтверждения верен, привязка Github успешна',
       });
     } catch (error) {
       handleRouteError(res, error, {
-        logPrefix: 'Ошибка при подтверждении Google OAuth',
+        logPrefix: 'Ошибка при подтверждении Github OAuth',
         status: 500,
         message: 'Ошибка при проверке кода подтверждения',
       });
