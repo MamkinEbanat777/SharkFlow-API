@@ -108,6 +108,7 @@ router.post('/api/auth/refresh', async (req, res) => {
         osVersion: deviceinfo.osVersion,
         clientName: deviceinfo.clientName,
         clientVersion: deviceinfo.clientVersion,
+        geoLocation: geoLocation, 
         userAgent: req.get('user-agent'),
       },
     });

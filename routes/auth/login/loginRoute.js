@@ -24,6 +24,7 @@ import {
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
+import axios from 'axios';
 
 const router = Router();
 
@@ -78,6 +79,14 @@ router.post(
       return res.status(429).json({
         error: `Слишком много попыток входа. Попробуйте через ${rateLimitCheck.timeLeft} минут`,
       });
+    }
+
+    let geoLocation = null;
+    try {
+      const { data } = await axios.get(`https://ipwho.is/${ipAddress}`);
+      geoLocation = data;
+    } catch (error) {
+      console.error('Не удалось определить местоположение');
     }
 
     try {
@@ -144,6 +153,7 @@ router.post(
             osVersion: deviceinfo.osVersion,
             clientName: deviceinfo.clientName,
             clientVersion: deviceinfo.clientVersion,
+            geoLocation,
           },
         });
       } else {
@@ -162,7 +172,8 @@ router.post(
             osName: deviceinfo.osName,
             osVersion: deviceinfo.osVersion,
             clientName: deviceinfo.clientName,
-            clientVersion: deviceinfo.clientVersion,
+            clientVersion: deviceinfo.clientVersion,  
+            geoLocation,
           },
         });
       }
