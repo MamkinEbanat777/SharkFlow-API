@@ -17,6 +17,7 @@ const ALLOWED_TYPES = [
   'connectGoogle',
   'checkCode',
   'connectGithub',
+  'disableGithub',
 ];
 
 function getAttemptKey(type, key) {

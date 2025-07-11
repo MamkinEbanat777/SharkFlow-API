@@ -13,6 +13,7 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     disableGoogle: 'Отключение авторизации через Google',
     connectGoogle: 'Подключение Google',
     connectGithub: 'Подключение Github',
+    disableGithub: 'Отключение Github',
   };
 
   if (!subjectMap[type]) {
