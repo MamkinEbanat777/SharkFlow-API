@@ -125,7 +125,7 @@ router.post(
 
       const deviceinfo = parseDeviceInfo(userAgent);
       let deviceSession = await prisma.userDeviceSession.findFirst({
-        where: { userId: user.id, deviceId, isActive: true },
+        where: { userId: user.id, deviceId },
       });
 
       if (deviceSession) {
@@ -174,7 +174,7 @@ router.post(
 
       return res
         .status(200)
-        .json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
+        .json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken,  deviceId: deviceSession.deviceId, });
     } catch (error) {
       incrementLoginAttempts(ipAddress, normalizedEmail);
       handleRouteError(res, error, {
