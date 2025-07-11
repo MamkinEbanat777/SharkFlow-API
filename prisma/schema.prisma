@@ -92,15 +92,17 @@ model Task {
 }
 
 model RefreshToken {
-  id         Int      @id @default(autoincrement())
-  token      String   @unique @db.VarChar(2048)
-  createdAt  DateTime @default(now())
+  id         Int       @id @default(autoincrement())
+  token      String    @unique @db.VarChar(2048)
+  createdAt  DateTime  @default(now())
   expiresAt  DateTime
-  revoked    Boolean  @default(false)
-  ipAddress  String?  @db.VarChar(45)
-  userAgent  String?  @db.VarChar(512)
-  referrer   String?  @db.VarChar(2048)
-  rememberMe Boolean  @default(false)
+  revoked    Boolean   @default(false)
+  ipAddress  String?   @db.VarChar(45)
+  userAgent  String?   @db.VarChar(512)
+  deviceId   String?   @db.VarChar(255)
+  referrer   String?   @db.VarChar(2048)
+  rememberMe Boolean   @default(false)
+  lastUsedAt DateTime?
 
   userId Int
   user   User @relation(fields: [userId], references: [id], onDelete: Cascade)

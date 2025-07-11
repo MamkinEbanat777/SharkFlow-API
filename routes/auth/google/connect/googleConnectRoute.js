@@ -26,6 +26,10 @@ router.post(
     const userUuid = req.userUuid;
     const { code } = req.body;
 
+    if (!code || typeof code !== 'string') {
+      return res.status(400).json({ error: 'Код обязателен' });
+    }
+
     try {
       const { tokens: googleTokens } = await oauth2Client.getToken({
         code,
@@ -61,13 +65,31 @@ router.post(
       }
 
       const normalizedUserEmail = normalizeEmail(user.email);
-
       const normalizedGoogleEmail = normalizeEmail(email);
 
+      const existingUserWithGoogleSub = await prisma.user.findFirst({
+        where: { googleSub: googleSub },
+      });
+
+      if (
+        existingUserWithGoogleSub &&
+        existingUserWithGoogleSub.uuid !== userUuid
+      ) {
+        return res.status(409).json({
+          error: 'Этот Google аккаунт уже привязан к другому пользователю',
+        });
+      }
+
       if (user.googleSub && user.googleSub !== googleSub) {
+        return res.status(409).json({
+          error: 'К аккаунту уже привязан другой Google аккаунт',
+        });
+      }
+
+      if (user.googleSub === googleSub) {
         return res
-          .status(409)
-          .json({ error: 'К аккаунту уже привязан другой Google аккаунт' });
+          .status(200)
+          .json({ message: 'Google уже привязан к аккаунту' });
       }
 
       if (normalizedUserEmail !== normalizedGoogleEmail) {

@@ -1,119 +1,146 @@
 import { Router } from 'express';
+import axios from 'axios';
+import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
-import { OAuth2Client } from 'google-auth-library';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
+import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
 import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '../../../../store/userTempData.js';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
-const oauth2Client = new OAuth2Client(
-  process.env.CLIENT_GOOGLE_ID,
-  process.env.CLIENT_GOOGLE_SECRET,
-  'postmessage',
-);
+router.post('/api/auth/github/connect', async (req, res) => {
+  const ipAddress = getClientIP(req);
+  const userAgent = req.get('user-agent') || null;
+  const userUuid = req.userUuid;
+  const { code } = req.body;
 
-router.post(
-  '/api/auth/github/connect',
-  authenticateMiddleware,
-  async (req, res) => {
-    const ipAddress = getClientIP(req);
-    const userAgent = req.get('user-agent') || null;
-    const userUuid = req.userUuid;
-    const { code } = req.body;
+  if (!code || typeof code !== 'string') {
+    return res.status(400).json({ error: 'Код обязателен' });
+  }
 
-    try {
-      const { tokens: googleTokens } = await oauth2Client.getToken({
+  try {
+    const tokenRes = await axios.post(
+      'https://github.com/login/oauth/access_token',
+      {
+        client_id: process.env.CLIENT_GITHUB_ID,
+        client_secret: process.env.CLIENT_GITHUB_SECRET,
         code,
-        redirect_uri: 'postmessage',
+      },
+      { headers: { Accept: 'application/json' }, timeout: 10000 },
+    );
+
+    const accessTokenGH = tokenRes.data.access_token;
+
+    if (!accessTokenGH) {
+      return res
+        .status(400)
+        .json({ error: 'Не удалось получить токен от GitHub' });
+    }
+
+    if (tokenRes.data.token_type !== 'bearer') {
+      return res.status(400).json({ error: 'Некорректный тип токена' });
+    }
+
+    const [userRes, emailsRes] = await Promise.all([
+      axios.get('https://api.github.com/user', {
+        headers: { Authorization: `Bearer ${accessTokenGH}` },
+        timeout: 10000,
+      }),
+      axios.get('https://api.github.com/user/emails', {
+        headers: { Authorization: `Bearer ${accessTokenGH}` },
+        timeout: 10000,
+      }),
+    ]);
+
+    const githubUser = userRes.data;
+    const primary = Array.isArray(emailsRes.data)
+      ? emailsRes.data.find((e) => e.primary && e.verified)
+      : null;
+    const email = primary?.email;
+
+    if (!email) {
+      return res
+        .status(400)
+        .json({ error: 'Не удалось получить подтверждённый email из GitHub' });
+    }
+
+    const user = await findUserByUuid(userUuid);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Пользователь не найден' });
+    }
+
+    const existingUserWithGithubId = await prisma.user.findFirst({
+      where: { githubId: String(githubUser.id) },
+    });
+
+    if (
+      existingUserWithGithubId &&
+      existingUserWithGithubId.uuid !== userUuid
+    ) {
+      return res.status(409).json({
+        error: 'Этот GitHub аккаунт уже привязан к другому пользователю',
       });
+    }
 
-      const ticket = await oauth2Client.verifyIdToken({
-        idToken: googleTokens.id_token,
-        audience: process.env.CLIENT_GOOGLE_ID,
+    if (user.githubId && user.githubId !== String(githubUser.id)) {
+      return res.status(409).json({
+        error: 'К аккаунту уже привязан другой GitHub аккаунт',
       });
+    }
 
-      const payload = ticket.getPayload();
-      const googleSub = payload.sub;
-      const email = payload.email;
-      const emailVerified = payload.email_verified;
-      //   const given_name = payload.given_name;
-      //   let avatarUrl = payload.picture;
+    if (user.githubId === String(githubUser.id)) {
+      return res
+        .status(200)
+        .json({ message: 'GitHub уже привязан к аккаунту' });
+    }
 
-      if (!googleSub) {
-        return res.status(400).json({ error: 'Некорректный токен Google' });
-      }
+    const normalizedUserEmail = normalizeEmail(user.email);
+    const normalizedGithubEmail = normalizeEmail(email);
 
-      if (!email || !emailVerified) {
-        return res.status(400).json({
-          error: 'Некорректный или неподтверждённый email Google',
-        });
-      }
-
-      const user = await findUserByUuid(userUuid);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
-
-      const normalizedUserEmail = normalizeEmail(user.email);
-
-      const normalizedGoogleEmail = normalizeEmail(email);
-
-      if (user.googleSub && user.googleSub !== googleSub) {
-        return res
-          .status(409)
-          .json({ error: 'К аккаунту уже привязан другой Google аккаунт' });
-      }
-
-      if (normalizedUserEmail !== normalizedGoogleEmail) {
-        await sendUserConfirmationCode({
-          userUuid,
-          type: 'connectGoogle',
-          email: normalizedGoogleEmail,
-          skipUserCheck: true,
-          loggers: {
-            success: () => {},
-            failure: () => {},
-          },
-        });
-
-        await setUserTempData('connectGoogle', userUuid, {
-          googleSub,
-          normalizedGoogleEmail,
-        });
-
-        return res.status(200).json({
-          message:
-            'Email Google не совпадает с email аккаунта. Требуется подтверждение.',
-          requireEmailConfirmed: true,
-        });
-      }
-
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: {
-          googleSub,
-          googleOAuthEnabled: true,
+    if (normalizedUserEmail !== normalizedGithubEmail) {
+      await sendUserConfirmationCode({
+        userUuid,
+        type: 'connectGithub',
+        email: normalizedGithubEmail,
+        skipUserCheck: true,
+        loggers: {
+          success: () => {},
+          failure: () => {},
         },
       });
 
-      return res
-        .status(200)
-        .json({ message: 'Google-аккаунт успешно привязан' });
-    } catch (error) {
-      handleRouteError(res, error, {
-        logPrefix: 'Ошибка при подключении Google-аккаунта',
-        status: 500,
-        message: 'Не удалось привязать Google. Попробуйте позже.',
+      await setUserTempData('connectGithub', userUuid, {
+        githubId: githubUser.id,
+        normalizedGithubEmail,
+      });
+
+      return res.status(200).json({
+        message:
+          'Email GitHub не совпадает с email аккаунта. Требуется подтверждение.',
+        requireEmailConfirmed: true,
       });
     }
-  },
-);
+
+    await prisma.user.update({
+      where: { uuid: userUuid },
+      data: {
+        githubId: githubUser.id,
+        githubOAuthEnabled: true,
+      },
+    });
+
+    return res.status(200).json({ message: 'Github-аккаунт успешно привязан' });
+  } catch (error) {
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка при логине через GitHub',
+      status: 500,
+      message: 'Не удалось войти через GitHub. Попробуйте позже.',
+    });
+  }
+});
 
 export default {
   path: '/',

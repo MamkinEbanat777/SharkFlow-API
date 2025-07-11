@@ -3,7 +3,7 @@ import { generateUUID } from '../generators/generateUUID.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
 import prisma from '../prismaConfig/prismaClient.js';
 
-export function createRefreshToken(userUuid, rememberMe = false) {
+function createRefreshToken(userUuid, rememberMe = false) {
   const expiresIn = rememberMe
     ? process.env.JWT_REFRESH_EXPIRES_REMEMBER || '30d'
     : process.env.JWT_REFRESH_EXPIRES_NO_REMEMBER || '1d';

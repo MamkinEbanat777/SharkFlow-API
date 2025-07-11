@@ -74,7 +74,7 @@ router.post('/api/auth/github', async (req, res) => {
         client_secret: process.env.CLIENT_GITHUB_SECRET,
         code,
       },
-      { headers: { Accept: 'application/json' } },
+      { headers: { Accept: 'application/json' }, timeout: 10000 },
     );
 
     const accessTokenGH = tokenRes.data.access_token;
@@ -83,6 +83,10 @@ router.post('/api/auth/github', async (req, res) => {
       return res
         .status(400)
         .json({ error: 'Не удалось получить токен от GitHub' });
+    }
+
+    if (tokenRes.data.token_type !== 'bearer') {
+      return res.status(400).json({ error: 'Некорректный тип токена' });
     }
 
     const [userRes, emailsRes] = await Promise.all([

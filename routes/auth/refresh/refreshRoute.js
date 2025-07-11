@@ -78,13 +78,11 @@ router.post('/api/auth/refresh', async (req, res) => {
         userId: tokenRecord.userId,
       });
 
-      // Отозвать старый токен
       await prisma.refreshToken.update({
         where: { id: tokenRecord.id },
         data: { revoked: true },
       });
 
-      // Сохранить новый токен
       await prisma.refreshToken.create({
         data: {
           token: newRefreshToken,
@@ -102,14 +100,12 @@ router.post('/api/auth/refresh', async (req, res) => {
         },
       });
 
-      // Отдать новую куку
       res.cookie(
         'log___tf_12f_t2',
         newRefreshToken,
         getRefreshCookieOptions(tokenRecord.rememberMe),
       );
 
-      // Оставлять максимум 5 активных токенов
       const activeTokens = await prisma.refreshToken.findMany({
         where: {
           userId: tokenRecord.userId,
@@ -120,7 +116,7 @@ router.post('/api/auth/refresh', async (req, res) => {
         },
       });
 
-      const MAX_TOKENS = 5;
+      const MAX_TOKENS = 10;
       if (activeTokens.length > MAX_TOKENS) {
         const toRevoke = activeTokens.slice(
           0,
@@ -152,7 +148,7 @@ router.post('/api/auth/refresh', async (req, res) => {
     return res.status(200).json({
       accessToken: newAccessToken,
       csrfToken: newCsrfToken,
-      uuid: userUuid,
+      // uuid: userUuid,
       role: user.role,
     });
   } catch (error) {

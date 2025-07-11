@@ -28,7 +28,11 @@ router.post(
 
     try {
       if (!regUuid) {
-        return res.status(400).json({ error: 'Регистрация не найдена' });
+        return res
+          .status(400)
+          .json({
+            error: 'Регистрация просрочена. Пожалуйста попробуйте еще раз',
+          });
       }
 
       const storedData = await getUserTempData('registration', regUuid);
