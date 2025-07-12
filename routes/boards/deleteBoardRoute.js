@@ -1,5 +1,4 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { validateBoardUuid } from '../../middlewares/http/boardMiddleware.js';
 import { logBoardDeletion } from '../../utils/loggers/boardLoggers.js';

@@ -2,10 +2,8 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
-import { validateTaskTitle } from '../../utils/validators/taskValidators.js';
 import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/authHelpers.js';
-import { Priority, Status } from '@prisma/client';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 import { findBoardByUuidForUser, getUserTaskCount, validateTaskData } from '../../utils/helpers/taskHelpers.js';
 

@@ -1,12 +1,13 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { logTelegramCommandError } from '../utils/loggers/telegramLoggers.js';
 
 export async function loadConfig(bot, folderPath) {
   const fullPath = path.resolve(folderPath);
 
   if (!fs.existsSync(fullPath)) {
-    console.warn(`Папка не найдена: ${fullPath}`);
+    logTelegramCommandError('loadConfig', 'system', new Error(`Папка не найдена: ${fullPath}`));
     return;
   }
 
@@ -30,15 +31,10 @@ export async function loadConfig(bot, folderPath) {
         if (typeof Handler === 'function') {
           await Handler(bot);
         } else {
-          console.warn(
-            `Файл ${entry.name} не экспортирует функцию по умолчанию`,
-          );
+          logTelegramCommandError('loadConfig', 'system', new Error(`Файл ${entry.name} не экспортирует функцию по умолчанию`));
         }
       } catch (error) {
-        console.error(
-          `Ошибка при загрузке файла ${entry.name}:`,
-          error.message,
-        );
+        logTelegramCommandError('loadConfig', 'system', new Error(`Ошибка при загрузке конфигурации из ${fullPath}: ${error.message}`));
       }
     }
   }

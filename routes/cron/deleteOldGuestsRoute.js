@@ -2,6 +2,7 @@ import express from 'express';
 import { Router } from 'express';
 import { deleteOldGuests } from '../../utils/jobs/deleteOldGuests.js';
 import { Receiver } from '@upstash/qstash';
+import { logCronJobStart, logCronJobComplete, logCronJobError } from '../../utils/loggers/systemLoggers.js';
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
@@ -21,17 +22,20 @@ router.post(
     const signature = req.headers['upstash-signature'];
     const body = req.rawBody;
     const url = 'https://sharkflow-api.onrender.com/api/cron/delete-old-guests';
+    const ipAddress = req.ip || 'unknown';
+    
     if (!receiver.verify({ body, signature, url })) {
       return res.status(403).send('Invalid signature');
     }
+    
     try {
-      console.info('Process...');
+      logCronJobStart('deleteOldGuests', ipAddress);
       await deleteOldGuests();
-      console.info('Done!');
-      return res.status(200).send('Old guests deleted');
+      logCronJobComplete('deleteOldGuests', ipAddress, 'Success');
+      res.json({ message: 'Cron job completed successfully' });
     } catch (err) {
-      console.error(err);
-      return res.status(500).send('Error deleting old guests');
+      logCronJobError('deleteOldGuests', err, ipAddress);
+      res.status(500).json({ error: 'Internal server error' });
     }
   },
 );

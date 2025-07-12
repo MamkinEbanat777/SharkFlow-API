@@ -87,7 +87,7 @@ router.post(
         }
       }
 
-      const confirmationCode = await sendUserConfirmationCode({
+      await sendUserConfirmationCode({
         userUuid: uuid,
         type: 'registration',
         skipUserCheck: true,

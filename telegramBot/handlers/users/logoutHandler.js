@@ -1,5 +1,6 @@
 import { Markup } from 'telegraf';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { logTelegramUnlinkError } from '../../../utils/loggers/telegramLoggers.js';
 import send from '../../send.js';
 
 export async function logoutHandler(ctx) {
@@ -17,7 +18,7 @@ export async function logoutHandler(ctx) {
 
     await send(ctx, '✅ Вы успешно вышли из аккаунта в Telegram!', keyboard);
   } catch (error) {
-    console.error('[logoutTelegram] Ошибка:', error);
-    await send(ctx, '❌ Произошла ошибка. Попробуйте позже.');
+    logTelegramUnlinkError(userUuid, ipAddress, error);
+    await send(ctx, '❌ Произошла ошибка при выходе из системы');
   }
 }

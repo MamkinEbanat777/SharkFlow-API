@@ -1,13 +1,14 @@
 import jwt from 'jsonwebtoken';
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
+import { logAuthMiddlewareError } from '../../utils/loggers/middlewareLoggers.js';
 
 export function authenticateMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   const csrfHeader = req.headers['x-csrf-token'];
 
-  if (!authHeader?.startsWith('Bearer ')) {
-    console.error(`Invalid auth header from ${req.ip}`);
-    return res.status(401).json({ error: 'Unauthorized' });
+  if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    logAuthMiddlewareError('invalidHeader', req.ip, new Error('Invalid auth header'));
+    return res.status(401).json({ error: 'Недействительный заголовок авторизации' });
   }
 
   try {
@@ -17,13 +18,13 @@ export function authenticateMiddleware(req, res, next) {
     });
 
     if (!isValidUUID(decoded.userUuid)) {
-      console.error(`Invalid userUuid in token from ${req.ip}`);
-      return res.status(401).json({ error: 'Unauthorized' });
+      logAuthMiddlewareError('invalidUserUuid', req.ip, new Error('Invalid userUuid in token'));
+      return res.status(401).json({ error: 'Недействительный токен' });
     }
 
     if (!csrfHeader) {
-      console.error(`Missing CSRF token from ${req.ip}`);
-      return res.status(403).json({ error: 'Missing CSRF token' });
+      logAuthMiddlewareError('missingCsrf', req.ip, new Error('Missing CSRF token'));
+      return res.status(401).json({ error: 'Отсутствует CSRF токен' });
     }
 
     try {
@@ -32,19 +33,19 @@ export function authenticateMiddleware(req, res, next) {
       });
 
       if (csrfPayload.userUuid !== decoded.userUuid) {
-        console.error(`CSRF token mismatch from ${req.ip}`);
-        return res.status(403).json({ error: 'Invalid CSRF token' });
+        logAuthMiddlewareError('csrfMismatch', req.ip, new Error('CSRF token mismatch'));
+        return res.status(401).json({ error: 'Недействительный CSRF токен' });
       }
     } catch (csrfErr) {
-      console.error(`Invalid CSRF token from ${req.ip}: ${csrfErr.message}`);
-      return res.status(403).json({ error: 'Invalid CSRF token' });
+      logAuthMiddlewareError('invalidCsrf', req.ip, csrfErr);
+      return res.status(401).json({ error: 'Недействительный CSRF токен' });
     }
 
     req.userUuid = decoded.userUuid;
     req.userRole = decoded.role || 'user';
     next();
   } catch (error) {
-    console.error(`Invalid token from ${req.ip}: ${error.message}`);
-    return res.status(401).json({ error: 'Unauthorized' });
+    logAuthMiddlewareError('invalidToken', req.ip, error);
+    return res.status(401).json({ error: 'Недействительный токен' });
   }
 }

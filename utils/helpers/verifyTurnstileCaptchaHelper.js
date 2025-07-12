@@ -1,4 +1,5 @@
 import axios from 'axios';
+import { logExternalServiceError } from '../loggers/systemLoggers.js';
 
 const EXPECTED_DOMAIN = process.env.FRONTEND_DOMAIN;
 
@@ -21,7 +22,17 @@ export async function verifyTurnstileCaptcha(token, ipAddress, idempotencyKey) {
     const data = response.data;
 
     if (!data.success) {
-      console.warn('Turnstile captcha failed:', data['error-codes']);
+      logExternalServiceError('Turnstile', 'captchaFailed', new Error(`Turnstile captcha failed: ${data['error-codes']}`));
+      return false;
+    }
+
+    if (data.score < 0.5) {
+      logExternalServiceError('Turnstile', 'lowScore', new Error(`Turnstile score too low: ${data.score} (threshold: 0.5)`));
+      return false;
+    }
+
+    if (data.action !== 'submit') {
+      logExternalServiceError('Turnstile', 'invalidAction', new Error(`Turnstile action mismatch: ${data.action} (expected: submit)`));
       return false;
     }
 
@@ -34,7 +45,7 @@ export async function verifyTurnstileCaptcha(token, ipAddress, idempotencyKey) {
 
     return true;
   } catch (error) {
-    console.error('Error during Turnstile captcha verification:', error);
-    throw new Error('Ошибка сервера при проверке капчи');
+    logExternalServiceError('Turnstile', 'verification', error);
+    return false;
   }
 }

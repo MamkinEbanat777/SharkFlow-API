@@ -3,6 +3,8 @@ import { authenticateMiddleware } from '../../../middlewares/http/authenticateMi
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { logTelegramUnlinkSuccess, logTelegramUnlinkError } from '../../../utils/loggers/telegramLoggers.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
@@ -10,9 +12,10 @@ router.delete(
   '/api/telegram/unlink',
   authenticateMiddleware,
   async (req, res) => {
+    const userUuid = req.userUuid;
+    const ipAddress = getClientIP(req);
+    
     try {
-      const userUuid = req.userUuid;
-
       const user = await findUserByUuidOrThrow(userUuid);
 
       if (!user.telegramId) {
@@ -24,13 +27,14 @@ router.delete(
         data: { telegramId: null, telegramEnabled: false },
       });
 
+      logTelegramUnlinkSuccess(userUuid, ipAddress);
       return res.json({ message: 'Telegram успешно отвязан' });
     } catch (error) {
-      console.error('[telegram/unlink] Ошибка:', error);
+      logTelegramUnlinkError(userUuid, ipAddress, error);
       handleRouteError(res, error, {
-        logPrefix: 'Не удалось отвязать Telegram',
+        logPrefix: 'Ошибка при отвязке Telegram',
         status: 500,
-        message: 'Не удалось отвязать Telegram. Попробуйте позже.',
+        message: 'Произошла ошибка при отвязке Telegram',
       });
     }
   },

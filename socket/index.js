@@ -3,7 +3,8 @@ import { socketAuthMiddleware } from '../middlewares/ws/socketAuthMiddleware.js'
 import { socketRateLimitMiddleware } from '../middlewares/ws/socketRateLimitMiddleware.js';
 import { allowedOrigins } from '../config/allowedOrigins.js';
 import { allowedMethods } from '../config/allowedMethods.js';
-import { socketHandlers } from './handlers.js';
+import { handleSocketEvents } from './handlers.js';
+import { logSocketDisconnect, logSocketPartialDisconnect } from '../utils/loggers/socketLoggers.js';
 
 export function initSocket(server) {
   const io = new Server(server, {
@@ -25,19 +26,17 @@ export function initSocket(server) {
   io.on('connection', (socket) => {
     const userUuid = socket.userUuid;
 
-    socket.join(userUuid);
-
-    // console.log(`Socket connected: ${socket.id}, User UUID: ${userUuid}`);
+    // logInfo('Socket', 'connected', `Socket connected: ${socket.id}, User UUID: ${userUuid}`);
 
     io.to(userUuid).emit('notification', {
       message: `Пользователь ${userUuid} подключился с устройства ${socket.id}`,
       timestamp: new Date(),
     });
 
-    socketHandlers(io, socket);
+    handleSocketEvents(socket);
 
     socket.on('disconnect', () => {
-      console.log(`Socket disconnected: ${socket.id}, User UUID: ${userUuid}`);
+      logSocketDisconnect(socket.id, userUuid);
 
       const userSockets = io.sockets.adapter.rooms.get(userUuid);
       if (!userSockets || userSockets.size === 0) {
@@ -46,7 +45,7 @@ export function initSocket(server) {
           timestamp: new Date(),
         });
       } else {
-        console.log('Пользоветль отключил одно из устройств');
+        logSocketPartialDisconnect(userUuid);
         io.to(userUuid).emit('notification', {
           message: `Пользователь ${userUuid} отключил одно из устройств`,
           timestamp: new Date(),

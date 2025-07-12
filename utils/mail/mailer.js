@@ -1,4 +1,6 @@
 import nodemailer from 'nodemailer';
+import { logMailSendSuccess, logMailSendError } from '../loggers/mailLoggers.js';
+
 const transporter = nodemailer.createTransport({
   host: 'smtp.mail.ru',
   port: 465,
@@ -11,17 +13,28 @@ const transporter = nodemailer.createTransport({
 
 export async function sendEmail({ to, subject, text = '', html }) {
   try {
-    const info = await transporter.sendMail({
+    const mailOptions = {
       from: `"SharkFlow" ${process.env.MAIL_USER}`,
       to,
       subject,
       text,
       html,
+    };
+
+    const info = await new Promise((resolve, reject) => {
+      transporter.sendMail(mailOptions, (error, info) => {
+        if (error) {
+          logMailSendError(error);
+          return reject(error);
+        }
+        logMailSendSuccess(info.messageId);
+        resolve(info);
+      });
     });
 
-    console.info('Письмо отправлено:', info.messageId);
+    return info;
   } catch (error) {
-    console.error('Ошибка при отправке письма:', error);
+    logMailSendError(error);
     throw error;
   }
 }
@@ -40,13 +53,13 @@ export async function sendEmail({ to, subject, text = '', html }) {
 //     });
 
 //     if (error) {
-//       console.error('Resend error:', error);
+//       logError('Resend error:', error);
 //       throw new Error(error.message);
+//     } else {
+//       logInfo('Email sent via Resend:', data?.id);
 //     }
-
-//     console.info('Email sent via Resend:', data?.id);
 //   } catch (err) {
-//     console.error('Resend fatal error:', err);
+//     logError('Resend fatal error:', err);
 //     throw err;
 //   }
 // }

@@ -1,22 +1,21 @@
+import { logCronJobStart, logCronJobComplete, logCronJobError } from '../loggers/systemLoggers.js';
 import prisma from '../prismaConfig/prismaClient.js';
 
-export async function deleteOldGuests() {
-  const oneDayAgo = new Date(Date.now() - 1000 * 60 * 60 * 24); // 24 часа назад
-
+export async function deleteOldGuests(ip = 'system') {
   try {
+    logCronJobStart('deleteOldGuests', ip);
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
     const deleted = await prisma.user.deleteMany({
       where: {
         role: 'guest',
         createdAt: {
-          lt: oneDayAgo,
+          lt: thirtyDaysAgo,
         },
       },
     });
-    console.info('SearchGuests....')
-    if (deleted.count > 0) {
-      console.info(`[cron] Удалено ${deleted.count} гостевых аккаунтов`);
-    }
+    logCronJobComplete('deleteOldGuests', ip, `Удалено ${deleted.count} гостевых аккаунтов`);
   } catch (err) {
-    console.error('[cron] Ошибка при удалении гостей:', err);
+    logCronJobError('deleteOldGuests', err, ip);
   }
 }

@@ -2,17 +2,16 @@ import { Markup } from 'telegraf';
 import { getBoardsWithTaskCounts } from '../../../utils/helpers/boardHelpers.js';
 import { getColorEmoji } from '../../utils/color/getColorEmoji.js';
 import send from '../../send.js';
+import { logTelegramCommandError } from '../../../utils/loggers/telegramLoggers.js';
 
 export async function getBoardsHandler(ctx) {
   const user = ctx.state.user;
   const userUuid = user.uuid;
 
   if (!user || !user.uuid) {
-    console.error(
-      '[getBoardsHandler] Пользователь не найден или userUuid отсутствует:',
-      user,
-    );
-    return send(ctx, '❌ Пользователь не найден.');
+    logTelegramCommandError('getBoards', userUuid, new Error('Пользователь не найден или userUuid отсутствует'));
+    await send(ctx, '❌ Пользователь не найден.');
+    return;
   }
 
   try {
@@ -66,7 +65,7 @@ export async function getBoardsHandler(ctx) {
       keyboard,
     );
   } catch (error) {
-    console.error('[getBoardsHandler] Ошибка при получении досок:', error);
+    logTelegramCommandError('getBoards', userUuid, error);
     await send(ctx, '❌ Произошла ошибка при получении досок.');
   }
 }

@@ -1,33 +1,27 @@
-export function handleRouteError(res, error, {
-  mappings = {},
-  status = 500,
-  message = 'Произошла внутренняя ошибка сервера',
-  logPrefix = 'Ошибка в маршруте',
-  requestId = null,
-} = {}) {
+import { logRouteHandlerError } from '../loggers/errorLoggers.js';
+
+export const handleRouteError = (res, error, options = {}) => {
+  const {
+    message = 'Внутренняя ошибка сервера',
+    status = 500,
+    logPrefix = 'Route Error',
+    requestId = null,
+  } = options;
+
   if (res.headersSent) {
-    console.error(`${logPrefix}: Response already sent, cannot send error response`);
+    logRouteHandlerError('responseAlreadySent', `${logPrefix}: Response already sent, cannot send error response`);
     return;
   }
 
-  if (error && error.code && mappings[error.code]) {
-    const { status: mappedStatus, message: mappedMessage } = mappings[error.code];
-    if (requestId) {
-      console.error(`${logPrefix} [${requestId}]:`, error);
-    } else {
-      console.error(`${logPrefix}:`, error);
-    }
-    const response = { error: mappedMessage };
-    if (requestId) response.requestId = requestId;
-    return res.status(mappedStatus).json(response);
+  if (requestId) {
+    logRouteHandlerError(logPrefix, `[${requestId}]: ${error.message}`, error);
+  } else {
+    logRouteHandlerError(logPrefix, error.message, error);
   }
 
-  if (requestId) {
-    console.error(`${logPrefix} [${requestId}]:`, error);
-  } else {
-    console.error(`${logPrefix}:`, error);
+  if (res.headersSent) {
+    return;
   }
-  const response = { error: message };
-  if (requestId) response.requestId = requestId;
-  res.status(status).json(response);
-} 
+
+  res.status(status).json({ error: message });
+}; 

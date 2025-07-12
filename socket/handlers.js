@@ -1,8 +1,11 @@
-export function socketHandlers(io, socket) {
+import { logSocketDisconnect, logSocketBoardCreated } from '../utils/loggers/socketLoggers.js';
+
+export const handleSocketEvents = (socket) => {
   socket.on('disconnect', () => {
-    console.log('Socket disconnected:', socket.id);
+    logSocketDisconnect(socket.id, socket.userUuid);
   });
-  socket.on('todo:createBoard', () => {
-    console.log('Боард создан');
+
+  socket.on('createBoard', async (data) => {
+    logSocketBoardCreated();
   });
-}
+};

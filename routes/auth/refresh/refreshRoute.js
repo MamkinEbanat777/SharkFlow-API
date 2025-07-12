@@ -17,6 +17,7 @@ import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
 import axios from 'axios';
 import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
+import { logLocationError } from '../../../utils/loggers/systemLoggers.js';
 
 const router = Router();
 
@@ -39,7 +40,7 @@ router.post('/api/auth/refresh', async (req, res) => {
     const { data } = await axios.get(`https://ipwho.is/${ipAddress}`);
     geoLocation = data;
   } catch (error) {
-    console.error('Не удалось определить местоположение');
+    logLocationError(ipAddress, error);
   }
 
   const deviceinfo = parseDeviceInfo(req.get('user-agent'));

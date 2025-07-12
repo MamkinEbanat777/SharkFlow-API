@@ -2,6 +2,8 @@ import '../../config/cloudinaryConfig.js';
 import { v2 as cloudinary } from 'cloudinary';
 import axios from 'axios';
 import prisma from '../prismaConfig/prismaClient.js';
+import { logMailSendError } from '../loggers/mailLoggers.js';
+import { logLocationError } from '../loggers/systemLoggers.js';
 
 /**
  * Загрузка аватара в Cloudinary и обновление пользователя
@@ -39,15 +41,15 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
         },
         (error, result) => {
           if (error) {
-            console.error('Cloudinary upload error:', error);
+            logMailSendError(error);
             return reject(error);
           }
-          console.info('Cloudinary upload success');
+          // success лог можно добавить при необходимости
           resolve(result);
         },
       );
       stream.on('error', (err) => {
-        console.error('Stream error:', err);
+        logLocationError('cloudinary', err);
         reject(err);
       });
       stream.end(buffer);
@@ -58,7 +60,7 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
     });
 
     if (!user) {
-      console.warn('Пользователь не найден или удалён');
+      logMailSendError(new Error('Пользователь не найден или удалён'));
       return;
     }
 
@@ -69,12 +71,12 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
         data: { avatarUrl: secureUrl },
       });
       if (!update) {
-        console.warn('Аватар не обновлён: пользователь не найден или удалён');
+        logMailSendError(new Error('Аватар не обновлён: пользователь не найден или удалён'));
       }
     } else {
-      console.warn('Cloudinary вернул пустой secure_url');
+      logMailSendError(new Error('Cloudinary вернул пустой secure_url'));
     }
   } catch (err) {
-    console.error('Failed to upload avatar in background:', err);
+    logMailSendError(err);
   }
 }

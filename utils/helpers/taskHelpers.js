@@ -176,7 +176,7 @@ export const softDeleteTask = async (taskId) => {
  * @example
  * const validation = validateTaskData({ title: 'Task', priority: 'HIGH' });
  * if (!validation.isValid) {
- *   console.log(validation.errors);
+ *   logError('TaskValidation', 'validationFailed', validation.errors);
  * }
  */
 export const validateTaskData = (data) => {

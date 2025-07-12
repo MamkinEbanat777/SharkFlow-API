@@ -1,6 +1,7 @@
 import prisma from '../prismaConfig/prismaClient.js';
 import { parseDeviceInfo } from './authHelpers.js';
 import axios from 'axios';
+import { logLocationError } from '../loggers/systemLoggers.js';
 
 /**
  * Получение геолокации по IP адресу
@@ -14,7 +15,7 @@ export const getGeoLocation = async (ipAddress) => {
     const { data } = await axios.get(`https://ipwho.is/${ipAddress}`);
     return data;
   } catch (error) {
-    console.error('Не удалось определить местоположение');
+    logLocationError(ipAddress, error);
     return null;
   }
 };

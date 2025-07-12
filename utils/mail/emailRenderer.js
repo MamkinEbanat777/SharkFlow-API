@@ -2,6 +2,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import Handlebars from 'handlebars';
 import { fileURLToPath } from 'url';
+import { logMailRenderError } from '../loggers/mailLoggers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -33,7 +34,7 @@ export async function renderEmail(templateName, context) {
     const baseTemplate = Handlebars.compile(baseTemplateStr);
     return baseTemplate({ ...context, body: bodyHtml });
   } catch (error) {
-    console.error('Ошибка при рендеринге email:', error.message);
-    throw error;
+    logMailRenderError(error);
+    throw new Error(`Failed to render email template: ${error.message}`);
   }
 }

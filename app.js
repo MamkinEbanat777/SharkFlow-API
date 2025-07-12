@@ -4,23 +4,18 @@ import corsMiddleware from './middlewares/http/corsMiddleware.js';
 import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
 import loadRoutes from './utils/routesLoader/loadRoutes.js';
 import cookieParser from 'cookie-parser';
-import fs from 'fs';
-import path from 'path';
 import morgan from 'morgan';
+import { logDatabaseError } from './utils/loggers/systemLoggers.js';
+import { logInfo } from './utils/loggers/baseLogger.js';
+
 
 const app = express();
 
-if (process.env.NODE_ENV !== 'production') {
-  const accessLogStream = fs.createWriteStream(
-    path.join('logs', 'access.log'),
-    {
-      flags: 'a',
-    },
-  );
-  app.use(morgan('combined', { stream: accessLogStream }));
-} else {
-  app.use(morgan('dev'));
-}
+app.use(morgan('combined', {
+  stream: {
+    write: (message) => logInfo('HTTP', 'request', message.trim())
+  }
+}));
 
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -51,10 +46,10 @@ routes.forEach(({ path, router }) => {
   app.use(path, router);
 });
 
-console.log(`Всего подключено роутов: ${routes.length}`);
+logInfo('System', 'routesLoaded', `Routes loaded: ${routes.length}`);
 
 app.use((err, req, res, next) => {
-  console.error(err.stack);
+  logDatabaseError('unhandledError', err);
   const status = err.status || 500;
   return res.status(status).json({
     error: err.message || 'Внутренняя ошибка сервера',

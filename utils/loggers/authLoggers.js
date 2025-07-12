@@ -1,116 +1,190 @@
 import { logInfo, logWarn, logError, logSuspicious } from './baseLogger.js';
 
-export const logLoginSuccess = (email, userUuid, ip) =>
-  logInfo('Auth', 'login success', `${email} (${userUuid}) from IP: ${ip}`);
+const filterSensitiveData = (changes) => {
+  if (!changes || typeof changes !== 'object') return changes;
+  
+  const sensitiveFields = ['password', 'token', 'secret', 'key', 'auth'];
+  const filtered = { ...changes };
+  
+  sensitiveFields.forEach(field => {
+    if (filtered[field]) {
+      filtered[field] = '[REDACTED]';
+    }
+  });
+  
+  return filtered;
+};
 
-export const logLoginFailure = (email, ip, reason = 'Invalid credentials') =>
-  logWarn('Auth', 'login failure', `${email} from IP: ${ip} - ${reason}`);
+const maskEmail = (email) => {
+  if (!email || typeof email !== 'string') return '[NO_EMAIL]';
+  const [local, domain] = email.split('@');
+  if (!domain) return email;
+  return `${local.slice(0, 2)}***@${domain}`;
+};
 
-export const logLogout = (login, email, userUuid, ip) =>
-  logInfo('Auth', 'logout', `${login} (${email}) (${userUuid}) from IP: ${ip}`);
+const validateParams = (userUuid, ip) => {
+  if (!userUuid) throw new Error('userUuid is required');
+  if (!ip) throw new Error('ip is required');
+};
 
-export const logLogoutInvalidToken = (userUuid, ip) =>
+export const logLoginSuccess = (email, userUuid, ip) => {
+  validateParams(userUuid, ip);
+  logInfo('Auth', 'login success', `${maskEmail(email)} (${userUuid}) from IP: ${ip}`);
+};
+
+export const logLoginFailure = (email, ip, reason = 'Invalid credentials') => {
+  if (!ip) throw new Error('ip is required');
+  logWarn('Auth', 'login failure', `${maskEmail(email)} from IP: ${ip} - ${reason}`);
+};
+
+export const logLogout = (login, email, userUuid, ip) => {
+  validateParams(userUuid, ip);
+  logInfo('Auth', 'logout', `${login} (${maskEmail(email)}) (${userUuid}) from IP: ${ip}`);
+};
+
+export const logLogoutInvalidToken = (userUuid, ip) => {
+  validateParams(userUuid, ip);
   logWarn('Auth', 'logout invalid token', `from IP: ${ip}, user: ${userUuid}`);
+};
 
-export const logTokenRefresh = (userUuid, ip, rotated = false) =>
+export const logTokenRefresh = (userUuid, ip, rotated = false) => {
+  validateParams(userUuid, ip);
   logInfo(
     'Auth',
     'token refresh',
     `${userUuid} from IP: ${ip}${rotated ? ' (rotated)' : ''}`,
   );
+};
 
-export const logTokenRefreshFailure = (userUuid, ip, reason) =>
+export const logTokenRefreshFailure = (userUuid, ip, reason) => {
+  validateParams(userUuid, ip);
   logWarn(
     'Auth',
     'token refresh failure',
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
+};
 
-export const logRegistrationRequest = (email, ip) =>
-  logInfo('Auth', 'registration request', `${email} from IP: ${ip}`);
+export const logRegistrationRequest = (email, ip) => {
+  if (!ip) throw new Error('ip is required');
+  logInfo('Auth', 'registration request', `${maskEmail(email)} from IP: ${ip}`);
+};
 
-export const logRegistrationSuccess = (email, userId, ip) =>
+export const logRegistrationSuccess = (email, userId, ip) => {
+  if (!userId) throw new Error('userId is required');
+  if (!ip) throw new Error('ip is required');
   logInfo(
     'Auth',
     'registration success',
-    `${email} (${userId}) from IP: ${ip}`,
+    `${maskEmail(email)} (${userId}) from IP: ${ip}`,
   );
+};
 
-export const logRegistrationFailure = (email, ip, reason) =>
+export const logRegistrationFailure = (email, ip, reason) => {
+  if (!ip) throw new Error('ip is required');
   logWarn(
     'Auth',
     'registration failure',
-    `${email} from IP: ${ip} - ${reason}`,
+    `${maskEmail(email)} from IP: ${ip} - ${reason}`,
   );
+};
 
-export const logUserFetch = (userUuid, ip) =>
+export const logUserFetch = (userUuid, ip) => {
+  validateParams(userUuid, ip);
   logInfo('Auth', 'user fetch', `${userUuid} from IP: ${ip}`);
+};
 
-export const logUserUpdate = (userUuid, changes, ip) =>
+export const logUserUpdate = (userUuid, changes, ip) => {
+  validateParams(userUuid, ip);
+  const filteredChanges = filterSensitiveData(changes);
   logInfo(
     'Auth',
     'user update',
-    `${userUuid} from IP: ${ip}, changes: ${JSON.stringify(changes)}`,
+    `${userUuid} from IP: ${ip}, changes: ${JSON.stringify(filteredChanges)}`,
   );
+};
 
-export const logUserUpdateFailure = (userUuid, ip, reason) =>
+export const logUserUpdateFailure = (userUuid, ip, reason) => {
+  validateParams(userUuid, ip);
   logWarn(
     'Auth',
     'user update failure',
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
+};
 
-export const logUserUpdateRequest = (userUuid, email, ip) =>
+export const logUserUpdateRequest = (userUuid, email, ip) => {
+  validateParams(userUuid, ip);
   logInfo(
     'Auth',
     'user update request',
-    `${userUuid} (${email}) from IP: ${ip}`,
+    `${userUuid} (${maskEmail(email)}) from IP: ${ip}`,
   );
+};
 
-export const logUserUpdateRequestFailure = (userUuid, ip, reason) =>
+export const logUserUpdateRequestFailure = (userUuid, ip, reason) => {
+  validateParams(userUuid, ip);
   logWarn(
     'Auth',
     'user update request failure',
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
+};
 
-export const logUserDelete = (userUuid, ip) =>
+export const logUserDelete = (userUuid, ip) => {
+  validateParams(userUuid, ip);
   logInfo('Auth', 'user delete', `${userUuid} from IP: ${ip}`);
+};
 
-export const logUserDeleteFailure = (userUuid, ip, reason) =>
+export const logUserDeleteFailure = (userUuid, ip, reason) => {
+  validateParams(userUuid, ip);
   logWarn(
     'Auth',
     'user delete failure',
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
+};
 
-export const logUserDeleteRequest = (userUuid, email, ip) =>
+export const logUserDeleteRequest = (userUuid, email, ip) => {
+  validateParams(userUuid, ip);
   logInfo(
     'Auth',
     'user delete request',
-    `${userUuid} (${email}) from IP: ${ip}`,
+    `${userUuid} (${maskEmail(email)}) from IP: ${ip}`,
   );
+};
 
-export const logUserDeleteRequestFailure = (userUuid, ip, reason) =>
+export const logUserDeleteRequestFailure = (userUuid, ip, reason) => {
+  validateParams(userUuid, ip);
   logWarn(
     'Auth',
     'user delete request failure',
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
+};
 
 export const logSuspiciousAuthActivity = (
   action,
   identifier,
   ip,
   details = '',
-) => logSuspicious('Auth', action, identifier, ip, details);
+) => {
+  if (!action) throw new Error('action is required');
+  if (!identifier) throw new Error('identifier is required');
+  if (!ip) throw new Error('ip is required');
+  logSuspicious('Auth', action, identifier, ip, details);
+};
 
-export const logGoogleUnlinkSuccess = (userUuid, ip) =>
+export const logGoogleUnlinkSuccess = (userUuid, ip) => {
+  validateParams(userUuid, ip);
   logInfo('Auth', 'google unlink', `${userUuid} from IP: ${ip}`);
+};
 
-export const logGoogleUnlinkFailure = (userUuid, ip, reason) =>
+export const logGoogleUnlinkFailure = (userUuid, ip, reason) => {
+  validateParams(userUuid, ip);
   logWarn(
     'Auth',
     'google unlink failure',
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
+};

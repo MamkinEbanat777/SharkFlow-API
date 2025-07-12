@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import { logExternalServiceError } from '../loggers/systemLoggers.js';
 
 
 export const validateRefreshToken = (refreshToken) => {
@@ -39,11 +40,8 @@ export const validateRefreshToken = (refreshToken) => {
       };
     }
     
-    console.error('Unexpected JWT error:', error);
-    return {
-      isValid: false,
-      error: 'Произошла ошибка авторизации. Пожалуйста, войдите в систему заново'
-    };
+    logExternalServiceError('JWT', 'validation', error);
+    return { isValid: false, error: 'Invalid token' };
   }
 };
 

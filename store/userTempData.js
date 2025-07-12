@@ -1,4 +1,5 @@
 import { redis } from '../config/redisconfig.js';
+import { logStoreError } from '../utils/loggers/storeLoggers.js';
 
 const EXPIRE_SECONDS = 15 * 60;
 
@@ -38,14 +39,15 @@ export async function getUserTempData(type, uuid) {
   try {
     return typeof value === 'string' ? JSON.parse(value) : value;
   } catch (e) {
-    console.error(
-      `[getUserTempData] JSON parse error for key userTemp:${type}:${uuid}`,
-      e,
-    );
+    logStoreError('get', getUserTempKey(type, uuid), e);
     return null;
   }
 }
 
 export async function deleteUserTempData(type, uuid) {
-  await redis.del(getUserTempKey(type, uuid));
+  try {
+    await redis.del(getUserTempKey(type, uuid));
+  } catch (error) {
+    logStoreError('delete', getUserTempKey(type, uuid), error);
+  }
 }

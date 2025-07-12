@@ -1,8 +1,7 @@
+import 'dotenv/config';
 import http from 'http';
 import app from './app.js';
-import dotenv from 'dotenv';
-
-dotenv.config();
+import { logServerStart } from './utils/loggers/systemLoggers.js';
 
 import { initSocket } from './socket/index.js';
 
@@ -20,5 +19,5 @@ const server = http.createServer(app);
 initSocket(server);
 
 server.listen(PORT, '0.0.0.0', () => {
-  console.log(`🚀 Сервер запущен на порту ${PORT} (HTTP + WebSocket)`);
+  logServerStart(PORT);
 });

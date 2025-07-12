@@ -18,7 +18,7 @@ const router = Router();
 router.post('/api/auth/guest-login', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
-
+  
   if (process.env.NODE_ENV === 'production') {
     const { captchaToken } = req.body;
 

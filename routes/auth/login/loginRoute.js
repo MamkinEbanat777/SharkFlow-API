@@ -22,7 +22,6 @@ import {
   setAuthCookies,
 } from '../../../utils/helpers/authHelpers.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { 
   createOrUpdateDeviceSession, 
   getGeoLocation, 

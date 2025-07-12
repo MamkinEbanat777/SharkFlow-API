@@ -4,6 +4,7 @@ import {
 } from '../../../store/tempBoardCreationStore.js';
 import { createBoard } from '../../../utils/helpers/boardHelpers.js';
 import send from '../../send.js';
+import { logTelegramCommandError } from '../../utils/loggers/telegramLoggers.js';
 
 export default function registerChooseColorAction(bot) {
   bot.action(/^choose_color_(.+)/, async (ctx) => {
@@ -32,8 +33,8 @@ export default function registerChooseColorAction(bot) {
       const { getBoardsHandler } = await import('./getBoardsHandler.js');
       await getBoardsHandler(ctx);
     } catch (err) {
-      console.error('[createBoard]', err);
-      await send(ctx, '❌ Ошибка при создании доски.');
+      logTelegramCommandError('createBoard', userUuid, err);
+      await ctx.answerCbQuery('❌ Ошибка при создании доски');
     }
   });
 }

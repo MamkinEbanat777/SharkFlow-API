@@ -1,5 +1,6 @@
 import { Markup } from 'telegraf';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { logTelegramCommandError } from '../../../utils/loggers/telegramLoggers.js';
 import {
   getUserTempData,
   deleteUserTempData,
@@ -45,10 +46,7 @@ export default function registerStartCommand(bot) {
       const userUuid = data?.userUuid;
 
       if (typeof userUuid !== 'string') {
-        console.error(
-          '[start] Ожидалась строка для userUuid, получено:',
-          userUuid,
-        );
+        logTelegramCommandError('start', userUuid, new Error('Ожидалась строка для userUuid'));
         return await send(
           ctx,
           'Ошибка привязки Telegram. Неверный формат идентификатора пользователя.',
@@ -63,10 +61,9 @@ export default function registerStartCommand(bot) {
       });
 
       if (!user) {
-        return await send(
-          ctx,
-          'Пользователь не найден. Возможно, срок действия ссылки истёк.',
-        );
+        logTelegramCommandError('start', userUuid, new Error('Пользователь не найден'));
+        await ctx.reply('❌ Пользователь не найден в системе');
+        return;
       }
 
       if (user.telegramId) {
@@ -104,9 +101,9 @@ export default function registerStartCommand(bot) {
       ]);
 
       return await send(ctx, message, keyboard);
-    } catch (e) {
-      console.error('[start] Ошибка при привязке Telegram:', e);
-      return await send(ctx, 'Произошла внутренняя ошибка. Попробуйте позже.');
+    } catch (error) {
+      logTelegramCommandError('start', userUuid, error);
+      await ctx.reply('❌ Произошла ошибка при привязке Telegram');
     }
   });
 }

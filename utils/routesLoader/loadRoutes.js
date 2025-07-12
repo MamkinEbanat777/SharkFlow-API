@@ -1,6 +1,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { pathToFileURL } from 'url';
+import { logExternalServiceError } from '../loggers/systemLoggers.js';
 
 async function loadRoutes(dir = 'routes') {
   const items = await fs.readdir(dir, { withFileTypes: true });
@@ -19,7 +20,7 @@ async function loadRoutes(dir = 'routes') {
       if (routeDef && routeDef.router && routeDef.path) {
         loaded.push(routeDef);
       } else {
-        console.warn(`Файл ${fullPath} не экспортирует { path, router }`);
+        logExternalServiceError('RoutesLoader', 'invalidExport', new Error(`Файл ${fullPath} не экспортирует { path, router }`));
       }
     }
   }

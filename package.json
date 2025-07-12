@@ -52,12 +52,14 @@
     "ua-parser-js": "^2.0.4",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
+    "winston-loki": "^6.1.3",
     "xss-clean": "^0.1.4",
     "yamljs": "^0.3.0",
     "yup": "^1.6.1",
     "zxcvbn": "^4.4.2"
   },
   "devDependencies": {
+    "@eslint/js": "^9.31.0",
     "nodemon": "^3.1.10"
   }
 }

@@ -1,4 +1,5 @@
 import prisma from '../../utils/prismaConfig/prismaClient.js';
+import { logTelegramMiddlewareError } from '../../utils/loggers/middlewareLoggers.js';
 
 export const authenticateTelegramMiddleware = async (ctx, next) => {
   const telegramId = BigInt(ctx.from?.id);
@@ -33,11 +34,6 @@ export const authenticateTelegramMiddleware = async (ctx, next) => {
 
     await next();
   } catch (error) {
-    console.error(
-      `Произошла непредвиденная ошибка от TelegramID: ${telegramId}`,
-      error,
-    );
-    await ctx.reply('Произошла непредвиденная ошибка');
-    return;
+    logTelegramMiddlewareError('verificationError', ctx.ip, error);
   }
 };
