@@ -91,7 +91,7 @@ router.post(
 
     try {
       const user = await findUserByEmail(normalizedEmail, {
-        id: true, 
+        id: true,
         uuid: true,
         password: true,
         login: true,
@@ -153,6 +153,7 @@ router.post(
             osVersion: deviceinfo.osVersion,
             clientName: deviceinfo.clientName,
             clientVersion: deviceinfo.clientVersion,
+            clientType: deviceinfo.clientType,
             geoLocation,
           },
         });
@@ -172,7 +173,8 @@ router.post(
             osName: deviceinfo.osName,
             osVersion: deviceinfo.osVersion,
             clientName: deviceinfo.clientName,
-            clientVersion: deviceinfo.clientVersion,  
+            clientVersion: deviceinfo.clientVersion,
+            clientType: deviceinfo.clientType,
             geoLocation,
           },
         });
@@ -183,9 +185,11 @@ router.post(
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
 
-      return res
-        .status(200)
-        .json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken,  deviceId: deviceSession.deviceId, });
+      return res.status(200).json({
+        accessToken: tokens.accessToken,
+        csrfToken: tokens.csrfToken,
+        deviceId: deviceSession.deviceId,
+      });
     } catch (error) {
       incrementLoginAttempts(ipAddress, normalizedEmail);
       handleRouteError(res, error, {

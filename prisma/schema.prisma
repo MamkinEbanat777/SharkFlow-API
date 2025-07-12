@@ -14,33 +14,37 @@ datasource db {
 }
 
 model User {
-  id                     Int       @id @default(autoincrement())
-  uuid                   String    @unique @default(uuid()) @db.Uuid
-  email                  String    @unique @db.VarChar(320)
-  googleEmail            String?   @unique @db.VarChar(320)
-  githubEmail            String?   @unique @db.VarChar(320)
-  yandexEmail            String?   @unique @db.VarChar(320)
-  login                  String    @unique @db.VarChar(30)
-  password               String?
-  googleSub              String?   @unique @db.VarChar(255)
-  googleOAuthEnabled     Boolean   @default(false)
-  createdAt              DateTime  @default(now())
-  isActive               Boolean   @default(true)
-  updatedAt              DateTime  @updatedAt
-  isDeleted              Boolean   @default(false)
-  deletedAt              DateTime?
-  role                   UserRole  @default(user)
-  twoFactorSecret        String?   @db.VarChar(256)
-  twoFactorEnabled       Boolean   @default(false)
-  twoFactorPendingSecret String?   @db.VarChar(256)
-  avatarUrl              String?   @db.VarChar(1024)
-  publicId               String?   @db.VarChar(100)
-  telegramId             BigInt?   @unique
-  telegramEnabled        Boolean?  @default(false)
-  githubId               String?   @unique
-  githubOAuthEnabled     Boolean?  @default(false)
-  yandexId               String?   @unique
-  yandexOAuthEnabled     Boolean?  @default(false)
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.Uuid
+  login     String   @unique @db.VarChar(30)
+  password  String?
+  role      UserRole @default(user)
+  avatarUrl String?  @db.VarChar(1024)
+  publicId  String?  @db.VarChar(100)
+
+  email       String  @unique @db.VarChar(320)
+  googleEmail String? @unique @db.VarChar(320)
+  githubEmail String? @unique @db.VarChar(320)
+  yandexEmail String? @unique @db.VarChar(320)
+
+  googleSub          String?  @unique @db.VarChar(255)
+  googleOAuthEnabled Boolean  @default(false)
+  telegramId         BigInt?  @unique
+  telegramEnabled    Boolean? @default(false)
+  githubId           String?  @unique @db.VarChar(255)
+  githubOAuthEnabled Boolean? @default(false)
+  yandexId           String?  @unique @db.VarChar(255)
+  yandexOAuthEnabled Boolean? @default(false)
+
+  createdAt DateTime  @default(now())
+  isActive  Boolean   @default(true)
+  updatedAt DateTime  @updatedAt
+  isDeleted Boolean   @default(false)
+  deletedAt DateTime?
+
+  twoFactorSecret        String? @db.VarChar(256)
+  twoFactorEnabled       Boolean @default(false)
+  twoFactorPendingSecret String? @db.VarChar(256)
 
   boards             Board[]
   refreshTokens      RefreshToken[]
@@ -66,18 +70,17 @@ model UserDeviceSession {
 
   clientName    String? @db.VarChar(100)
   clientVersion String? @db.VarChar(100)
+  clientType    String? @db.VarChar(100)
 
-  ipAddress   String? @db.VarChar(45)
+  ipAddress   String?   @db.VarChar(45)
   geoLocation Json?
-
-  userAgent String? @db.VarChar(512)
-  referrer  String? @db.VarChar(2048)
-
+  userAgent   String?   @db.VarChar(512)
+  referrer    String?   @db.VarChar(2048)
   createdAt   DateTime  @default(now())
   lastUsedAt  DateTime?
   lastLoginAt DateTime?
+  isActive    Boolean   @default(true)
 
-  isActive      Boolean        @default(true)
   refreshTokens RefreshToken[]
 
   @@index([userId])
