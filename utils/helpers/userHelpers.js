@@ -1,4 +1,5 @@
 import prisma from '../prismaConfig/prismaClient.js';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Поиск пользователя по UUID (только активные, не удаленные)
@@ -10,8 +11,8 @@ import prisma from '../prismaConfig/prismaClient.js';
  * const userWithEmail = await findUserByUuid('123e4567-e89b-12d3-a456-426614174000', { email: true, login: true });
  */
 export const findUserByUuid = async (uuid, select = {}) => {
-  if (!uuid || typeof uuid !== 'string') {
-    throw new Error('Invalid UUID');
+  if (!isValidUUID(uuid)) {
+    throw new Error('Invalid user UUID');
   }
   return await prisma.user.findFirst({
     where: { uuid, isDeleted: false },
@@ -112,8 +113,8 @@ export const requireUserNotDeleted = (user) => {
  * const userWithEmail = await findUserByUuidOrThrow('123e4567-e89b-12d3-a456-426614174000', { email: true });
  */
 export const findUserByUuidOrThrow = async (uuid, select = {}) => {
-  if (!uuid || typeof uuid !== 'string') {
-    throw new Error('Invalid UUID');
+  if (!isValidUUID(uuid)) {
+    throw new Error('Invalid user UUID');
   }
   const user = await findUserByUuid(uuid, select);
   return requireUserExists(user);

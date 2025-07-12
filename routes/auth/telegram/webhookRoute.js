@@ -1,15 +1,42 @@
 import { Router } from 'express';
+import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import bot from '../../../telegramBot/bot.js';
 
 const router = Router();
 
 router.post('/telegram/webhook', async (req, res) => {
+  const ipAddress = getClientIP(req);
+  const updateData = req.body;
+
   try {
-    console.log('Webhook получил данные:', req.body);
-    await bot.handleUpdate(req.body, res);
-  } catch (e) {
-    console.error(e);
-    return res.status(500).send('Ошибка');
+    if (!updateData || typeof updateData !== 'object') {
+      return res.status(400).json({
+        success: false,
+        message: 'Некорректные данные webhook',
+      });
+    }
+
+    const updateId = updateData.update_id;
+    if (!updateId) {
+      return res.status(400).json({
+        success: false,
+        message: 'Отсутствует update_id',
+      });
+    }
+
+    await bot.handleUpdate(updateData, res);
+
+    return res.status(200).json({
+      success: true,
+      message: 'Webhook обработан успешно',
+    });
+  } catch (error) {
+    handleRouteError(res, error, {
+      logPrefix: 'Ошибка обработки Telegram webhook',
+      status: 500,
+      message: 'Произошла ошибка при обработке webhook',
+    });
   }
 });
 

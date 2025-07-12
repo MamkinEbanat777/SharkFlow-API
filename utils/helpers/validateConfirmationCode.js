@@ -4,6 +4,7 @@ import {
   registerFailedAttempt,
   resetConfirmationAttempts,
 } from '../../store/userVerifyStore.js';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Валидация кода подтверждения с защитой от брутфорса
@@ -16,6 +17,10 @@ import {
  * const isValid = await validateConfirmationCode(userUuid, 'email', '123456', loggers);
  */
 export async function validateConfirmationCode(userUuid, type, code, loggers) {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+
   if (!code?.toString().trim()) {
     loggers?.failure?.(userUuid, 'Confirmation code not provided');
     return false;

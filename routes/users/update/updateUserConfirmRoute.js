@@ -8,6 +8,7 @@ import {
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -19,9 +20,7 @@ router.post(
     const ipAddress = getClientIP(req);
 
     try {
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         logUserUpdateRequestFailure(userUuid, ipAddress, 'User not found');

@@ -7,7 +7,7 @@ import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { Priority, Status } from '@prisma/client';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { findBoardByUuidForUser, getUserTaskCount } from '../../utils/helpers/taskHelpers.js';
+import { findBoardByUuidForUser, getUserTaskCount, validateTaskData } from '../../utils/helpers/taskHelpers.js';
 
 const router = Router();
 
@@ -34,39 +34,19 @@ router.post(
     const rawPriority = req.body.priority?.trim() || null;
     const rawStatus = req.body.status?.trim() || null;
 
-    if (!rawTitle || typeof rawTitle !== 'string') {
-      return res.status(400).json({ error: 'Название задачи обязательно' });
+    const validation = validateTaskData({
+      title: rawTitle,
+      dueDate: rawDueDate,
+      description: rawdescription,
+      priority: rawPriority,
+      status: rawStatus,
+    });
+
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.errors[0] });
     }
 
-    const titleValidation = validateTaskTitle(rawTitle);
-    if (!titleValidation.isValid) {
-      return res.status(400).json({ error: titleValidation.error });
-    }
-    const title = titleValidation.value;
-
-    let dueDate = null;
-    if (rawDueDate) {
-      if (isNaN(Date.parse(rawDueDate))) {
-        return res.status(400).json({ error: 'Некорректная дата дедлайна' });
-      }
-      dueDate = new Date(rawDueDate);
-    }
-
-    let priority = null;
-    if (rawPriority) {
-      if (!Object.values(Priority).includes(rawPriority)) {
-        return res.status(400).json({ error: 'Недопустимый приоритет задачи' });
-      }
-      priority = rawPriority;
-    }
-
-    let status = null;
-    if (rawStatus) {
-      if (!Object.values(Status).includes(rawStatus)) {
-        return res.status(400).json({ error: 'Недопустимый статус задачи' });
-      }
-      status = rawStatus;
-    }
+    const { title, dueDate, description, priority, status } = validation.data;
 
     try {
       const taskCount = await getUserTaskCount(userUuid);
@@ -81,7 +61,7 @@ router.post(
       const newTask = await prisma.task.create({
         data: {
           title,
-          description: rawdescription ?? '',
+          description: description ?? '',
           dueDate,
           priority,
           status,

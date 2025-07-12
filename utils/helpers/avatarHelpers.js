@@ -1,4 +1,5 @@
 import prisma from '../prismaConfig/prismaClient.js';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Поиск пользователя для работы с аватаром
@@ -9,6 +10,9 @@ import prisma from '../prismaConfig/prismaClient.js';
  * const user = await findUserForAvatar('123e4567-e89b-12d3-a456-426614174000');
  */
 export const findUserForAvatar = async (userUuid, select = {}) => {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
   return await prisma.user.findFirst({
     where: { uuid: userUuid, isDeleted: false },
     ...(Object.keys(select).length > 0 ? { select } : {}),
@@ -29,7 +33,7 @@ export const validateImageUrl = (imgUrl) => {
   if (!imgUrl || typeof imgUrl !== 'string') {
     return { isValid: false, error: 'Невалидный URL изображения' };
   }
-  
+
   try {
     new URL(imgUrl);
     return { isValid: true };
@@ -48,6 +52,9 @@ export const validateImageUrl = (imgUrl) => {
  * const updatedUser = await updateUserAvatar(userUuid, 'https://example.com/avatar.jpg', 'cloudinary_id');
  */
 export const updateUserAvatar = async (userUuid, imgUrl, publicId = null) => {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
   return await prisma.user.update({
     where: { uuid: userUuid },
     data: { avatarUrl: imgUrl, publicId },
@@ -67,4 +74,4 @@ export const clearUserAvatar = async (userId) => {
     where: { id: userId },
     data: { avatarUrl: null, publicId: null },
   });
-}; 
+};

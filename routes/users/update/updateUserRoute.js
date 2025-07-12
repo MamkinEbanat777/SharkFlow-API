@@ -12,6 +12,7 @@ import { validateConfirmationCode } from '../../../utils/helpers/validateConfirm
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
+import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -57,10 +58,7 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-        select: { role: true },
-      });
+      const user = await findUserByUuid(userUuid, { role: true });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

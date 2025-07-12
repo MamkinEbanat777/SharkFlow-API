@@ -12,6 +12,7 @@ import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
+import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -58,10 +59,7 @@ router.post(
     }
 
     try {
-      const user = await prisma.user.findFirst({
-        where: { uuid: userUuid, isDeleted: false },
-        select: { publicId: true, role: true },
-      });
+      const user = await findUserByUuid(userUuid, { publicId: true, role: true });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

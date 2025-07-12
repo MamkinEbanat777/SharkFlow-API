@@ -1,5 +1,6 @@
 import { validateConfirmationCode } from './validateConfirmationCode.js';
 import { deleteConfirmationCode } from '../../store/userVerifyStore.js';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Валидация кода подтверждения с последующим удалением
@@ -18,14 +19,22 @@ export const validateAndDeleteConfirmationCode = async (
   userUuid,
   type,
   confirmationCode,
-  errorMessage = 'Неверный или просроченный код подтверждения'
+  errorMessage = 'Неверный или просроченный код подтверждения',
 ) => {
-  const valid = await validateConfirmationCode(userUuid, type, confirmationCode);
-  
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+
+  const valid = await validateConfirmationCode(
+    userUuid,
+    type,
+    confirmationCode,
+  );
+
   if (!valid) {
     return { isValid: false, error: errorMessage };
   }
-  
+
   await deleteConfirmationCode(type, userUuid);
   return { isValid: true };
 };
@@ -47,16 +56,24 @@ export const validateConfirmationCodeWithCustomError = async (
   userUuid,
   type,
   confirmationCode,
-  customError = null
+  customError = null,
 ) => {
-  const valid = await validateConfirmationCode(userUuid, type, confirmationCode);
-  
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+
+  const valid = await validateConfirmationCode(
+    userUuid,
+    type,
+    confirmationCode,
+  );
+
   if (!valid) {
-    return { 
-      isValid: false, 
-      error: customError || 'Неверный или просроченный код подтверждения' 
+    return {
+      isValid: false,
+      error: customError || 'Неверный или просроченный код подтверждения',
     };
   }
-  
+
   return { isValid: true };
-}; 
+};

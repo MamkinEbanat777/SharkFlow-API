@@ -11,7 +11,11 @@ import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvata
 import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
 import { generateUUID } from '../../../../utils/generators/generateUUID.js';
 import { verifyTurnstileCaptcha } from '../../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
-import { parseDeviceInfo } from '../../../../utils/helpers/authHelpers.js';
+import { 
+  createOrUpdateDeviceSession, 
+  getGeoLocation, 
+  validateDeviceId 
+} from '../../../../utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
 
@@ -168,58 +172,19 @@ router.post('/api/auth/github', async (req, res) => {
         .json({ error: 'Этот аккаунт не может использовать OAuth' });
     }
 
-    const deviceId = req.headers['x-device-id'];
-    if (!deviceId) {
-      return res.status(401).json({ error: 'Устройство не найдено' });
-    }
+    const deviceId = validateDeviceId(req, res);
+    if (!deviceId) return;
 
-    const deviceinfo = parseDeviceInfo(userAgent);
-    let deviceSession = await prisma.userDeviceSession.findFirst({
-      where: { userId: user.id, deviceId },
+    const geoLocation = await getGeoLocation(ipAddress);
+
+    const deviceSession = await createOrUpdateDeviceSession({
+      userId: user.id,
+      deviceId,
+      userAgent,
+      ipAddress,
+      referrer: req.get('Referer') || null,
+      geoLocation,
     });
-
-    if (deviceSession) {
-      deviceSession = await prisma.userDeviceSession.update({
-        where: { id: deviceSession.id },
-        data: {
-          userAgent,
-          ipAddress,
-          referrer: req.get('Referer') || null,
-          lastLoginAt: new Date(),
-          isActive: true,
-          deviceType: deviceinfo.deviceType,
-          deviceBrand: deviceinfo.deviceBrand,
-          deviceModel: deviceinfo.deviceModel,
-          osName: deviceinfo.osName,
-          osVersion: deviceinfo.osVersion,
-          clientName: deviceinfo.clientName,
-          clientVersion: deviceinfo.clientVersion,
-          clientType: deviceinfo.clientType,
-          geoLocation,
-        },
-      });
-    } else {
-      deviceSession = await prisma.userDeviceSession.create({
-        data: {
-          userId: user.id,
-          deviceId,
-          userAgent,
-          ipAddress,
-          referrer: req.get('Referer') || null,
-          lastLoginAt: new Date(),
-          isActive: true,
-          deviceType: deviceinfo.deviceType,
-          deviceBrand: deviceinfo.deviceBrand,
-          deviceModel: deviceinfo.deviceModel,
-          osName: deviceinfo.osName,
-          osVersion: deviceinfo.osVersion,
-          clientName: deviceinfo.clientName,
-          clientVersion: deviceinfo.clientVersion,
-          clientType: deviceinfo.clientType,
-          geoLocation,
-        },
-      });
-    }
 
     const refreshToken = await issueRefreshToken({
       userUuid: user.uuid,

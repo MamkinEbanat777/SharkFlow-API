@@ -1,5 +1,6 @@
 import prisma from '../prismaConfig/prismaClient.js';
 import { Priority, Status } from '@prisma/client';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Поиск доски по UUID для пользователя (с проверкой владельца)
@@ -11,6 +12,13 @@ import { Priority, Status } from '@prisma/client';
  * const board = await findBoardByUuidForUser('board-uuid', 'user-uuid');
  */
 export const findBoardByUuidForUser = async (boardUuid, userUuid, select = {}) => {
+  if (!isValidUUID(boardUuid)) {
+    throw new Error('Invalid board UUID');
+  }
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+  
   return await prisma.board.findFirst({
     where: {
       uuid: boardUuid,
@@ -31,6 +39,10 @@ export const findBoardByUuidForUser = async (boardUuid, userUuid, select = {}) =
  * const task = await findTaskByUuid('task-uuid', 123);
  */
 export const findTaskByUuid = async (taskUuid, boardId, select = {}) => {
+  if (!isValidUUID(taskUuid)) {
+    throw new Error('Invalid task UUID');
+  }
+  
   return await prisma.task.findFirst({
     where: {
       uuid: taskUuid,
@@ -52,6 +64,16 @@ export const findTaskByUuid = async (taskUuid, boardId, select = {}) => {
  * const task = await findTaskWithBoardAccess('task-uuid', 'board-uuid', 'user-uuid');
  */
 export const findTaskWithBoardAccess = async (taskUuid, boardUuid, userUuid, select = {}) => {
+  if (!isValidUUID(taskUuid)) {
+    throw new Error('Invalid task UUID');
+  }
+  if (!isValidUUID(boardUuid)) {
+    throw new Error('Invalid board UUID');
+  }
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+  
   return await prisma.task.findFirst({
     where: {
       uuid: taskUuid,
@@ -77,6 +99,10 @@ export const findTaskWithBoardAccess = async (taskUuid, boardUuid, userUuid, sel
  * const taskCount = await getUserTaskCount('user-uuid');
  */
 export const getUserTaskCount = async (userUuid) => {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+  
   return await prisma.task.count({
     where: { board: { user: { uuid: userUuid } } },
   });
@@ -91,6 +117,13 @@ export const getUserTaskCount = async (userUuid) => {
  * const tasks = await getTasksForBoard('board-uuid', 'user-uuid');
  */
 export const getTasksForBoard = async (boardUuid, userUuid) => {
+  if (!isValidUUID(boardUuid)) {
+    throw new Error('Invalid board UUID');
+  }
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+  
   return await prisma.task.findMany({
     where: {
       isDeleted: false,

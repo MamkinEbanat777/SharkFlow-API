@@ -4,6 +4,7 @@ import { authenticateMiddleware } from '../../../middlewares/http/authenticateMi
 import { logLogout } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { validateDeviceId } from '../../../utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
 
@@ -15,9 +16,8 @@ router.post(
     const ipAddress = getClientIP(req);
     const { deviceId } = req.params;
 
-    if (!deviceId) {
-      return res.status(400).json({ error: 'deviceId обязателен' });
-    }
+    const validatedDeviceId = validateDeviceId(req, res);
+    if (!validatedDeviceId) return;
 
     const refreshToken = req.cookies['log___tf_12f_t2'];
     let currentDeviceId = null;

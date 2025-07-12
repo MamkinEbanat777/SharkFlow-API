@@ -2,6 +2,7 @@ import { generateConfirmationCode } from '../generators/generateConfirmationCode
 import { sendConfirmationEmail } from '../mail/sendConfirmationEmail.js';
 import { setConfirmationCode } from '../../store/userVerifyStore.js';
 import prisma from '../prismaConfig/prismaClient.js';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Отправка кода подтверждения пользователю
@@ -27,6 +28,10 @@ export async function sendUserConfirmationCode({
   email,
   skipUserCheck = false,
 }) {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+
   let actualEmail = email;
 
   if (!skipUserCheck) {
@@ -49,7 +54,7 @@ export async function sendUserConfirmationCode({
   }
 
   const confirmationCode = generateConfirmationCode();
-  setConfirmationCode(type, userUuid, confirmationCode);
+  await setConfirmationCode(type, userUuid, confirmationCode);
   await sendConfirmationEmail({
     to: actualEmail,
     type,

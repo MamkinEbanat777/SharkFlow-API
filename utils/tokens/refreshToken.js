@@ -24,9 +24,6 @@ export async function issueRefreshToken({
   userUuid,
   rememberMe = false,
   setCookie = true,
-  ipAddress = null,
-  userAgent = null,
-  referrer = null,
   userId = null,
   deviceSessionId = null,
 }) {

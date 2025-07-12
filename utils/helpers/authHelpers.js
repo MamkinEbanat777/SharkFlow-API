@@ -2,6 +2,8 @@ import { createAccessToken } from '../tokens/accessToken.js';
 import { createCsrfToken } from '../tokens/csrfToken.js';
 import { issueRefreshToken } from '../tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
+import { isValidUUID } from '../validators/taskValidators.js';
+
 import DeviceDetector from 'device-detector-js';
 
 /**
@@ -29,6 +31,10 @@ export const getClientIP = (req) => {
  * const tokens = await createAuthTokens(user, true, req);
  */
 export const createAuthTokens = async (user, rememberMe, deviceSessionId) => {
+  if (!isValidUUID(user.uuid)) {
+    throw new Error('Invalid user UUID');
+  }
+
   const accessToken = createAccessToken(user.uuid, user.role);
   const csrfToken = createCsrfToken(user.uuid, user.role);
   const refreshToken = await issueRefreshToken({

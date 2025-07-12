@@ -52,7 +52,6 @@ router.post('/api/auth/guest-login', async (req, res) => {
     if (guestUuid) {
       const existingGuest = await findUserByUuid(guestUuid);
       if (existingGuest && existingGuest.role === 'guest') {
-        // --- Создание или обновление UserDeviceSession ---
         const deviceId = req.headers['x-device-id'];
         if (!deviceId) {
           return res.status(401).json({ error: 'Устройство не найдено' });
@@ -140,7 +139,6 @@ router.post('/api/auth/guest-login', async (req, res) => {
         },
       });
     }
-    // --- END ---
     const tokens = await createAuthTokens(guest, false, deviceSession.id);
     setAuthCookies(res, tokens.refreshToken, false);
     res.cookie('log___sf_21s_t1', guest.uuid, getGuestCookieOptions());

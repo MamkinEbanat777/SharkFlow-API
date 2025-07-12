@@ -1,4 +1,5 @@
 import prisma from '../prismaConfig/prismaClient.js';
+import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
  * Поиск доски по UUID с проверкой владельца
@@ -11,6 +12,12 @@ import prisma from '../prismaConfig/prismaClient.js';
  * const boardWithTasks = await findBoardByUuid('board-uuid', 'user-uuid', { tasks: true });
  */
 export const findBoardByUuid = async (boardUuid, userUuid, select = {}) => {
+  if (!isValidUUID(boardUuid)) {
+    throw new Error('Invalid board UUID');
+  }
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
   return await prisma.board.findFirst({
     where: {
       uuid: boardUuid,
@@ -29,6 +36,9 @@ export const findBoardByUuid = async (boardUuid, userUuid, select = {}) => {
  * const boardCount = await getUserBoardCount('user-uuid');
  */
 export const getUserBoardCount = async (userUuid) => {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
   return await prisma.board.count({
     where: { user: { uuid: userUuid } },
   });
@@ -43,6 +53,10 @@ export const getUserBoardCount = async (userUuid) => {
  * result = { boards: [...], totalBoards: 5 }
  */
 export const getBoardsWithTaskCounts = async (userUuid) => {
+  if (!isValidUUID(userUuid)) {
+    throw new Error('Invalid user UUID');
+  }
+
   const [boards, totalBoards] = await Promise.all([
     prisma.board.findMany({
       where: { isDeleted: false, user: { uuid: userUuid } },
