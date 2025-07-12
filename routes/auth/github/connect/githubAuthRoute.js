@@ -11,6 +11,7 @@ import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvata
 import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
 import { generateUUID } from '../../../../utils/generators/generateUUID.js';
 import { verifyTurnstileCaptcha } from '../../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
+import { parseDeviceInfo } from '../../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
@@ -171,18 +172,30 @@ router.post('/api/auth/github', async (req, res) => {
     if (!deviceId) {
       return res.status(401).json({ error: 'Устройство не найдено' });
     }
+
+    const deviceinfo = parseDeviceInfo(userAgent);
     let deviceSession = await prisma.userDeviceSession.findFirst({
-      where: { userId: user.id, deviceId, isActive: true },
+      where: { userId: user.id, deviceId },
     });
+
     if (deviceSession) {
       deviceSession = await prisma.userDeviceSession.update({
         where: { id: deviceSession.id },
         data: {
           userAgent,
           ipAddress,
-          referrer: req.get('referer') || null,
+          referrer: req.get('Referer') || null,
           lastLoginAt: new Date(),
           isActive: true,
+          deviceType: deviceinfo.deviceType,
+          deviceBrand: deviceinfo.deviceBrand,
+          deviceModel: deviceinfo.deviceModel,
+          osName: deviceinfo.osName,
+          osVersion: deviceinfo.osVersion,
+          clientName: deviceinfo.clientName,
+          clientVersion: deviceinfo.clientVersion,
+          clientType: deviceinfo.clientType,
+          geoLocation,
         },
       });
     } else {
@@ -192,9 +205,18 @@ router.post('/api/auth/github', async (req, res) => {
           deviceId,
           userAgent,
           ipAddress,
-          referrer: req.get('referer') || null,
+          referrer: req.get('Referer') || null,
           lastLoginAt: new Date(),
           isActive: true,
+          deviceType: deviceinfo.deviceType,
+          deviceBrand: deviceinfo.deviceBrand,
+          deviceModel: deviceinfo.deviceModel,
+          osName: deviceinfo.osName,
+          osVersion: deviceinfo.osVersion,
+          clientName: deviceinfo.clientName,
+          clientVersion: deviceinfo.clientVersion,
+          clientType: deviceinfo.clientType,
+          geoLocation,
         },
       });
     }
