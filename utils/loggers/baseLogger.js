@@ -2,14 +2,14 @@ import winston from 'winston';
 import LokiTransport from 'winston-loki';
 
 const levelColors = {
-  INFO: '\x1b[34m', 
-  WARN: '\x1b[33m', 
-  ERROR: '\x1b[31m', 
+  INFO: '\x1b[34m',
+  WARN: '\x1b[33m',
+  ERROR: '\x1b[31m',
   RESET: '\x1b[0m',
 };
 
-const entityColor = '\x1b[36m'; 
-const actionColor = '\x1b[35m'; 
+const entityColor = '\x1b[36m';
+const actionColor = '\x1b[35m';
 
 const timeFormat = winston.format((info) => {
   const date = new Date(info.timestamp);
@@ -48,9 +48,9 @@ const lokiFormat = winston.format.printf(({ timestamp, level, message }) => {
 const getLogLevel = () => {
   const env = process.env.NODE_ENV || 'development';
   const envLevel = process.env.LOG_LEVEL;
-  
+
   if (envLevel) return envLevel;
-  
+
   return env === 'production' ? 'info' : 'debug';
 };
 
@@ -69,17 +69,16 @@ if (process.env.LOKI_URL && process.env.LOKI_API_KEY) {
   transports.push(
     new LokiTransport({
       host: process.env.LOKI_URL,
-      labels: { app: 'SharkFlow-API' },
+      labels: { app: 'SharkFlow-API', env: 'dev' },
       json: true,
+      format: winston.format.json(),
       headers: {
         Authorization: `Bearer ${process.env.LOKI_API_KEY}`,
       },
-      format: winston.format.combine(
-        winston.format.timestamp(),
-        timeFormat(),
-        lokiFormat,
-      ),
-    })
+      onConnectionError: (err) => {
+        console.error('LokiTransport error:', err);
+      },
+    }),
   );
 }
 
