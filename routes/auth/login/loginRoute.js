@@ -22,16 +22,16 @@ import {
   setAuthCookies,
 } from '../../../utils/helpers/authHelpers.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
-import { 
-  createOrUpdateDeviceSession, 
-  getGeoLocation, 
-  validateDeviceId 
+import {
+  createOrUpdateDeviceSession,
+  getGeoLocation,
+  validateDeviceId,
 } from '../../../utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
 
 router.post(
-  '/api/auth/login',
+  '/auth/login',
   validateMiddleware(loginValidate),
   async (req, res) => {
     const ipAddress = getClientIP(req);

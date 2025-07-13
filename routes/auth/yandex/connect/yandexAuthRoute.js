@@ -19,7 +19,7 @@ import {
 
 const router = Router();
 
-router.post('/api/auth/yandex', async (req, res) => {
+router.post('/auth/yandex', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, state, captchaToken } = req.body;

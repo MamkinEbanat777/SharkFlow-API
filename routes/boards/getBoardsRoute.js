@@ -7,7 +7,7 @@ import { getBoardsWithTaskCounts } from '../../utils/helpers/boardHelpers.js';
 
 const router = Router();
 
-router.get('/api/boards', authenticateMiddleware, async (req, res) => {
+router.get('/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 

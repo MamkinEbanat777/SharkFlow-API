@@ -7,7 +7,7 @@ import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
-router.get('/api/users', authenticateMiddleware, async (req, res) => {
+router.get('/users', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 

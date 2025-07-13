@@ -21,7 +21,7 @@ import { logLocationError } from '../../../utils/loggers/systemLoggers.js';
 
 const router = Router();
 
-router.post('/api/auth/refresh', async (req, res) => {
+router.post('/auth/refresh', async (req, res) => {
   const referrer = req.get('Referer') || null;
   const refreshToken = req.cookies.log___tf_12f_t2;
   const ipAddress = getClientIP(req);
@@ -78,8 +78,14 @@ router.post('/api/auth/refresh', async (req, res) => {
       where: { userId: tokenRecord.userId, deviceId, isActive: true },
     });
     if (!deviceSession) {
-      logTokenRefreshFailure(userUuid, ipAddress, 'Device session not found or inactive');
-      return res.status(401).json({ message: 'Сессия устройства неактивна, войдите заново' });
+      logTokenRefreshFailure(
+        userUuid,
+        ipAddress,
+        'Device session not found or inactive',
+      );
+      return res
+        .status(401)
+        .json({ message: 'Сессия устройства неактивна, войдите заново' });
     }
 
     if (tokenRecord.deviceSessionId !== deviceSession.id) {
@@ -109,7 +115,7 @@ router.post('/api/auth/refresh', async (req, res) => {
         osVersion: deviceinfo.osVersion,
         clientName: deviceinfo.clientName,
         clientVersion: deviceinfo.clientVersion,
-        geoLocation: geoLocation, 
+        geoLocation: geoLocation,
         userAgent: req.get('user-agent'),
       },
     });

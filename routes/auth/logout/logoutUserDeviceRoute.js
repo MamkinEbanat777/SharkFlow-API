@@ -9,7 +9,7 @@ import { validateDeviceId } from '../../../utils/helpers/deviceSessionHelper.js'
 const router = Router();
 
 router.post(
-  '/api/auth/logout/:deviceId',
+  '/auth/logout/:deviceId',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

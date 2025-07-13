@@ -10,7 +10,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 const router = Router();
 
 router.post(
-  '/api/auth/totp/disable',
+  '/auth/totp/disable',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
@@ -21,9 +21,9 @@ router.post(
       const validation = await validateAndDeleteConfirmationCode(
         userUuid,
         'disableTotp',
-        confirmationCode
+        confirmationCode,
       );
-      
+
       if (!validation.isValid) {
         return res.status(400).json({ error: validation.error });
       }

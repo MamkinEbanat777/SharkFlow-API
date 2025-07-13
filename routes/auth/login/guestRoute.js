@@ -15,10 +15,10 @@ import { generateUUID } from '../../../utils/generators/generateUUID.js';
 
 const router = Router();
 
-router.post('/api/auth/guest-login', async (req, res) => {
+router.post('/auth/guest-login', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
-  
+
   if (process.env.NODE_ENV === 'production') {
     const { captchaToken } = req.body;
 
@@ -81,7 +81,11 @@ router.post('/api/auth/guest-login', async (req, res) => {
             },
           });
         }
-        const tokens = await createAuthTokens(existingGuest, false, deviceSession.id);
+        const tokens = await createAuthTokens(
+          existingGuest,
+          false,
+          deviceSession.id,
+        );
         setAuthCookies(res, tokens.refreshToken, false);
         res.cookie(
           'log___sf_21s_t1',

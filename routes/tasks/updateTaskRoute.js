@@ -14,7 +14,7 @@ import {
 const router = Router();
 
 router.patch(
-  '/api/boards/:boardUuid/tasks/:taskUuid',
+  '/boards/:boardUuid/tasks/:taskUuid',
   authenticateMiddleware,
   validateTaskUuids,
   async (req, res) => {

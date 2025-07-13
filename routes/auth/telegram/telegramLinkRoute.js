@@ -7,7 +7,7 @@ import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
-router.get('/api/telegram/link', authenticateMiddleware, async (req, res) => {
+router.get('/telegram/link', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
 

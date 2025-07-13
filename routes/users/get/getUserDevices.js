@@ -8,13 +8,13 @@ import prisma from '../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
-router.get('/api/users/devices', authenticateMiddleware, async (req, res) => {
+router.get('/users/devices', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 
   try {
     const user = await findUserByUuid(userUuid, {
-        id: true,    
+      id: true,
     });
 
     if (!user) {
@@ -24,28 +24,28 @@ router.get('/api/users/devices', authenticateMiddleware, async (req, res) => {
     logUserFetch(userUuid, ipAddress);
 
     const devices = await prisma.userDeviceSession.findMany({
-        where: { userId: user.id },
-        select: {
-          deviceId: true,
-          ipAddress: true,
-          geoLocation: true,
-          deviceType: true,
-          deviceBrand: true,
-          deviceModel: true,
-          osName: true,
-          osVersion: true,
-          clientName: true,
-          clientVersion: true,
-          userAgent: true,
-          createdAt: true,
-          lastLoginAt: true,
-          lastUsedAt: true,
-          isActive: true,
-        },
-        orderBy: { lastLoginAt: 'desc' },
-      });
+      where: { userId: user.id },
+      select: {
+        deviceId: true,
+        ipAddress: true,
+        geoLocation: true,
+        deviceType: true,
+        deviceBrand: true,
+        deviceModel: true,
+        osName: true,
+        osVersion: true,
+        clientName: true,
+        clientVersion: true,
+        userAgent: true,
+        createdAt: true,
+        lastLoginAt: true,
+        lastUsedAt: true,
+        isActive: true,
+      },
+      orderBy: { lastLoginAt: 'desc' },
+    });
 
-    return res.json({devices});
+    return res.json({ devices });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при получении устройств пользователя',

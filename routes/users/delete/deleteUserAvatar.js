@@ -9,7 +9,7 @@ import {
 
 const router = Router();
 
-router.delete('/api/users/avatar', authenticateMiddleware, async (req, res) => {
+router.delete('/users/avatar', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   try {
     const user = await findUserForAvatar(userUuid, {

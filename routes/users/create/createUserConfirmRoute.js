@@ -19,7 +19,7 @@ import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCa
 const router = Router();
 
 router.post(
-  '/api/users/confirm-registration',
+  '/users/confirm-registration',
   validateMiddleware(registerValidate),
   async (req, res) => {
     const { user, captchaToken } = req.validatedBody;

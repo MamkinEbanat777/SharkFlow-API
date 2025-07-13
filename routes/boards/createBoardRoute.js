@@ -13,7 +13,7 @@ import { getUserBoardCount } from '../../utils/helpers/boardHelpers.js';
 
 const router = Router();
 
-router.post('/api/boards', authenticateMiddleware, async (req, res) => {
+router.post('/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 

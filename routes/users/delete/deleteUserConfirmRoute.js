@@ -12,7 +12,7 @@ import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 const router = Router();
 
 router.post(
-  '/api/users/delete/confirm-deletion',
+  '/users/delete/confirm-deletion',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

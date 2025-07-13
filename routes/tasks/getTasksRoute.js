@@ -9,7 +9,7 @@ import { getTasksForBoard } from '../../utils/helpers/taskHelpers.js';
 const router = Router();
 
 router.get(
-  '/api/boards/:boardUuid/tasks',
+  '/boards/:boardUuid/tasks',
   authenticateMiddleware,
   validateTaskUuids,
   async (req, res) => {

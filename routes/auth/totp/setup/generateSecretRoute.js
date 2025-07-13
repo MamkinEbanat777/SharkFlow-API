@@ -11,7 +11,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
-router.post('/api/auth/totp', authenticateMiddleware, async (req, res) => {
+router.post('/auth/totp', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
     const { confirmationCode } = req.body;

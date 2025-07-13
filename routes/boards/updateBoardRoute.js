@@ -15,7 +15,7 @@ import { findBoardByUuid } from '../../utils/helpers/boardHelpers.js';
 const router = Router();
 
 router.patch(
-  '/api/boards/:boardUuid',
+  '/boards/:boardUuid',
   authenticateMiddleware,
   validateBoardUuid,
   async (req, res) => {

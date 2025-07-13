@@ -1,4 +1,4 @@
-// /api/auth/reset-password/request
+// /auth/reset-password/request
 import { Router } from 'express';
 const router = Router();
 

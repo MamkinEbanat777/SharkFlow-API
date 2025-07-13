@@ -17,7 +17,7 @@ import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 const router = Router();
 
 router.post(
-  '/api/users/delete',
+  '/users/delete',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
@@ -59,7 +59,10 @@ router.post(
     }
 
     try {
-      const user = await findUserByUuid(userUuid, { publicId: true, role: true });
+      const user = await findUserByUuid(userUuid, {
+        publicId: true,
+        role: true,
+      });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

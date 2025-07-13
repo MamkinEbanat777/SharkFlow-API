@@ -5,12 +5,16 @@ import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
 import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
 import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { findBoardByUuidForUser, getUserTaskCount, validateTaskData } from '../../utils/helpers/taskHelpers.js';
+import {
+  findBoardByUuidForUser,
+  getUserTaskCount,
+  validateTaskData,
+} from '../../utils/helpers/taskHelpers.js';
 
 const router = Router();
 
 router.post(
-  '/api/boards/:boardUuid/tasks',
+  '/boards/:boardUuid/tasks',
   authenticateMiddleware,
   validateTaskUuids,
   async (req, res) => {
@@ -18,7 +22,9 @@ router.post(
     const boardUuid = req.params.boardUuid;
     const ipAddress = getClientIP(req);
 
-    const board = await findBoardByUuidForUser(boardUuid, userUuid, { id: true });
+    const board = await findBoardByUuidForUser(boardUuid, userUuid, {
+      id: true,
+    });
 
     if (!board) {
       return res.status(403).json({

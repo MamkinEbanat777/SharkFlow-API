@@ -12,7 +12,7 @@ import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js'
 const router = Router();
 
 router.post(
-  '/api/auth/github/confirm-disable',
+  '/auth/github/confirm-disable',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

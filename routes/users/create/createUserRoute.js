@@ -18,7 +18,7 @@ import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
 const router = Router();
 
 router.post(
-  '/api/users',
+  '/users',
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode } = req.body;
@@ -28,11 +28,9 @@ router.post(
 
     try {
       if (!regUuid) {
-        return res
-          .status(400)
-          .json({
-            error: 'Регистрация просрочена. Пожалуйста попробуйте еще раз',
-          });
+        return res.status(400).json({
+          error: 'Регистрация просрочена. Пожалуйста попробуйте еще раз',
+        });
       }
 
       const storedData = await getUserTempData('registration', regUuid);

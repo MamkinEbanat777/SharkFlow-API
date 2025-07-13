@@ -10,7 +10,7 @@ import {
 
 const router = Router();
 
-router.patch('/api/users/avatar', authenticateMiddleware, async (req, res) => {
+router.patch('/users/avatar', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
   const { imgUrl, publicId } = req.body;

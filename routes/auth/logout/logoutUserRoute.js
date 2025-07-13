@@ -10,7 +10,7 @@ import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
-router.post('/api/auth/logout', authenticateMiddleware, async (req, res) => {
+router.post('/auth/logout', authenticateMiddleware, async (req, res) => {
   const refreshToken = req.cookies.log___tf_12f_t2;
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);

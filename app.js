@@ -8,14 +8,15 @@ import morgan from 'morgan';
 import { logDatabaseError } from './utils/loggers/systemLoggers.js';
 import { logInfo } from './utils/loggers/baseLogger.js';
 
-
 const app = express();
 
-app.use(morgan('combined', {
-  stream: {
-    write: (message) => logInfo('HTTP', 'request', message.trim())
-  }
-}));
+app.use(
+  morgan('combined', {
+    stream: {
+      write: (message) => logInfo('HTTP', 'request', message.trim()),
+    },
+  }),
+);
 
 import helmet from 'helmet';
 import hpp from 'hpp';
@@ -36,14 +37,14 @@ app.use(express.urlencoded({ extended: true, limit: '10kb' }));
 
 app.set('trust proxy', true);
 
-app.use('/api/auth', limiterMiddleware);
-app.use('/api/tasks', limiterMiddleware);
-app.use('/api/boards', limiterMiddleware);
-app.use('/api/users', limiterMiddleware);
+app.use('/auth', limiterMiddleware);
+app.use('/tasks', limiterMiddleware);
+app.use('/boards', limiterMiddleware);
+app.use('/users', limiterMiddleware);
 
 const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {
-  app.use(path, router);
+  app.use(process.env.API_PREFIX + path, router);
 });
 
 logInfo('System', 'routesLoaded', `Routes loaded: ${routes.length}`);

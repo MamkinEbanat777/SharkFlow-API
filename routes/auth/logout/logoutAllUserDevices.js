@@ -10,7 +10,7 @@ import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 
 const router = Router();
 
-router.post('/api/auth/logout/all', authenticateMiddleware, async (req, res) => {
+router.post('/auth/logout/all', authenticateMiddleware, async (req, res) => {
   const refreshToken = req.cookies.log___tf_12f_t2;
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
@@ -69,7 +69,9 @@ router.post('/api/auth/logout/all', authenticateMiddleware, async (req, res) => 
       path: '/',
     });
 
-    return res.status(200).json({ message: 'Вы успешно вышли со всех устройств' });
+    return res
+      .status(200)
+      .json({ message: 'Вы успешно вышли со всех устройств' });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при выходе из всех устройств',

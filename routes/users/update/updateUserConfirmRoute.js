@@ -12,7 +12,7 @@ import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 const router = Router();
 
 router.post(
-  '/api/users/confirm-update',
+  '/users/confirm-update',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

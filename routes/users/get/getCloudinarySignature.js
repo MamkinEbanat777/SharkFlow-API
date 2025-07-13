@@ -7,7 +7,7 @@ import '../../../config/cloudinaryConfig.js';
 const router = Router();
 
 router.get(
-  '/api/cloudinary-signature',
+  '/cloudinary-signature',
   authenticateMiddleware,
   async (req, res) => {
     const { api_key, api_secret } = cloudinary.config();
@@ -17,7 +17,7 @@ router.get(
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const upload_preset = process.env.CLOUDINARY_UPLOAD_PRECET; 
+    const upload_preset = process.env.CLOUDINARY_UPLOAD_PRECET;
     const paramsToSign = {
       timestamp,
       upload_preset,

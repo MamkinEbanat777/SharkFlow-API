@@ -17,7 +17,7 @@ import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 const router = Router();
 
 router.patch(
-  '/api/users',
+  '/users',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {

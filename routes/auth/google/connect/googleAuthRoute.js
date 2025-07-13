@@ -11,10 +11,10 @@ import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvata
 import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
 import { generateUUID } from '../../../../utils/generators/generateUUID.js';
 import { verifyTurnstileCaptcha } from '../../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
-import { 
-  createOrUpdateDeviceSession, 
-  getGeoLocation, 
-  validateDeviceId 
+import {
+  createOrUpdateDeviceSession,
+  getGeoLocation,
+  validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
@@ -25,7 +25,7 @@ const oauth2Client = new OAuth2Client(
   'postmessage',
 );
 
-router.post('/api/auth/google', async (req, res) => {
+router.post('/auth/google', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, captchaToken } = req.body;

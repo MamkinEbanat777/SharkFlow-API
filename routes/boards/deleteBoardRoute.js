@@ -4,12 +4,15 @@ import { validateBoardUuid } from '../../middlewares/http/boardMiddleware.js';
 import { logBoardDeletion } from '../../utils/loggers/boardLoggers.js';
 import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { findBoardByUuid, softDeleteBoardWithTasks } from '../../utils/helpers/boardHelpers.js';
+import {
+  findBoardByUuid,
+  softDeleteBoardWithTasks,
+} from '../../utils/helpers/boardHelpers.js';
 
 const router = Router();
 
 router.delete(
-  '/api/boards/:boardUuid',
+  '/boards/:boardUuid',
   authenticateMiddleware,
   validateBoardUuid,
   async (req, res) => {

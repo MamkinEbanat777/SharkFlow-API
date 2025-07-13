@@ -1,6 +1,9 @@
 import { Router } from 'express';
 import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { createAuthTokens, setAuthCookies } from '../../../../utils/helpers/authHelpers.js';
+import {
+  createAuthTokens,
+  setAuthCookies,
+} from '../../../../utils/helpers/authHelpers.js';
 import {
   incrementLoginAttempts,
   resetLoginAttempts,
@@ -9,13 +12,15 @@ import { logLoginSuccess } from '../../../../utils/loggers/authLoggers.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { deleteUserTempData } from '../../../../store/userTempData.js';
 import { getUserTempData } from '../../../../store/userTempData.js';
-import { verifyTotpCode, validateTotpCodeFormat } from '../../../../utils/helpers/totpHelpers.js';
+import {
+  verifyTotpCode,
+  validateTotpCodeFormat,
+} from '../../../../utils/helpers/totpHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-
 
 const router = Router();
 
-router.post('/api/auth/totp/verify', async (req, res) => {
+router.post('/auth/totp/verify', async (req, res) => {
   const { totpCode, sessionKey } = req.body;
 
   try {
@@ -89,9 +94,10 @@ router.post('/api/auth/totp/verify', async (req, res) => {
 
     logLoginSuccess(user.email, user.uuid, ipAddress);
     await deleteUserTempData('twoFactorAuth', sessionKey);
-    return res.status(200).json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
+    return res
+      .status(200)
+      .json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
   } catch (error) {
-    // incrementLoginAttempts(ipAddress, user.email);
     handleRouteError(res, error, {
       message: 'Ошибка при логине. Попробуйте позже',
       status: 500,

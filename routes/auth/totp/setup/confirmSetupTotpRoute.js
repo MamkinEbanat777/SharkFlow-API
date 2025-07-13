@@ -7,7 +7,7 @@ import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConf
 const router = Router();
 
 router.post(
-  '/api/auth/totp/confirm-setup',
+  '/auth/totp/confirm-setup',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

@@ -4,12 +4,15 @@ import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
 import { getClientIP } from '../../utils/helpers/authHelpers.js';
 import { logTaskDeletion } from '../../utils/loggers/taskLoggers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { findTaskWithBoardAccess, softDeleteTask } from '../../utils/helpers/taskHelpers.js';
+import {
+  findTaskWithBoardAccess,
+  softDeleteTask,
+} from '../../utils/helpers/taskHelpers.js';
 
 const router = Router();
 
 router.delete(
-  '/api/boards/:boardUuid/tasks/:taskUuid',
+  '/boards/:boardUuid/tasks/:taskUuid',
   authenticateMiddleware,
   validateTaskUuids,
   async (req, res) => {
@@ -18,11 +21,16 @@ router.delete(
     const ipAddress = getClientIP(req);
 
     try {
-      const taskToDelete = await findTaskWithBoardAccess(taskUuid, boardUuid, userUuid, {
-        id: true,
-        title: true,
-      });
-      
+      const taskToDelete = await findTaskWithBoardAccess(
+        taskUuid,
+        boardUuid,
+        userUuid,
+        {
+          id: true,
+          title: true,
+        },
+      );
+
       if (!taskToDelete) {
         return res
           .status(404)
