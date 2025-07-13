@@ -11,7 +11,6 @@ const levelColors = {
 const entityColor = '\x1b[36m';
 const actionColor = '\x1b[35m';
 
-// Преобразуем timestamp в HH:MM:SS
 const timeFormat = winston.format((info) => {
   const date = new Date(info.timestamp);
   const hh = String(date.getHours()).padStart(2, '0');
@@ -21,7 +20,6 @@ const timeFormat = winston.format((info) => {
   return info;
 });
 
-// Красим уровни
 const colorizeLevel = winston.format((info) => {
   const level = info.level.toUpperCase();
   const color = levelColors[level] || '';
@@ -30,7 +28,6 @@ const colorizeLevel = winston.format((info) => {
   return info;
 });
 
-// Вставляем читаемое сообщение в `_formattedMessage` (не портим `message`)
 const injectReadableMessage = winston.format((info) => {
   if (
     typeof info.message === 'object' &&
@@ -49,7 +46,6 @@ const injectReadableMessage = winston.format((info) => {
   return info;
 });
 
-// Формат консоли с цветами
 const consoleFormat = winston.format.printf(
   ({ timestamp, level, _formattedMessage }) => {
     if (!_formattedMessage) return `${timestamp} ${level} -`;
@@ -73,7 +69,6 @@ const getLogLevel = () => {
   return envLevel || (env === 'production' ? 'info' : 'debug');
 };
 
-// Консольный транспорт
 const transports = [
   new winston.transports.Console({
     format: winston.format.combine(
@@ -86,7 +81,6 @@ const transports = [
   }),
 ];
 
-// Loki (отправка JSON — без изменения формата)
 if (
   process.env.LOKI_URL &&
   process.env.LOKI_USER_ID &&
@@ -96,23 +90,21 @@ if (
     new LokiTransport({
       host: process.env.LOKI_URL,
       basicAuth: `${process.env.LOKI_USER_ID}:${process.env.LOKI_API_KEY}`,
-      labels: { app: 'SharkFlow-API', env: 'dev' },
+      labels: { app: 'SharkFlow-API', env: `${process.env.NODE_ENV}` },
       json: true,
       format: winston.format.json(),
       replaceTimestamp: true,
       clearOnError: true,
-      onConnectionError: (err) => console.error('LokiTransport ⚠️', err),
+      onConnectionError: (err) => console.error('LokiTransport: ', err),
     }),
   );
 }
 
-// Инициализация логгера
 const winstonLogger = winston.createLogger({
   level: getLogLevel(),
   transports,
 });
 
-// Основные методы логирования
 export const logInfo = (entity, action, details) => {
   winstonLogger.info({ entity, action, details });
 };
@@ -135,7 +127,6 @@ export const logSuspicious = (entity, action, userUuid, ip, extra = '') => {
   winstonLogger.warn({ entity, action: 'security', details });
 };
 
-// Для внешнего импорта
 const logger = {
   logInfo,
   logWarn,
