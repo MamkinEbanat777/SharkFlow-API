@@ -16,6 +16,13 @@ const templatesDir = path.join(
   'emailTemplates',
 );
 
+/**
+ * Рендерит HTML email из шаблона Handlebars
+ * @param {string} templateName - Название шаблона (без расширения)
+ * @param {Object} context - Контекст для шаблона
+ * @returns {Promise<string>} HTML содержимое email
+ * @throws {Error} При ошибке рендеринга шаблона
+ */
 export async function renderEmail(templateName, context) {
   try {
     const baseTemplateStr = await fs.readFile(

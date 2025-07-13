@@ -2,6 +2,14 @@ import jwt from 'jsonwebtoken';
 import { logExternalServiceError } from '../loggers/systemLoggers.js';
 
 
+/**
+ * Валидация refresh-токена
+ * @param {string} refreshToken - JWT refresh-токен
+ * @returns {Object} Результат валидации
+ * @returns {boolean} returns.isValid - Валидность токена
+ * @returns {string} [returns.error] - Сообщение об ошибке
+ * @returns {Object} [returns.payload] - Полезная нагрузка токена
+ */
 export const validateRefreshToken = (refreshToken) => {
   if (!refreshToken) {
     return {
@@ -45,12 +53,20 @@ export const validateRefreshToken = (refreshToken) => {
   }
 };
 
-
+/**
+ * Проверяет, истёк ли токен по дате
+ * @param {Date} expiresAt - Дата истечения
+ * @returns {boolean} true, если токен истёк
+ */
 export const isTokenExpired = (expiresAt) => {
   return Date.now() > expiresAt.getTime();
 };
 
-
+/**
+ * Нужно ли ротировать refresh-токен (меньше 10 минут до истечения)
+ * @param {Date} expiresAt - Дата истечения
+ * @returns {boolean} true, если нужно ротировать
+ */
 export const shouldRotateToken = (expiresAt) => {
   const timeLeft = expiresAt.getTime() - Date.now();
   return timeLeft < 600000; 

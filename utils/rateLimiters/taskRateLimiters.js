@@ -2,6 +2,11 @@ const taskCreationAttempts = new Map();
 const MAX_TASKS_PER_MINUTE = 10;
 const RATE_LIMIT_DURATION = 60 * 1000; 
 
+/**
+ * Проверяет лимит создания задач для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkTaskCreationRateLimit = (userUuid) => {
   const attempts = taskCreationAttempts.get(userUuid);
   
@@ -19,6 +24,10 @@ export const checkTaskCreationRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток создания задач
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementTaskCreationAttempts = (userUuid) => {
   const attempts = taskCreationAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   
@@ -39,6 +48,11 @@ export const incrementTaskCreationAttempts = (userUuid) => {
 const taskDeletionAttempts = new Map();
 const MAX_DELETIONS_PER_MINUTE = 20;
 
+/**
+ * Проверяет лимит удаления задач для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkTaskDeletionRateLimit = (userUuid) => {
   const attempts = taskDeletionAttempts.get(userUuid);
   
@@ -56,6 +70,10 @@ export const checkTaskDeletionRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток удаления задач
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementTaskDeletionAttempts = (userUuid) => {
   const attempts = taskDeletionAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   
@@ -76,6 +94,11 @@ export const incrementTaskDeletionAttempts = (userUuid) => {
 const taskFetchAttempts = new Map();
 const MAX_FETCHES_PER_MINUTE = 30;
 
+/**
+ * Проверяет лимит получения задач для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkTaskFetchRateLimit = (userUuid) => {
   const attempts = taskFetchAttempts.get(userUuid);
   
@@ -93,6 +116,10 @@ export const checkTaskFetchRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток получения задач
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementTaskFetchAttempts = (userUuid) => {
   const attempts = taskFetchAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   
@@ -113,6 +140,11 @@ export const incrementTaskFetchAttempts = (userUuid) => {
 const taskUpdateAttempts = new Map();
 const MAX_UPDATES_PER_MINUTE = 10;
 
+/**
+ * Проверяет лимит обновления задач для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkTaskUpdateRateLimit = (userUuid) => {
   const attempts = taskUpdateAttempts.get(userUuid);
   
@@ -130,6 +162,10 @@ export const checkTaskUpdateRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток обновления задач
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementTaskUpdateAttempts = (userUuid) => {
   const attempts = taskUpdateAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   

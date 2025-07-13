@@ -179,7 +179,7 @@ router.post('/auth/oauth/google', async (req, res) => {
             googleOAuthEnabled: true,
             avatarUrl: null,
             password: null,
-            role: 'user',
+            role: 'user', 
           },
         });
       }

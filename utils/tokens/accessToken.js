@@ -1,7 +1,13 @@
 import jwt from 'jsonwebtoken';
+import { validateUserRole } from '../validators/enumValidators.js';
 
 export function createAccessToken(userUuid, role = 'user') {
-  return jwt.sign({ userUuid, role }, process.env.JWT_ACCESS_SECRET, {
+  const roleValidation = validateUserRole(role);
+  if (!roleValidation.isValid) {
+    throw new Error(`Invalid role in access token: ${roleValidation.error}`);
+  }
+  
+  return jwt.sign({ userUuid, role: roleValidation.value }, process.env.JWT_ACCESS_SECRET, {
     expiresIn: process.env.JWT_ACCESS_EXPIRES || '15m',
     algorithm: 'HS256',
   });

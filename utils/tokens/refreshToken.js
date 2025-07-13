@@ -3,6 +3,12 @@ import { generateUUID } from '../generators/generateUUID.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
 import prisma from '../prismaConfig/prismaClient.js';
 
+/**
+ * Создает JWT refresh-токен
+ * @param {string} userUuid - UUID пользователя
+ * @param {boolean} [rememberMe=false] - Запомнить пользователя
+ * @returns {string} JWT refresh-токен
+ */
 function createRefreshToken(userUuid, rememberMe = false) {
   const expiresIn = rememberMe
     ? process.env.JWT_REFRESH_EXPIRES_REMEMBER || '30d'
@@ -19,6 +25,18 @@ function createRefreshToken(userUuid, rememberMe = false) {
   });
 }
 
+/**
+ * Выдает refresh-токен и сохраняет его в базе данных
+ * @param {Object} params - Параметры
+ * @param {Object} [params.res] - Express response объект
+ * @param {string} params.userUuid - UUID пользователя
+ * @param {boolean} [params.rememberMe=false] - Запомнить пользователя
+ * @param {boolean} [params.setCookie=true] - Установить куки
+ * @param {number} [params.userId=null] - ID пользователя (если известен)
+ * @param {number} [params.deviceSessionId=null] - ID сессии устройства
+ * @returns {Promise<string>} Refresh-токен
+ * @throws {Error} Если пользователь не найден
+ */
 export async function issueRefreshToken({
   res,
   userUuid,

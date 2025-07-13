@@ -174,7 +174,7 @@ router.post('/auth/oauth/yandex', async (req, res) => {
               yandexOAuthEnabled: true,
               avatarUrl: null,
               password: null,
-              role: 'user',
+              role: 'user', 
             },
           });
         }

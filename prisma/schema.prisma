@@ -49,6 +49,7 @@ model User {
   boards             Board[]
   refreshTokens      RefreshToken[]
   userDeviceSessions UserDeviceSession[]
+  twoFactorBackupCodes      TwoFactorBackupCode[]
 
   @@index([uuid, isDeleted])
   @@index([email, isDeleted])
@@ -86,6 +87,26 @@ model UserDeviceSession {
   @@index([userId])
   @@index([deviceId])
   @@map("user_device_sessions")
+}
+
+model TwoFactorBackupCode {
+  id        Int      @id @default(autoincrement())
+  uuid      String   @unique @default(uuid()) @db.Uuid
+  code      String   @unique @db.VarChar(64) 
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  used      Boolean  @default(false)
+  usedAt    DateTime?
+  ipAddress String?  @db.VarChar(45)
+  userAgent String?  @db.VarChar(512)
+  
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId, used])
+  @@index([uuid])
+  @@map("two_factor_backup_codes")
 }
 
 model Board {

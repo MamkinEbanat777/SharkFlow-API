@@ -6,6 +6,15 @@ export const noCyrillicRegex = /^[^\u0400-\u04FF]*$/;
 export const loginRegex = /^[a-zA-Z0-9_]+$/;
 export const passwordSpecialCharRegex = /[@$!%*?&#]/;
 
+/**
+ * Валидация boolean-поля
+ * @param {any} value - Проверяемое значение
+ * @param {string} fieldName - Название поля для сообщения об ошибке
+ * @returns {Object} Результат валидации
+ * @returns {boolean} returns.isValid - Валидность значения
+ * @returns {boolean} [returns.value] - Валидное значение
+ * @returns {string} [returns.error] - Сообщение об ошибке
+ */
 export const validateBooleanField = (value, fieldName) => {
   if (value === undefined) return { isValid: true, value: undefined };
   if (typeof value !== 'boolean') {
@@ -14,6 +23,16 @@ export const validateBooleanField = (value, fieldName) => {
   return { isValid: true, value };
 };
 
+/**
+ * Валидация названия (общая)
+ * @param {string} title - Название
+ * @param {string} [entityName] - Название сущности для сообщения об ошибке
+ * @param {number} [maxLength=64] - Максимальная длина
+ * @returns {Object} Результат валидации
+ * @returns {boolean} returns.isValid - Валидность значения
+ * @returns {string} [returns.value] - Валидное значение
+ * @returns {string} [returns.error] - Сообщение об ошибке
+ */
 export const validateTitleField = (title, entityName = 'элемента', maxLength = 64) => {
   if (title === undefined) return { isValid: true, value: undefined };
   if (typeof title !== 'string') {
@@ -29,11 +48,19 @@ export const validateTitleField = (title, entityName = 'элемента', maxLe
   return { isValid: true, value: sanitized };
 };
 
+/**
+ * Yup-схема для email
+ * @type {Object}
+ */
 export const emailYup = Yup.string()
   .email('Неверный формат почты')
   .matches(noCyrillicRegex, 'Кириллица запрещена в адресе электронной почты')
   .required('Обязательное поле');
 
+/**
+ * Yup-схема для логина
+ * @type {Object}
+ */
 export const loginYup = Yup.string()
   .min(3, 'Логин должен быть не меньше 3 символов')
   .max(30, 'Логин должен быть не длиннее 20 символов')
@@ -42,6 +69,10 @@ export const loginYup = Yup.string()
   .test('no-profanity', 'Логин содержит недопустимые слова', (val) => val ? !filter.isProfane(val) : true)
   .required('Обязательное поле');
 
+/**
+ * Yup-схема для пароля
+ * @type {Object}
+ */
 export const passwordYup = Yup.string()
   .min(8, 'Пароль должен быть не меньше 8 символов')
   .max(100, 'Пароль слишком длинный')

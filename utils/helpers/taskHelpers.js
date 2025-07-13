@@ -1,6 +1,6 @@
 import prisma from '../prismaConfig/prismaClient.js';
-import { Priority, Status } from '@prisma/client';
 import { isValidUUID } from '../validators/taskValidators.js';
+import { validateTaskStatus, validateTaskPriority } from '../validators/enumValidators.js';
 
 /**
  * Поиск доски по UUID для пользователя (с проверкой владельца)
@@ -218,22 +218,20 @@ export const validateTaskData = (data) => {
   }
 
   if (data.priority !== undefined) {
-    if (data.priority === null) {
-      validatedData.priority = null;
-    } else if (typeof data.priority !== 'string' || !Object.values(Priority).includes(data.priority)) {
-      errors.push(`Приоритет должен быть одним из: ${Object.values(Priority).join(', ')}`);
+    const priorityValidation = validateTaskPriority(data.priority);
+    if (!priorityValidation.isValid) {
+      errors.push(priorityValidation.error);
     } else {
-      validatedData.priority = data.priority;
+      validatedData.priority = priorityValidation.value;
     }
   }
 
   if (data.status !== undefined) {
-    if (data.status === null) {
-      validatedData.status = null;
-    } else if (!Object.values(Status).includes(data.status)) {
-      errors.push(`Статус должен быть одним из: ${Object.values(Status).join(', ')}`);
+    const statusValidation = validateTaskStatus(data.status);
+    if (!statusValidation.isValid) {
+      errors.push(statusValidation.error);
     } else {
-      validatedData.status = data.status;
+      validatedData.status = statusValidation.value;
     }
   }
 
