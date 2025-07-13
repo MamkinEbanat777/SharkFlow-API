@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/events/writeBoardParams
+ * @description Событие записи параметров доски в Telegram боте.
+ */
 import send from '../send.js';
 import { Markup } from 'telegraf';
 import {

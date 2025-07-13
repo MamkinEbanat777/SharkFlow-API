@@ -1,3 +1,7 @@
+/**
+ * @module helpers/totp
+ * @description Вспомогательные функции для работы с TOTP (Time-based One-Time Password).
+ */
 import speakeasy from 'speakeasy';
 import { decrypt } from '../crypto/decrypt.js';
 

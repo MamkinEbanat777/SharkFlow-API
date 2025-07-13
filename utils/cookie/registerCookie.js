@@ -1,3 +1,11 @@
+/**
+ * @module cookie/register
+ * @description Настройки cookie для регистрации.
+ */
+/**
+ * Возвращает настройки для куки регистрации
+ * @returns {Object} Настройки куки для Express
+ */
 export function getRegistrationCookieOptions() {
   return {
     httpOnly: true,
@@ -8,6 +16,10 @@ export function getRegistrationCookieOptions() {
   };
 }
 
+/**
+ * Возвращает настройки для гостевой куки
+ * @returns {Object} Настройки куки для Express
+ */
 export function getGuestCookieOptions() {
   return {
     httpOnly: true,

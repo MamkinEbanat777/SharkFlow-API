@@ -1,8 +1,18 @@
+/**
+ * @module rateLimiters/auth
+ * @description Rate limiter'ы для аутентификации.
+ */
 
 const loginAttempts = new Map();
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOGIN_BLOCK_DURATION = 5 * 60 * 1000; 
 
+/**
+ * Проверяет, заблокирован ли IP-адрес для попыток входа
+ * @param {string} ipAddress - IP адрес
+ * @param {string} email - Email пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkLoginRateLimit = (ipAddress, email) => {
   const key = `${ipAddress}-${email}`;
   const attempts = loginAttempts.get(key);
@@ -21,6 +31,11 @@ export const checkLoginRateLimit = (ipAddress, email) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток входа для IP-адреса и email
+ * @param {string} ipAddress - IP адрес
+ * @param {string} email - Email пользователя
+ */
 export const incrementLoginAttempts = (ipAddress, email) => {
   const key = `${ipAddress}-${email}`;
   const attempts = loginAttempts.get(key) || { count: 0, blockedUntil: 0 };
@@ -38,6 +53,11 @@ export const incrementLoginAttempts = (ipAddress, email) => {
   }, LOGIN_BLOCK_DURATION);
 };
 
+/**
+ * Сбрасывает счетчик попыток входа для IP-адреса и email
+ * @param {string} ipAddress - IP адрес
+ * @param {string} email - Email пользователя
+ */
 export const resetLoginAttempts = (ipAddress, email) => {
   const key = `${ipAddress}-${email}`;
   loginAttempts.delete(key);

@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/loadConfig
+ * @description Загрузчик конфигурации для Telegram бота.
+ */
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';

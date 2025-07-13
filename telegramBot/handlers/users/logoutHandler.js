@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/users/logout
+ * @description Обработчик выхода пользователя в Telegram боте.
+ */
 import { Markup } from 'telegraf';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { logTelegramUnlinkError } from '../../../utils/loggers/telegramLoggers.js';

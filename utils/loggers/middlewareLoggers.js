@@ -1,3 +1,7 @@
+/**
+ * @module loggers/middleware
+ * @description Логгеры для middleware.
+ */
 import { logError } from './baseLogger.js';
 
 /**

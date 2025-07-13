@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/commands/users/me
+ * @description Команда /me в Telegram боте.
+ */
 import { authenticateTelegramMiddleware } from '../../../middlewares/http/authenticateTelegramMiddleware.js';
 import { showProfileHandler } from '../../handlers/users/showProfileHandler.js';
 

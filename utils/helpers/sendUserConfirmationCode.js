@@ -1,3 +1,7 @@
+/**
+ * @module helpers/sendUserConfirmationCode
+ * @description Вспомогательные функции для отправки кодов подтверждения пользователям.
+ */
 import { generateConfirmationCode } from '../generators/generateConfirmationCode.js';
 import { sendConfirmationEmail } from '../mail/sendConfirmationEmail.js';
 import { setConfirmationCode } from '../../store/userVerifyStore.js';

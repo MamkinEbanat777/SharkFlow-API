@@ -1,3 +1,12 @@
+/**
+ * @module cookie/login
+ * @description Настройки cookie для логина.
+ */
+/**
+ * Возвращает настройки для refresh-токен куки
+ * @param {boolean} [rememberMe=false] - Запомнить пользователя
+ * @returns {Object} Настройки куки для Express
+ */
 export function getRefreshCookieOptions(rememberMe = false) {
   const maxAge = rememberMe
     ? parseInt(

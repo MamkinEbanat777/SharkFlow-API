@@ -1,3 +1,7 @@
+/**
+ * @module helpers/auth
+ * @description Вспомогательные функции для аутентификации и авторизации.
+ */
 import { createAccessToken } from '../tokens/accessToken.js';
 import { createCsrfToken } from '../tokens/csrfToken.js';
 import { issueRefreshToken } from '../tokens/refreshToken.js';

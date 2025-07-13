@@ -1,7 +1,16 @@
+/**
+ * @module rateLimiters/board
+ * @description Rate limiter'ы для работы с досками.
+ */
 const boardCreationAttempts = new Map();
 const MAX_BOARDS_PER_MINUTE = 10;
 const RATE_LIMIT_DURATION = 60 * 1000; 
 
+/**
+ * Проверяет лимит создания досок для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkBoardCreationRateLimit = (userUuid) => {
   const attempts = boardCreationAttempts.get(userUuid);
   
@@ -19,6 +28,10 @@ export const checkBoardCreationRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток создания досок
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementBoardCreationAttempts = (userUuid) => {
   const attempts = boardCreationAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   
@@ -39,6 +52,11 @@ export const incrementBoardCreationAttempts = (userUuid) => {
 const boardDeletionAttempts = new Map();
 const MAX_DELETIONS_PER_MINUTE = 20;
 
+/**
+ * Проверяет лимит удаления досок для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkBoardDeletionRateLimit = (userUuid) => {
   const attempts = boardDeletionAttempts.get(userUuid);
   
@@ -56,6 +74,10 @@ export const checkBoardDeletionRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток удаления досок
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementBoardDeletionAttempts = (userUuid) => {
   const attempts = boardDeletionAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   
@@ -76,6 +98,11 @@ export const incrementBoardDeletionAttempts = (userUuid) => {
 const boardFetchAttempts = new Map();
 const MAX_FETCHES_PER_MINUTE = 30;
 
+/**
+ * Проверяет лимит получения досок для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkBoardFetchRateLimit = (userUuid) => {
   const attempts = boardFetchAttempts.get(userUuid);
   
@@ -93,6 +120,10 @@ export const checkBoardFetchRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток получения досок
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementBoardFetchAttempts = (userUuid) => {
   const attempts = boardFetchAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   
@@ -113,6 +144,11 @@ export const incrementBoardFetchAttempts = (userUuid) => {
 const boardUpdateAttempts = new Map();
 const MAX_UPDATES_PER_MINUTE = 30;
 
+/**
+ * Проверяет лимит обновления досок для пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @returns {Object} Результат проверки
+ */
 export const checkBoardUpdateRateLimit = (userUuid) => {
   const attempts = boardUpdateAttempts.get(userUuid);
   
@@ -130,6 +166,10 @@ export const checkBoardUpdateRateLimit = (userUuid) => {
   return { blocked: false };
 };
 
+/**
+ * Увеличивает счетчик попыток обновления досок
+ * @param {string} userUuid - UUID пользователя
+ */
 export const incrementBoardUpdateAttempts = (userUuid) => {
   const attempts = boardUpdateAttempts.get(userUuid) || { count: 0, resetTime: 0 };
   

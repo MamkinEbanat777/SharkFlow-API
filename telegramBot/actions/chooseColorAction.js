@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/actions/chooseColor
+ * @description Действие выбора цвета в Telegram боте.
+ */
 import {
   getBoardCreationData,
   clearBoardCreation,

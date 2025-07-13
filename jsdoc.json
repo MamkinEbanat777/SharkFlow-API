@@ -1,0 +1,48 @@
+{
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc", "closure"]
+  },
+  "source": {
+    "include": [
+      "utils/",
+      "routes/",
+      "middlewares/",
+      "socket/",
+      "telegramBot/",
+      "store/",
+      "middlewares/",
+      "config/"
+    ],
+    "includePattern": "\\.js$",
+    "excludePattern": "(node_modules/|docs/|docs-site/)"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true,
+      "includeDate": false
+    }
+  },
+  "opts": {
+    "destination": "./docs/jsdoc/",
+    "recurse": true,
+    "readme": "./README.md",
+    "template": "node_modules/clean-jsdoc-theme",
+    "theme_opts": {
+      "title": "SharkFlow API Documentation",
+      "logo": {
+        "link": " https://kramarich000.github.io/SharkFlow-API",
+        "width": "32px",
+        "height": "32px"
+      },
+      "footer": {
+        "text": "SharkFlow API - Документация"
+      }
+    }
+  }
+} 

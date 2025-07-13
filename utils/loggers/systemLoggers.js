@@ -1,3 +1,7 @@
+/**
+ * @module loggers/system
+ * @description Системные логгеры.
+ */
 import { logInfo, logWarn, logError } from './baseLogger.js';
 
 const validateParams = (ip) => {

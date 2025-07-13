@@ -1,6 +1,19 @@
+/**
+ * @module mail/sendConfirmationEmail
+ * @description Функции для отправки email с кодами подтверждения.
+ */
 import { renderEmail } from './emailRenderer.js';
 import { sendEmail } from './mailer.js';
 
+/**
+ * Отправляет email с кодом подтверждения
+ * @param {Object} params - Параметры
+ * @param {string} params.to - Email получателя
+ * @param {string} params.type - Тип подтверждения
+ * @param {string} params.confirmationCode - Код подтверждения
+ * @returns {Promise<Object>} Результат отправки email
+ * @throws {Error} Если неизвестный тип подтверждения
+ */
 export async function sendConfirmationEmail({ to, type, confirmationCode }) {
   const subjectMap = {
     registration: 'Добро пожаловать в SharkFlow!',

@@ -1,3 +1,7 @@
+/**
+ * @module loggers/task
+ * @description Логгеры для работы с задачами.
+ */
 import { logInfo, logWarn, logError, logSuspicious } from './baseLogger.js';
 
 const validateParams = (userUuid, ip) => {

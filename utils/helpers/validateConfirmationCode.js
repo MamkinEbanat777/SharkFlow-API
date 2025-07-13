@@ -1,3 +1,7 @@
+/**
+ * @module helpers/validateConfirmationCode
+ * @description Вспомогательные функции для валидации кодов подтверждения.
+ */
 import {
   getConfirmationCode,
   isConfirmationBlocked,

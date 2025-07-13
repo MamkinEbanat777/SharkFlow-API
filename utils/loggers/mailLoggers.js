@@ -1,3 +1,7 @@
+/**
+ * @module loggers/mail
+ * @description Логгеры для работы с почтой.
+ */
 import { logInfo, logError } from './baseLogger.js';
 
 /**

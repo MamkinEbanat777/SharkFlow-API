@@ -1,3 +1,7 @@
+/**
+ * @module helpers/board
+ * @description Вспомогательные функции для работы с досками и их валидации.
+ */
 import prisma from '../prismaConfig/prismaClient.js';
 import { isValidUUID } from '../validators/taskValidators.js';
 

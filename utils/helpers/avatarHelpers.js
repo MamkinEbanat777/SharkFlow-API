@@ -1,3 +1,7 @@
+/**
+ * @module helpers/avatar
+ * @description Вспомогательные функции для работы с аватарами пользователей.
+ */
 import prisma from '../prismaConfig/prismaClient.js';
 import { isValidUUID } from '../validators/taskValidators.js';
 

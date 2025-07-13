@@ -1,3 +1,7 @@
+/**
+ * @module loggers/base
+ * @description Базовые функции для логирования.
+ */
 import winston from 'winston';
 import LokiTransport from 'winston-loki';
 

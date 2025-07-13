@@ -1,3 +1,7 @@
+/**
+ * @module helpers/googleOAuth
+ * @description Вспомогательные функции для работы с Google OAuth.
+ */
 import { OAuth2Client } from 'google-auth-library';
 
 /**

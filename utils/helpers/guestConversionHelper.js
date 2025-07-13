@@ -1,3 +1,7 @@
+/**
+ * @module helpers/guestConversion
+ * @description Вспомогательные функции для конвертации гостевых аккаунтов в пользователей.
+ */
 import prisma from '../prismaConfig/prismaClient.js';
 
 /**

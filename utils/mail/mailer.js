@@ -1,3 +1,7 @@
+/**
+ * @module mail/mailer
+ * @description Основной модуль для отправки email.
+ */
 import nodemailer from 'nodemailer';
 import { logMailSendSuccess, logMailSendError } from '../loggers/mailLoggers.js';
 
@@ -11,6 +15,16 @@ const transporter = nodemailer.createTransport({
   },
 });
 
+/**
+ * Отправляет email через SMTP
+ * @param {Object} params - Параметры email
+ * @param {string} params.to - Email получателя
+ * @param {string} params.subject - Тема письма
+ * @param {string} [params.text=''] - Текстовое содержимое
+ * @param {string} params.html - HTML содержимое
+ * @returns {Promise<Object>} Информация об отправке
+ * @throws {Error} При ошибке отправки
+ */
 export async function sendEmail({ to, subject, text = '', html }) {
   try {
     const mailOptions = {
