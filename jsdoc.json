@@ -11,7 +11,6 @@
       "socket/",
       "telegramBot/",
       "store/",
-      "middlewares/",
       "config/"
     ],
     "includePattern": "\\.js$",
