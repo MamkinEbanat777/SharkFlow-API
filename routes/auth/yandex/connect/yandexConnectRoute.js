@@ -12,7 +12,7 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 const router = Router();
 
 router.post(
-  '/auth/github/connect',
+  '/auth/yandex/connect',
   authenticateMiddleware,
   async (req, res) => {
     const ipAddress = getClientIP(req);
@@ -26,93 +26,90 @@ router.post(
 
     try {
       const tokenRes = await axios.post(
-        'https://github.com/login/oauth/access_token',
-        {
-          client_id: process.env.CLIENT_GITHUB_ID,
-          client_secret: process.env.CLIENT_GITHUB_SECRET,
+        'https://oauth.yandex.ru/token',
+        new URLSearchParams({
+          grant_type: 'authorization_code',
           code,
+          client_id: process.env.CLIENT_YANDEX_ID,
+          client_secret: process.env.CLIENT_YANDEX_SECRET,
+          redirect_uri: redirectUri,
+        }),
+        {
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          timeout: 10000,
         },
-        { headers: { Accept: 'application/json' }, timeout: 10000 },
       );
 
-      const accessTokenGH = tokenRes.data.access_token;
+      const accessTokenYA = tokenRes.data.access_token;
 
-      if (!accessTokenGH) {
+      if (!accessTokenYA) {
         return res
           .status(400)
-          .json({ error: 'Не удалось получить токен от GitHub' });
+          .json({ error: 'Не удалось получить токен от Yandex' });
       }
 
       if (tokenRes.data.token_type !== 'bearer') {
         return res.status(400).json({ error: 'Некорректный тип токена' });
       }
 
-      const [userRes, emailsRes] = await Promise.all([
-        axios.get('https://api.github.com/user', {
-          headers: { Authorization: `Bearer ${accessTokenGH}` },
-          timeout: 10000,
-        }),
-        axios.get('https://api.github.com/user/emails', {
-          headers: { Authorization: `Bearer ${accessTokenGH}` },
-          timeout: 10000,
-        }),
-      ]);
+      const userRes = await axios.get('https://login.yandex.ru/info', {
+        headers: { Authorization: `OAuth ${accessTokenYA}` },
+        timeout: 10000,
+      });
 
-      const githubUser = userRes.data;
-      const primary = Array.isArray(emailsRes.data)
-        ? emailsRes.data.find((e) => e.primary && e.verified)
-        : null;
-      const email = primary?.email;
-      const githubIdNumber = githubUser.id;
+      const yandexUser = userRes.data;
+      const email = yandexUser.default_email;
 
       if (!email) {
         return res.status(400).json({
-          error: 'Не удалось получить подтверждённый email из GitHub',
+          error: 'Не удалось получить email из Yandex',
         });
       }
 
-      const user = await findUserByUuid(userUuid);
+      let user = await prisma.user.findFirst({
+        where: { yandexId: String(yandexUser.id) },
+      });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
 
-      const existingUserWithGithubId = await prisma.user.findFirst({
-        where: { githubId: githubIdNumber.toString() },
+      const existingUserWithYandexId = await prisma.user.findFirst({
+        where: { yandexId: yandexUser.id },
       });
 
       if (
-        existingUserWithGithubId &&
-        existingUserWithGithubId.uuid !== userUuid
+        existingUserWithYandexId &&
+        existingUserWithYandexId.uuid !== userUuid
       ) {
         return res.status(409).json({
-          error: 'Этот GitHub аккаунт уже привязан к другому пользователю',
+          error: 'Этот Yandex аккаунт уже привязан к другому пользователю',
         });
       }
 
-      const userGithubIdStr = user.githubId ? user.githubId.toString() : null;
-      const githubIdStr = githubIdNumber.toString();
+      const userYandexIdStr = user.yandexId ? user.yandexId.toString() : null;
+      const yandexIdStr = yandexUser.id.toString();
 
-      if (userGithubIdStr && userGithubIdStr !== githubIdStr) {
+      if (userYandexIdStr && userYandexIdStr !== yandexIdStr) {
         return res.status(409).json({
-          error: 'К аккаунту уже привязан другой GitHub аккаунт',
+          error: 'К аккаунту уже привязан другой Yandex аккаунт',
         });
       }
 
-      if (userGithubIdStr === githubIdStr) {
+      if (userYandexIdStr === yandexIdStr) {
         return res
           .status(200)
-          .json({ message: 'GitHub уже привязан к аккаунту' });
+          .json({ message: 'Yandex уже привязан к аккаунту' });
       }
 
       const normalizedUserEmail = normalizeEmail(user.email);
-      const normalizedGithubEmail = normalizeEmail(email);
+      const normalizedYandexEmail = normalizeEmail(email);
 
-      if (normalizedUserEmail !== normalizedGithubEmail) {
+      if (normalizedUserEmail !== normalizedYandexEmail) {
         await sendUserConfirmationCode({
           userUuid,
-          type: 'connectGithub',
-          email: normalizedGithubEmail,
+          type: 'connectYandex',
+          email: normalizedYandexEmail,
           skipUserCheck: true,
           loggers: {
             success: () => {},
@@ -120,14 +117,14 @@ router.post(
           },
         });
 
-        await setUserTempData('connectGithub', userUuid, {
-          githubId: githubIdNumber.toString(),
-          normalizedGithubEmail,
+        await setUserTempData('connectYandex', userUuid, {
+          yandexId: yandexUser.id.toString(),
+          normalizedYandexEmail,
         });
 
         return res.status(200).json({
           message:
-            'Email GitHub не совпадает с email аккаунта. Требуется подтверждение.',
+            'Email Yandex не совпадает с email аккаунта. Требуется подтверждение.',
           requireEmailConfirmed: true,
         });
       }
@@ -135,19 +132,19 @@ router.post(
       await prisma.user.update({
         where: { uuid: userUuid },
         data: {
-          githubId: githubIdNumber.toString(),
-          githubOAuthEnabled: true,
+          yandexId: String(yandexUser.id),
+          yandexOAuthEnabled: true,
         },
       });
 
       return res
         .status(200)
-        .json({ message: 'Github-аккаунт успешно привязан' });
+        .json({ message: 'Yandex-аккаунт успешно привязан' });
     } catch (error) {
       handleRouteError(res, error, {
-        logPrefix: 'Ошибка при логине через GitHub',
+        logPrefix: 'Ошибка при привязке Yandex',
         status: 500,
-        message: 'Не удалось войти через GitHub. Попробуйте позже.',
+        message: 'Не удалось привязать Yandex. Попробуйте позже.',
       });
     }
   },

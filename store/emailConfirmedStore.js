@@ -1,21 +1,7 @@
 import { redis } from '../config/redisconfig.js';
+import { ALLOWED_TYPES } from '../config/allowedRedisTypes.js';
 
 const EXPIRE_SECONDS = 15 * 60;
-
-const ALLOWED_TYPES = [
-  'registration',
-  'passwordReset',
-  'deleteUser',
-  'updateUser',
-  'setupTotp',
-  'disableTotp',
-  'emailChange',
-  'disableGoogle',
-  'connectGoogle',
-  'checkCode',
-  'connectGithub',
-  'disableGithub',
-];
 
 function getEmailConfirmedKey(type, userUuid) {
   if (!ALLOWED_TYPES.includes(type)) {

@@ -1,0 +1,15 @@
+export const ALLOWED_TYPES = [
+  'registration',
+  'passwordReset',
+  'deleteUser',
+  'updateUser',
+  'setupTotp',
+  'disableTotp',
+  'emailChange',
+  'disableGoogle',
+  'connectGoogle',
+  'connectGithub',
+  'disableGithub',
+  'connectYandex',
+  'disableYandex',
+];

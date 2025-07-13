@@ -14,6 +14,8 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     connectGoogle: 'Подключение Google',
     connectGithub: 'Подключение Github',
     disableGithub: 'Отключение Github',
+    connectYandex: 'Подключение Yandex',
+    disableYandex: 'Отключение Yandex',
   };
 
   if (!subjectMap[type]) {

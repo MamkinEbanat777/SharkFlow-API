@@ -13,7 +13,7 @@ import { deleteUserTempData } from '../../../../store/userTempData.js';
 const router = Router();
 
 router.post(
-  '/auth/github/confirm-connect',
+  '/auth/yandex/confirm-connect',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
@@ -22,7 +22,7 @@ router.post(
     try {
       const valid = await validateConfirmationCode(
         userUuid,
-        'connectGithub',
+        'connectYandex',
         confirmationCode,
       );
       if (!valid) {
@@ -31,16 +31,16 @@ router.post(
           .json({ error: 'Неверный или просроченный код подтверждения' });
       }
 
-      await deleteConfirmationCode('connectGithub', userUuid);
+      await deleteConfirmationCode('connectYandex', userUuid);
 
-      const storedData = await getUserTempData('connectGithub', userUuid);
+      const storedData = await getUserTempData('connectYandex', userUuid);
       if (!storedData) {
         return res.status(400).json({ error: 'Код истёк или не найден' });
       }
 
-      await deleteUserTempData('connectGithub', userUuid);
+      await deleteUserTempData('connectYandex', userUuid);
 
-      const { githubId, normalizedGithubEmail } = storedData;
+      const { yandexId, normalizedYandexEmail } = storedData;
 
       const user = await findUserByUuid(userUuid);
 
@@ -51,18 +51,18 @@ router.post(
       await prisma.user.update({
         where: { uuid: userUuid },
         data: {
-          githubEmail: normalizedGithubEmail,
-          githubId,
-          githubOAuthEnabled: true,
+          yandexEmail: normalizedYandexEmail,
+          yandexId,
+          yandexOAuthEnabled: true,
         },
       });
 
       res.status(200).json({
-        message: 'Код подтверждения верен, привязка Github успешна',
+        message: 'Код подтверждения верен, привязка Yandex успешна',
       });
     } catch (error) {
       handleRouteError(res, error, {
-        logPrefix: 'Ошибка при подтверждении Github OAuth',
+        logPrefix: 'Ошибка при подтверждении Yandex OAuth',
         status: 500,
         message: 'Ошибка при проверке кода подтверждения',
       });

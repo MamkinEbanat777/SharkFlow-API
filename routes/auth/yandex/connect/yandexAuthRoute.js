@@ -24,7 +24,7 @@ router.post('/auth/yandex', async (req, res) => {
   const userAgent = req.get('user-agent') || null;
   const { code, state, captchaToken } = req.body;
 
-  if (!code) {
+  if (!code || typeof code !== 'string') {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
   }
 

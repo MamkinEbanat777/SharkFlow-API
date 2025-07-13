@@ -10,7 +10,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 const router = Router();
 
 router.post(
-  '/auth/github/disable',
+  '/auth/yandex/disable',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
@@ -20,7 +20,7 @@ router.post(
 
       const validation = await validateAndDeleteConfirmationCode(
         userUuid,
-        'disableGithub',
+        'disableYandex',
         confirmationCode,
       );
 
@@ -33,17 +33,17 @@ router.post(
       await prisma.user.update({
         where: { uuid: userUuid },
         data: {
-          githubId: null,
-          githubOAuthEnabled: false,
+          yandexId: null,
+          yandexOAuthEnabled: false,
         },
       });
 
-      return res.json({ message: 'Github успешно отвязан от вашего аккаунта' });
+      return res.json({ message: 'Yandex успешно отвязан от вашего аккаунта' });
     } catch (error) {
       handleRouteError(res, error, {
-        logPrefix: 'Ошибка при отвязке Github',
+        logPrefix: 'Ошибка при отвязке Yandex',
         status: 500,
-        message: 'Произошла ошибка при отвязке Github. Попробуйте позже.',
+        message: 'Произошла ошибка при отвязке Yandex. Попробуйте позже.',
       });
     }
   },

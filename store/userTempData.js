@@ -1,24 +1,8 @@
 import { redis } from '../config/redisconfig.js';
 import { logStoreError } from '../utils/loggers/storeLoggers.js';
+import { ALLOWED_TYPES } from '../config/allowedRedisTypes.js';
 
 const EXPIRE_SECONDS = 15 * 60;
-
-const ALLOWED_TYPES = [
-  'registration',
-  'passwordReset',
-  'deleteUser',
-  'updateUser',
-  'setupTotp',
-  'disableTotp',
-  'emailChange',
-  'disableGoogle',
-  'connectGoogle',
-  'checkCode',
-  'twoFactorAuth',
-  'telegramAuth',
-  'connectGithub',
-  'disableGithub',
-];
 
 function getUserTempKey(type, uuid) {
   if (!ALLOWED_TYPES.includes(type)) {

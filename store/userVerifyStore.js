@@ -1,24 +1,10 @@
 import { redis } from '../config/redisconfig.js';
+import { ALLOWED_TYPES } from '../config/allowedRedisTypes.js';
 
 const EXPIRE_SECONDS = 15 * 60;
 const MAX_ATTEMPTS = 5;
 const ATTEMPT_WINDOW_SECONDS = 5 * 60;
 const BLOCK_TIME_SECONDS = 10 * 60;
-
-const ALLOWED_TYPES = [
-  'registration',
-  'passwordReset',
-  'deleteUser',
-  'updateUser',
-  'setupTotp',
-  'disableTotp',
-  'emailChange',
-  'disableGoogle',
-  'connectGoogle',
-  'checkCode',
-  'connectGithub',
-  'disableGithub',
-];
 
 function getAttemptKey(type, key) {
   return `confirmationAttempts:${type}:${key}`;

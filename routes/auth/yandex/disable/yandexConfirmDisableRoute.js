@@ -12,7 +12,7 @@ import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js'
 const router = Router();
 
 router.post(
-  '/auth/github/confirm-disable',
+  '/auth/yandex/confirm-disable',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
@@ -31,7 +31,7 @@ router.post(
 
       await sendUserConfirmationCode({
         userUuid,
-        type: 'disableGithub',
+        type: 'disableYandex',
         loggers: {
           success: (uuid, email) =>
             logUserUpdateRequest(uuid, email, ipAddress),
