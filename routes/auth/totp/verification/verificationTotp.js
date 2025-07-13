@@ -91,7 +91,7 @@ router.post('/api/auth/totp/verify', async (req, res) => {
     await deleteUserTempData('twoFactorAuth', sessionKey);
     return res.status(200).json({ accessToken: tokens.accessToken, csrfToken: tokens.csrfToken });
   } catch (error) {
-    incrementLoginAttempts(ipAddress, user.email);
+    // incrementLoginAttempts(ipAddress, user.email);
     handleRouteError(res, error, {
       message: 'Ошибка при логине. Попробуйте позже',
       status: 500,
