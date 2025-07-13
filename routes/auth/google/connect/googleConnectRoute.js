@@ -18,7 +18,7 @@ const oauth2Client = new OAuth2Client(
 );
 
 router.post(
-  '/auth/google/connect',
+  '/auth/oauth/google/connect',
   authenticateMiddleware,
   async (req, res) => {
     const ipAddress = getClientIP(req);

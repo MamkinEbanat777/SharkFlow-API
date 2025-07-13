@@ -10,7 +10,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 const router = Router();
 
 router.post(
-  '/auth/google/disable',
+  '/auth/oauth/google/disable',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {

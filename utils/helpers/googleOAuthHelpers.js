@@ -83,6 +83,11 @@ export const validateGoogleUserData = (userData) => {
       error: 'Некорректный или неподтверждённый email Google' 
     };
   }
-  
+
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(userData.email)) {
+    return { isValid: false, error: 'Некорректный формат email' };
+  }
+
   return { isValid: true };
 }; 

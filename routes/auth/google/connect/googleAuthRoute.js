@@ -16,6 +16,7 @@ import {
   getGeoLocation,
   validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
+import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHelper.js';
 
 const router = Router();
 
@@ -25,10 +26,11 @@ const oauth2Client = new OAuth2Client(
   'postmessage',
 );
 
-router.post('/auth/google', async (req, res) => {
+router.post('/auth/oauth/google', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, captchaToken } = req.body;
+  const guestUuid = req.cookies.log___sf_21s_t1;
 
   if (!code) {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
@@ -124,12 +126,8 @@ router.post('/auth/google', async (req, res) => {
             'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.',
         });
       } else {
-        user = await prisma.user.update({
-          where: { id: userByEmail.id },
-          data: {
-            googleSub,
-            googleOAuthEnabled: true,
-          },
+        return res.status(403).json({
+          error: 'Аккаунт с таким email существует, но не привязан к Google. Войдите через пароль или привяжите Google аккаунт.',
         });
       }
     } else if (userByGoogleSub) {
@@ -147,20 +145,44 @@ router.post('/auth/google', async (req, res) => {
     }
 
     if (!user) {
-      const baseLogin = given_name || email.split('@')[0] || 'user';
-      const login = await generateUniqueLogin(baseLogin);
-      user = await prisma.user.create({
-        data: {
+      // Проверяем возможность конвертации гостевого аккаунта
+      if (guestUuid) {
+        const baseLogin = given_name || email.split('@')[0] || 'user';
+        const login = await generateUniqueLogin(baseLogin);
+        
+        const convertedUser = await convertGuestToUser(guestUuid, {
+          email,
           login,
-          googleEmail: email,
-          email: email,
-          googleSub,
-          googleOAuthEnabled: true,
-          avatarUrl: null,
-          password: null,
-          role: 'user',
-        },
-      });
+          oauthData: {
+            googleEmail: email,
+            googleSub,
+            googleOAuthEnabled: true,
+            password: null,
+          },
+        });
+        
+        if (convertedUser) {
+          user = convertedUser;
+          res.clearCookie('log___sf_21s_t1');
+        }
+      }
+      
+      if (!user) {
+        const baseLogin = given_name || email.split('@')[0] || 'user';
+        const login = await generateUniqueLogin(baseLogin);
+        user = await prisma.user.create({
+          data: {
+            login,
+            googleEmail: email,
+            email: email,
+            googleSub,
+            googleOAuthEnabled: true,
+            avatarUrl: null,
+            password: null,
+            role: 'user',
+          },
+        });
+      }
     }
 
     if (avatarUrl) {
@@ -181,6 +203,7 @@ router.post('/auth/google', async (req, res) => {
         .json({ error: 'Аккаунт недоступен. Обратитесь в поддержку.' });
     }
 
+    // Проверяем, что пользователь не является гостевым (после возможной конвертации)
     if (user.role === 'guest') {
       return res
         .status(403)

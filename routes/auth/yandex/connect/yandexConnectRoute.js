@@ -12,7 +12,7 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 const router = Router();
 
 router.post(
-  '/auth/yandex/connect',
+  '/auth/oauth/yandex/connect',
   authenticateMiddleware,
   async (req, res) => {
     const ipAddress = getClientIP(req);
@@ -23,6 +23,11 @@ router.post(
     if (!code || typeof code !== 'string') {
       return res.status(400).json({ error: 'Код обязателен' });
     }
+
+    const redirectUri =
+      process.env.NODE_ENV === 'production'
+        ? 'https://sharkflow.onrender.com/oauth/yandex/callback'
+        : 'http://localhost:5173/oauth/yandex/callback';
 
     try {
       const tokenRes = await axios.post(
@@ -66,16 +71,14 @@ router.post(
         });
       }
 
-      let user = await prisma.user.findFirst({
-        where: { yandexId: String(yandexUser.id) },
-      });
+      const user = await findUserByUuid(userUuid);
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });
       }
 
       const existingUserWithYandexId = await prisma.user.findFirst({
-        where: { yandexId: yandexUser.id },
+        where: { yandexId: String(yandexUser.id) },
       });
 
       if (
@@ -84,6 +87,10 @@ router.post(
       ) {
         return res.status(409).json({
           error: 'Этот Yandex аккаунт уже привязан к другому пользователю',
+          details: {
+            existingUserEmail: existingUserWithYandexId.email,
+            yandexId: String(yandexUser.id)
+          }
         });
       }
 
@@ -118,7 +125,7 @@ router.post(
         });
 
         await setUserTempData('connectYandex', userUuid, {
-          yandexId: yandexUser.id.toString(),
+          yandexId: String(yandexUser.id),
           normalizedYandexEmail,
         });
 

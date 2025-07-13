@@ -13,7 +13,7 @@ import { deleteUserTempData } from '../../../../store/userTempData.js';
 const router = Router();
 
 router.post(
-  '/auth/google/confirm-connect',
+  '/auth/oauth/google/confirm-connect',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {

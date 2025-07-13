@@ -12,7 +12,7 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 const router = Router();
 
 router.post(
-  '/auth/github/connect',
+  '/auth/oauth/github/connect',
   authenticateMiddleware,
   async (req, res) => {
     const ipAddress = getClientIP(req);

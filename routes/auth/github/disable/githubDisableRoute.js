@@ -10,7 +10,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 const router = Router();
 
 router.post(
-  '/auth/github/disable',
+  '/auth/oauth/github/disable',
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {

@@ -16,13 +16,15 @@ import {
   getGeoLocation,
   validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
+import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHelper.js';
 
 const router = Router();
 
-router.post('/auth/yandex', async (req, res) => {
+router.post('/auth/oauth/yandex', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, state, captchaToken } = req.body;
+  const guestUuid = req.cookies.log___sf_21s_t1;
 
   if (!code || typeof code !== 'string') {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
@@ -130,28 +132,52 @@ router.post('/auth/yandex', async (req, res) => {
             .status(403)
             .json({ error: 'Email уже занят другим аккаунтом' });
         }
-        user = await prisma.user.update({
-          where: { id: existing.id },
-          data: {
-            yandexId: String(yandexUser.id),
-            yandexOAuthEnabled: true,
-          },
-        });
+        if (existing.yandexId === String(yandexUser.id)) {
+          user = existing;
+        } else {
+          return res.status(403).json({
+            error: 'Аккаунт с таким email существует, но не привязан к Yandex. Войдите через пароль или привяжите Yandex аккаунт.',
+          });
+        }
       } else {
-        const base = yandexUser.login || email.split('@')[0] || 'user';
-        const login = await generateUniqueLogin(base);
-        user = await prisma.user.create({
-          data: {
-            login,
+        if (guestUuid) {
+          const base = yandexUser.login || email.split('@')[0] || 'user';
+          const login = await generateUniqueLogin(base);
+          
+          const convertedUser = await convertGuestToUser(guestUuid, {
             email,
-            yandexEmail: email,
-            yandexId: String(yandexUser.id),
-            yandexOAuthEnabled: true,
-            avatarUrl: null,
-            password: null,
-            role: 'user',
-          },
-        });
+            login,
+            oauthData: {
+              yandexEmail: email,
+              yandexId: String(yandexUser.id),
+              yandexOAuthEnabled: true,
+              password: null,
+            },
+          });
+          
+          if (convertedUser) {
+            user = convertedUser;
+            res.clearCookie('log___sf_21s_t1');
+          }
+        }
+        
+        // Если конвертация не удалась или гостевого аккаунта нет, создаем нового пользователя
+        if (!user) {
+          const base = yandexUser.login || email.split('@')[0] || 'user';
+          const login = await generateUniqueLogin(base);
+          user = await prisma.user.create({
+            data: {
+              login,
+              email,
+              yandexEmail: email,
+              yandexId: String(yandexUser.id),
+              yandexOAuthEnabled: true,
+              avatarUrl: null,
+              password: null,
+              role: 'user',
+            },
+          });
+        }
       }
     }
 
@@ -171,6 +197,7 @@ router.post('/auth/yandex', async (req, res) => {
       }
     }
 
+    // Проверяем, что пользователь не является гостевым (после возможной конвертации)
     if (user.role === 'guest' || !user.isActive) {
       return res
         .status(403)

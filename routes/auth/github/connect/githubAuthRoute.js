@@ -16,13 +16,15 @@ import {
   getGeoLocation,
   validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
+import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHelper.js';
 
 const router = Router();
 
-router.post('/auth/github', async (req, res) => {
+router.post('/auth/oauth/github', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, state, captchaToken } = req.body;
+  const guestUuid = req.cookies.log___sf_21s_t1;
 
   if (!code) {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
@@ -129,28 +131,52 @@ router.post('/auth/github', async (req, res) => {
             .status(403)
             .json({ error: 'Email уже занят другим аккаунтом' });
         }
-        user = await prisma.user.update({
-          where: { id: existing.id },
-          data: {
-            githubId: String(githubUser.id),
-            githubOAuthEnabled: true,
-          },
-        });
+        if (existing.githubId === String(githubUser.id)) {
+          user = existing;
+        } else {
+          return res.status(403).json({
+            error: 'Аккаунт с таким email существует, но не привязан к GitHub. Войдите через пароль или привяжите GitHub аккаунт.',
+          });
+        }
       } else {
-        const base = githubUser.login || email.split('@')[0] || 'user';
-        const login = await generateUniqueLogin(base);
-        user = await prisma.user.create({
-          data: {
-            login,
+        if (guestUuid) {
+          const base = githubUser.login || email.split('@')[0] || 'user';
+          const login = await generateUniqueLogin(base);
+          
+          const convertedUser = await convertGuestToUser(guestUuid, {
             email,
-            githubEmail: email,
-            githubId: String(githubUser.id),
-            githubOAuthEnabled: true,
-            avatarUrl: null,
-            password: null,
-            role: 'user',
-          },
-        });
+            login,
+            oauthData: {
+              githubEmail: email,
+              githubId: String(githubUser.id),
+              githubOAuthEnabled: true,
+              password: null,
+            },
+          });
+          
+          if (convertedUser) {
+            user = convertedUser;
+            res.clearCookie('log___sf_21s_t1');
+          }
+        }
+        
+        // Если конвертация не удалась или гостевого аккаунта нет, создаем нового пользователя
+        if (!user) {
+          const base = githubUser.login || email.split('@')[0] || 'user';
+          const login = await generateUniqueLogin(base);
+          user = await prisma.user.create({
+            data: {
+              login,
+              email,
+              githubEmail: email,
+              githubId: String(githubUser.id),
+              githubOAuthEnabled: true,
+              avatarUrl: null,
+              password: null,
+              role: 'user',
+            },
+          });
+        }
       }
     }
 
@@ -166,6 +192,7 @@ router.post('/auth/github', async (req, res) => {
       }
     }
 
+    // Проверяем, что пользователь не является гостевым (после возможной конвертации)
     if (user.role === 'guest' || !user.isActive) {
       return res
         .status(403)
