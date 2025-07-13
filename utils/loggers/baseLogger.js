@@ -81,6 +81,41 @@ const transports = [
   }),
 ];
 
+const parseHttpLogDetails = (details) => {
+  const regex =
+    /^(\S+) - - \[([^\]]+)\] "(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS) ([^"]+) (HTTP\/[0-9.]*)" (\d{3}) (\d+) "([^"]*)" "([^"]*)"/;
+
+  const match = details.match(regex);
+  if (!match) return {};
+
+  const [
+    ,
+    ip,
+    rawDate,
+    method,
+    path,
+    protocol,
+    status,
+    responseSize,
+    referer,
+    userAgent,
+  ] = match;
+
+  const timestamp = new Date(rawDate.replace(':', ' ', 1)).toISOString();
+
+  return {
+    ip,
+    timestamp,
+    method,
+    path,
+    protocol,
+    status: parseInt(status),
+    response_size: parseInt(responseSize),
+    referer,
+    user_agent: userAgent,
+  };
+};
+
 if (
   process.env.LOKI_URL &&
   process.env.LOKI_USER_ID &&
@@ -100,31 +135,48 @@ if (
   );
 }
 
+const prepareLogData = (entity, action, details, error = null) => {
+  const base = { entity, action };
+
+  if (entity === 'HTTP' && typeof details === 'string') {
+    const parsed = parseHttpLogDetails(details);
+    return { ...base, ...parsed };
+  }
+
+  let combinedDetails = details;
+  if (error) {
+    const errorMsg = error?.stack || error?.message || error || '';
+    combinedDetails = `${details} ${errorMsg}`.trim();
+  }
+
+  return { ...base, details: combinedDetails };
+};
+
 const winstonLogger = winston.createLogger({
   level: getLogLevel(),
   transports,
 });
 
 export const logInfo = (entity, action, details) => {
-  winstonLogger.info({ entity, action, details });
+  winstonLogger.info(prepareLogData(entity, action, details));
 };
 
 export const logWarn = (entity, action, details) => {
-  winstonLogger.warn({ entity, action, details });
+  winstonLogger.warn(prepareLogData(entity, action, details));
 };
 
 export const logError = (entity, action, details, error) => {
-  const errorMsg = error?.stack || error?.message || error || '';
-  winstonLogger.error({
-    entity,
-    action,
-    details: `${details} ${errorMsg}`.trim(),
-  });
+  winstonLogger.error(prepareLogData(entity, action, details, error));
 };
 
 export const logSuspicious = (entity, action, userUuid, ip, extra = '') => {
-  const details = `Suspicious: ${action} by ${userUuid} from IP: ${ip} ${extra}`;
-  winstonLogger.warn({ entity, action: 'security', details });
+  const details = `Suspicious activity by ${userUuid} from IP ${ip}. ${extra}`;
+  const meta = {
+    user_uuid: userUuid,
+    ip,
+    severity: 'suspicious',
+  };
+  winstonLogger.warn({ entity, action: 'security', details, ...meta });
 };
 
 const logger = {
