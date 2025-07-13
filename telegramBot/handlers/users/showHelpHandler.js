@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/users/showHelp
+ * @description Обработчик показа справки в Telegram боте.
+ */
 import { Markup } from 'telegraf';
 import send from '../../send.js';
 

@@ -1,3 +1,7 @@
+/**
+ * @module loggers/store
+ * @description Логгеры для работы с хранилищем данных.
+ */
 import { logError } from './baseLogger.js';
 
 /**

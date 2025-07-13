@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/utils/color/getColorEmoji
+ * @description Утилиты для работы с цветами и эмодзи в Telegram боте.
+ */
 const colorEmojiMap = {
   '#ff0000': '🔴', 
   '#00ff00': '🟢', 

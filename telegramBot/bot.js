@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/bot
+ * @description Основной файл Telegram бота.
+ */
 import { Telegraf } from 'telegraf';
 import path from 'path';
 import { loadConfig } from './loadConfig.js';

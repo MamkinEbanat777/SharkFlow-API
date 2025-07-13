@@ -1,3 +1,7 @@
+/**
+ * @module validators/enum
+ * @description Валидаторы для enum-типов (роль пользователя, статус, приоритет).
+ */
 import { UserRole, Status, Priority } from '@prisma/client';
 
 /**

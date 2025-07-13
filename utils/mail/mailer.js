@@ -1,3 +1,7 @@
+/**
+ * @module mail/mailer
+ * @description Основной модуль для отправки email.
+ */
 import nodemailer from 'nodemailer';
 import { logMailSendSuccess, logMailSendError } from '../loggers/mailLoggers.js';
 

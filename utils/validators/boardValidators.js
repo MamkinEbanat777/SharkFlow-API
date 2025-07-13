@@ -1,3 +1,7 @@
+/**
+ * @module validators/board
+ * @description Валидаторы для досок.
+ */
 import { validateBooleanField, validateTitleField } from './commonValidators.js';
 
 /**

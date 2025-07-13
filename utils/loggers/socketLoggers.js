@@ -1,3 +1,7 @@
+/**
+ * @module loggers/socket
+ * @description Логгеры для WebSocket соединений.
+ */
 import { logInfo } from './baseLogger.js';
 
 /**

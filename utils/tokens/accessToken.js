@@ -1,3 +1,7 @@
+/**
+ * @module tokens/access
+ * @description Функции для работы с access-токенами.
+ */
 import jwt from 'jsonwebtoken';
 import { validateUserRole } from '../validators/enumValidators.js';
 

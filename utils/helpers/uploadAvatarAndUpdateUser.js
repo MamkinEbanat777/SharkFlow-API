@@ -1,3 +1,7 @@
+/**
+ * @module helpers/uploadAvatarAndUpdateUser
+ * @description Вспомогательные функции для загрузки аватаров и обновления пользователей.
+ */
 import '../../config/cloudinaryConfig.js';
 import { v2 as cloudinary } from 'cloudinary';
 import axios from 'axios';

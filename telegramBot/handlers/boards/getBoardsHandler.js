@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/boards/getBoards
+ * @description Обработчик получения досок в Telegram боте.
+ */
 import { Markup } from 'telegraf';
 import { getBoardsWithTaskCounts } from '../../../utils/helpers/boardHelpers.js';
 import { getColorEmoji } from '../../utils/color/getColorEmoji.js';

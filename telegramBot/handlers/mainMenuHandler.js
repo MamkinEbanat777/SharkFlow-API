@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/mainMenu
+ * @description Обработчик главного меню Telegram бота.
+ */
 import { Markup } from 'telegraf';
 import send from '../send.js';
 

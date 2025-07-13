@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/commands/auth/start
+ * @description Команда /start для аутентификации в Telegram боте.
+ */
 import { Markup } from 'telegraf';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { logTelegramCommandError } from '../../../utils/loggers/telegramLoggers.js';

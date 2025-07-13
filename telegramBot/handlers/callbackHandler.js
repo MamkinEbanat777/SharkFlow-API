@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/callback
+ * @description Обработчик callback-запросов для Telegram бота.
+ */
 import { authenticateTelegramMiddleware } from '../../middlewares/http/authenticateTelegramMiddleware.js';
 import { showProfileHandler } from './users/showProfileHandler.js';
 import { getBoardsHandler } from './boards/getBoardsHandler.js';

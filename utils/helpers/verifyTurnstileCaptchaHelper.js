@@ -1,3 +1,7 @@
+/**
+ * @module helpers/verifyTurnstileCaptcha
+ * @description Вспомогательные функции для проверки Turnstile Captcha
+ */
 import axios from 'axios';
 import { logExternalServiceError } from '../loggers/systemLoggers.js';
 

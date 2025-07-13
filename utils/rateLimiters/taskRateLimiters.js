@@ -1,3 +1,7 @@
+/**
+ * @module rateLimiters/task
+ * @description Rate limiter'ы для работы с задачами.
+ */
 const taskCreationAttempts = new Map();
 const MAX_TASKS_PER_MINUTE = 10;
 const RATE_LIMIT_DURATION = 60 * 1000; 

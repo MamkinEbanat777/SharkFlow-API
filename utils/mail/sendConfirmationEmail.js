@@ -1,3 +1,7 @@
+/**
+ * @module mail/sendConfirmationEmail
+ * @description Функции для отправки email с кодами подтверждения.
+ */
 import { renderEmail } from './emailRenderer.js';
 import { sendEmail } from './mailer.js';
 

@@ -1,3 +1,7 @@
+/**
+ * @module handlers/routeError
+ * @description Обработчики ошибок для маршрутов.
+ */
 import { logRouteHandlerError } from '../loggers/errorLoggers.js';
 
 /**

@@ -1,4 +1,8 @@
 /**
+ * @module validators/normalizeEmail
+ * @description Валидаторы для нормализации email адресов.
+ */
+/**
  * Проверяет, является ли email валидным
  * @param {string} email - Email для проверки
  * @returns {boolean} true, если email валиден

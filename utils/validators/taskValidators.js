@@ -1,3 +1,7 @@
+/**
+ * @module validators/task
+ * @description Валидаторы для задач.
+ */
 import { validateBooleanField, validateTitleField } from './commonValidators.js';
 
 /**

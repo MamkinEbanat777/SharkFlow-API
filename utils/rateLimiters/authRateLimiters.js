@@ -1,3 +1,7 @@
+/**
+ * @module rateLimiters/auth
+ * @description Rate limiter'ы для аутентификации.
+ */
 
 const loginAttempts = new Map();
 const MAX_LOGIN_ATTEMPTS = 5;

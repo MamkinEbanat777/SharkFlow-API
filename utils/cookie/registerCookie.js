@@ -1,4 +1,8 @@
 /**
+ * @module cookie/register
+ * @description Настройки cookie для регистрации.
+ */
+/**
  * Возвращает настройки для куки регистрации
  * @returns {Object} Настройки куки для Express
  */

@@ -1,3 +1,7 @@
+/**
+ * @module loggers/error
+ * @description Логгеры для обработки ошибок.
+ */
 import { logError } from './baseLogger.js';
 
 /**

@@ -1,3 +1,7 @@
+/**
+ * @module rateLimiters/board
+ * @description Rate limiter'ы для работы с досками.
+ */
 const boardCreationAttempts = new Map();
 const MAX_BOARDS_PER_MINUTE = 10;
 const RATE_LIMIT_DURATION = 60 * 1000; 

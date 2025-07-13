@@ -1,3 +1,7 @@
+/**
+ * @module loggers/auth
+ * @description Логгеры для аутентификации и авторизации.
+ */
 import { logInfo, logWarn, logError, logSuspicious } from './baseLogger.js';
 
 const filterSensitiveData = (changes) => {

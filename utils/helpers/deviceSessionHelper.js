@@ -1,3 +1,7 @@
+/**
+ * @module helpers/deviceSession
+ * @description Вспомогательные функции для работы с сессиями устройств.
+ */
 import prisma from '../prismaConfig/prismaClient.js';
 import { parseDeviceInfo } from './authHelpers.js';
 import axios from 'axios';

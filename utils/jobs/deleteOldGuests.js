@@ -1,3 +1,7 @@
+/**
+ * @module jobs/deleteOldGuests
+ * @description Задачи для удаления старых гостевых аккаунтов.
+ */
 import { logCronJobStart, logCronJobComplete, logCronJobError } from '../loggers/systemLoggers.js';
 import prisma from '../prismaConfig/prismaClient.js';
 

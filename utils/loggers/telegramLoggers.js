@@ -1,3 +1,7 @@
+/**
+ * @module loggers/telegram
+ * @description Логгеры для Telegram бота.
+ */
 import { logInfo, logWarn, logError } from './baseLogger.js';
 
 const validateParams = (userUuid, ip) => {

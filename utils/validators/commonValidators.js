@@ -1,3 +1,7 @@
+/**
+ * @module validators/common
+ * @description Общие валидаторы для различных сущностей (логины, email, пароли и т.д.).
+ */
 import * as Yup from 'yup';
 import { Filter } from 'bad-words';
 

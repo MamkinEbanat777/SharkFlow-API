@@ -1,3 +1,7 @@
+/**
+ * @module tokens/refresh
+ * @description Функции для работы с refresh-токенами.
+ */
 import jwt from 'jsonwebtoken';
 import { generateUUID } from '../generators/generateUUID.js';
 import { getRefreshCookieOptions } from '../cookie/loginCookie.js';

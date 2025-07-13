@@ -1,3 +1,7 @@
+/**
+ * @module mail/emailRenderer
+ * @description Рендерер для email шаблонов.
+ */
 import fs from 'fs/promises';
 import path from 'path';
 import Handlebars from 'handlebars';

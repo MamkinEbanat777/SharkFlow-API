@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/send
+ * @description Функции для отправки сообщений в Telegram.
+ */
 import { logTelegramCommandError } from '../utils/loggers/telegramLoggers.js';
 
 export default async function send(ctx, message, extra = {}) {

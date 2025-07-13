@@ -1,3 +1,7 @@
+/**
+ * @module tokens/csrf
+ * @description Функции для работы с CSRF-токенами.
+ */
 import jwt from 'jsonwebtoken';
 import { validateUserRole } from '../validators/enumValidators.js';
 

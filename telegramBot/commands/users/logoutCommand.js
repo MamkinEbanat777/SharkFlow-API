@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/commands/users/logout
+ * @description Команда /logout в Telegram боте.
+ */
 import { authenticateTelegramMiddleware } from '../../../middlewares/http/authenticateTelegramMiddleware.js';
 import { logoutHandler } from '../../handlers/users/logoutHandler.js';
 

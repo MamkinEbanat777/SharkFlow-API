@@ -1,8 +1,8 @@
 import * as Yup from 'yup';
 
 /**
- * Yup-схема для валидации кода подтверждения email
- * @type {Object}
+ * @module validators/emailConfirm
+ * @description Yup-схема для валидации кода подтверждения email.
  */
 export const emailConfirmValidate = Yup.object({
   confirmationCode: Yup.string()

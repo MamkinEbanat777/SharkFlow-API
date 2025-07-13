@@ -1,3 +1,7 @@
+/**
+ * @module helpers/task
+ * @description Вспомогательные функции для работы с задачами.
+ */
 import prisma from '../prismaConfig/prismaClient.js';
 import { isValidUUID } from '../validators/taskValidators.js';
 import { validateTaskStatus, validateTaskPriority } from '../validators/enumValidators.js';

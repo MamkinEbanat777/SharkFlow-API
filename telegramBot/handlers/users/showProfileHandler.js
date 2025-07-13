@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/users/showProfile
+ * @description Обработчик показа профиля пользователя в Telegram боте.
+ */
 import { Markup } from 'telegraf';
 import send from '../../send.js';
 

@@ -1,3 +1,7 @@
+/**
+ * @module helpers/confirmation
+ * @description Вспомогательные функции для работы с кодами подтверждения.
+ */
 import { validateConfirmationCode } from './validateConfirmationCode.js';
 import { deleteConfirmationCode } from '../../store/userVerifyStore.js';
 import { isValidUUID } from '../validators/taskValidators.js';

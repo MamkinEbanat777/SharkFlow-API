@@ -1,3 +1,7 @@
+/**
+ * @module crypto/encrypt
+ * @description Функции для шифрования данных.
+ */
 import crypto from 'crypto';
 
 const ALGORITHM = 'aes-256-gcm';

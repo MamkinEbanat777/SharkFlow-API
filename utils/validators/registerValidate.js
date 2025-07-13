@@ -2,8 +2,8 @@ import * as Yup from 'yup';
 import { emailYup, loginYup, passwordYup } from './commonValidators.js';
 
 /**
- * Yup-схема для валидации регистрации пользователя
- * @type {Object}
+ * @module validators/register
+ * @description Yup-схема для валидации регистрации пользователя.
  */
 export const registerValidate = Yup.object({
   user: Yup.object({

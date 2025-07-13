@@ -1,3 +1,7 @@
+/**
+ * @module loggers/board
+ * @description Логгеры для работы с досками.
+ */
 import { logInfo, logWarn, logError, logSuspicious } from './baseLogger.js';
 
 const validateParams = (userUuid, ip) => {

@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/store/tempBoardCreate
+ * @description Временное хранилище для создания досок в Telegram боте.
+ */
 const boardCreationStore = new Map();
 
 export function setBoardCreationState(userUuid, state) {

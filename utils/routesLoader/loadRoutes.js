@@ -1,3 +1,7 @@
+/**
+ * @module routesLoader/loadRoutes
+ * @description Загрузчик маршрутов для Express приложения.
+ */
 import fs from 'fs/promises';
 import path from 'path';
 import { pathToFileURL } from 'url';

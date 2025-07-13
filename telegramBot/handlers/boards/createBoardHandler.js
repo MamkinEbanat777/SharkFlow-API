@@ -1,3 +1,7 @@
+/**
+ * @module telegramBot/handlers/boards/createBoard
+ * @description Обработчик создания досок в Telegram боте.
+ */
 import send from '../../send.js';
 import {
   setBoardCreationState,
