@@ -22,19 +22,23 @@ export async function verifyTurnstileCaptcha(token, ipAddress, idempotencyKey) {
     const data = response.data;
 
     if (!data.success) {
-      logExternalServiceError('Turnstile', 'captchaFailed', new Error(`Turnstile captcha failed: ${data['error-codes']}`));
+      logExternalServiceError(
+        'Turnstile',
+        'captchaFailed',
+        new Error(`Turnstile captcha failed: ${data['error-codes']}`),
+      );
       return false;
     }
 
-    if (data.score < 0.5) {
-      logExternalServiceError('Turnstile', 'lowScore', new Error(`Turnstile score too low: ${data.score} (threshold: 0.5)`));
-      return false;
-    }
+    // if (data.score < 0.5) {
+    //   logExternalServiceError('Turnstile', 'lowScore', new Error(`Turnstile score too low: ${data.score} (threshold: 0.5)`));
+    //   return false;
+    // }
 
-    if (data.action !== 'submit') {
-      logExternalServiceError('Turnstile', 'invalidAction', new Error(`Turnstile action mismatch: ${data.action} (expected: submit)`));
-      return false;
-    }
+    // if (data.action !== 'submit') {
+    //   logExternalServiceError('Turnstile', 'invalidAction', new Error(`Turnstile action mismatch: ${data.action} (expected: submit)`));
+    //   return false;
+    // }
 
     if (data.domain && data.domain !== EXPECTED_DOMAIN) {
       console.warn(
