@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: loggers/auth</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: loggers/auth</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Логгеры для аутентификации и авторизации.</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Members</h3>
+
+        
+            
+<h4 class="name" id=".logGoogleUnlinkFailure"><span class="type-signature">(static, constant) </span>logGoogleUnlinkFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачного отвязывания Google аккаунта
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line352">line 352</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logGoogleUnlinkFailure('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', 'Google API error');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logGoogleUnlinkSuccess"><span class="type-signature">(static, constant) </span>logGoogleUnlinkSuccess<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование успешного отвязывания Google аккаунта
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line339">line 339</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logGoogleUnlinkSuccess('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logLoginFailure"><span class="type-signature">(static, constant) </span>logLoginFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачной попытки входа
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line55">line 55</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logLoginFailure('user@example.com', '192.168.1.1', 'Wrong password');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logLoginSuccess"><span class="type-signature">(static, constant) </span>logLoginSuccess<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование успешного входа пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line42">line 42</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logLoginSuccess('user@example.com', '123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logLogout"><span class="type-signature">(static, constant) </span>logLogout<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование выхода пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line69">line 69</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logLogout('john_doe', 'john@example.com', '123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logLogoutInvalidToken"><span class="type-signature">(static, constant) </span>logLogoutInvalidToken<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование попытки выхода с недействительным токеном
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line81">line 81</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logLogoutInvalidToken('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logRegistrationFailure"><span class="type-signature">(static, constant) </span>logRegistrationFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачной регистрации
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line158">line 158</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logRegistrationFailure('newuser@example.com', '192.168.1.1', 'Email already exists');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logRegistrationRequest"><span class="type-signature">(static, constant) </span>logRegistrationRequest<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование запроса на регистрацию
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line127">line 127</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logRegistrationRequest('newuser@example.com', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logRegistrationSuccess"><span class="type-signature">(static, constant) </span>logRegistrationSuccess<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование успешной регистрации
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line140">line 140</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logRegistrationSuccess('newuser@example.com', 123, '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logSuspiciousAuthActivity"><span class="type-signature">(static, constant) </span>logSuspiciousAuthActivity<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование подозрительной активности в аутентификации
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line320">line 320</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logSuspiciousAuthActivity('multiple_failed_logins', 'john@example.com', '192.168.1.1', '5 attempts in 1 minute');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logTokenRefresh"><span class="type-signature">(static, constant) </span>logTokenRefresh<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование обновления токена
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line94">line 94</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logTokenRefresh('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', true);</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logTokenRefreshFailure"><span class="type-signature">(static, constant) </span>logTokenRefreshFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачного обновления токена
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line111">line 111</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logTokenRefreshFailure('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', 'Token expired');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserDelete"><span class="type-signature">(static, constant) </span>logUserDelete<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование удаления пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line255">line 255</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserDelete('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserDeleteFailure"><span class="type-signature">(static, constant) </span>logUserDeleteFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачного удаления пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line268">line 268</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserDeleteFailure('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', 'User not found');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserDeleteRequest"><span class="type-signature">(static, constant) </span>logUserDeleteRequest<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование запроса на удаление пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line285">line 285</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserDeleteRequest('123e4567-e89b-12d3-a456-426614174000', 'john@example.com', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserDeleteRequestFailure"><span class="type-signature">(static, constant) </span>logUserDeleteRequestFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачного запроса на удаление пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line302">line 302</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserDeleteRequestFailure('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', 'Permission denied');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserFetch"><span class="type-signature">(static, constant) </span>logUserFetch<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование получения данных пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line174">line 174</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserFetch('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserUpdate"><span class="type-signature">(static, constant) </span>logUserUpdate<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование обновления данных пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line187">line 187</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserUpdate('123e4567-e89b-12d3-a456-426614174000', {name: 'John', email: 'john@example.com'}, '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserUpdateFailure"><span class="type-signature">(static, constant) </span>logUserUpdateFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачного обновления данных пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line205">line 205</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserUpdateFailure('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', 'Validation failed');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserUpdateRequest"><span class="type-signature">(static, constant) </span>logUserUpdateRequest<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование запроса на обновление данных пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line222">line 222</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserUpdateRequest('123e4567-e89b-12d3-a456-426614174000', 'john@example.com', '192.168.1.1');</code></pre>
+
+
+
+        
+            
+<h4 class="name" id=".logUserUpdateRequestFailure"><span class="type-signature">(static, constant) </span>logUserUpdateRequestFailure<span class="type-signature"></span></h4>
+
+
+
+
+<div class="description">
+    Логирование неудачного запроса на обновление данных пользователя
+</div>
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_loggers_authLoggers.js.html">utils/loggers/authLoggers.js</a>, <a href="utils_loggers_authLoggers.js.html#line239">line 239</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+    <h5>Example</h5>
+    
+    <pre class="prettyprint"><code>logUserUpdateRequestFailure('123e4567-e89b-12d3-a456-426614174000', '192.168.1.1', 'Invalid data');</code></pre>
+
+
+
+        
+    
+
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cookie_login.html">cookie/login</a></li><li><a href="module-cookie_register.html">cookie/register</a></li><li><a href="module-crypto_decrypt.html">crypto/decrypt</a></li><li><a href="module-crypto_encrypt.html">crypto/encrypt</a></li><li><a href="module-generators_confirmationCode.html">generators/confirmationCode</a></li><li><a href="module-generators_uniqueLogin.html">generators/uniqueLogin</a></li><li><a href="module-generators_uuid.html">generators/uuid</a></li><li><a href="module-handlers_routeError.html">handlers/routeError</a></li><li><a href="module-helpers_auth.html">helpers/auth</a></li><li><a href="module-helpers_avatar.html">helpers/avatar</a></li><li><a href="module-helpers_board.html">helpers/board</a></li><li><a href="module-helpers_confirmation.html">helpers/confirmation</a></li><li><a href="module-helpers_deviceSession.html">helpers/deviceSession</a></li><li><a href="module-helpers_googleOAuth.html">helpers/googleOAuth</a></li><li><a href="module-helpers_guestConversion.html">helpers/guestConversion</a></li><li><a href="module-helpers_sendUserConfirmationCode.html">helpers/sendUserConfirmationCode</a></li><li><a href="module-helpers_task.html">helpers/task</a></li><li><a href="module-helpers_totp.html">helpers/totp</a></li><li><a href="module-helpers_uploadAvatarAndUpdateUser.html">helpers/uploadAvatarAndUpdateUser</a></li><li><a href="module-helpers_user.html">helpers/user</a></li><li><a href="module-helpers_validateConfirmationCode.html">helpers/validateConfirmationCode</a></li><li><a href="module-helpers_verifyTurnstileCaptcha.html">helpers/verifyTurnstileCaptcha</a></li><li><a href="module-jobs_deleteOldGuests.html">jobs/deleteOldGuests</a></li><li><a href="module-loggers_auth.html">loggers/auth</a></li><li><a href="module-loggers_base.html">loggers/base</a></li><li><a href="module-loggers_board.html">loggers/board</a></li><li><a href="module-loggers_error.html">loggers/error</a></li><li><a href="module-loggers_mail.html">loggers/mail</a></li><li><a href="module-loggers_middleware.html">loggers/middleware</a></li><li><a href="module-loggers_socket.html">loggers/socket</a></li><li><a href="module-loggers_store.html">loggers/store</a></li><li><a href="module-loggers_system.html">loggers/system</a></li><li><a href="module-loggers_task.html">loggers/task</a></li><li><a href="module-loggers_telegram.html">loggers/telegram</a></li><li><a href="module-mail_emailRenderer.html">mail/emailRenderer</a></li><li><a href="module-mail_mailer.html">mail/mailer</a></li><li><a href="module-mail_sendConfirmationEmail.html">mail/sendConfirmationEmail</a></li><li><a href="module-prismaConfig_client.html">prismaConfig/client</a></li><li><a href="module-rateLimiters_auth.html">rateLimiters/auth</a></li><li><a href="module-rateLimiters_board.html">rateLimiters/board</a></li><li><a href="module-rateLimiters_task.html">rateLimiters/task</a></li><li><a href="module-routesLoader_loadRoutes.html">routesLoader/loadRoutes</a></li><li><a href="module-telegramBot_actions_chooseColor.html">telegramBot/actions/chooseColor</a></li><li><a href="module-telegramBot_bot.html">telegramBot/bot</a></li><li><a href="module-telegramBot_commands_auth_start.html">telegramBot/commands/auth/start</a></li><li><a href="module-telegramBot_commands_boards_getBoards.html">telegramBot/commands/boards/getBoards</a></li><li><a href="module-telegramBot_commands_help_help.html">telegramBot/commands/help/help</a></li><li><a href="module-telegramBot_commands_menu_menu.html">telegramBot/commands/menu/menu</a></li><li><a href="module-telegramBot_commands_users_ivan.html">telegramBot/commands/users/ivan</a></li><li><a href="module-telegramBot_commands_users_logout.html">telegramBot/commands/users/logout</a></li><li><a href="module-telegramBot_commands_users_me.html">telegramBot/commands/users/me</a></li><li><a href="module-telegramBot_events_boardsTrigger.html">telegramBot/events/boardsTrigger</a></li><li><a href="module-telegramBot_events_leftChatMember.html">telegramBot/events/leftChatMember</a></li><li><a href="module-telegramBot_events_newChatMembers.html">telegramBot/events/newChatMembers</a></li><li><a href="module-telegramBot_events_writeBoardParams.html">telegramBot/events/writeBoardParams</a></li><li><a href="module-telegramBot_handlers_boards_createBoard.html">telegramBot/handlers/boards/createBoard</a></li><li><a href="module-telegramBot_handlers_boards_getBoards.html">telegramBot/handlers/boards/getBoards</a></li><li><a href="module-telegramBot_handlers_callback.html">telegramBot/handlers/callback</a></li><li><a href="module-telegramBot_handlers_mainMenu.html">telegramBot/handlers/mainMenu</a></li><li><a href="module-telegramBot_handlers_users_logout.html">telegramBot/handlers/users/logout</a></li><li><a href="module-telegramBot_handlers_users_showHelp.html">telegramBot/handlers/users/showHelp</a></li><li><a href="module-telegramBot_handlers_users_showProfile.html">telegramBot/handlers/users/showProfile</a></li><li><a href="module-telegramBot_loadConfig.html">telegramBot/loadConfig</a></li><li><a href="module-telegramBot_send.html">telegramBot/send</a></li><li><a href="module-telegramBot_store_tempBoardCreate.html">telegramBot/store/tempBoardCreate</a></li><li><a href="module-telegramBot_utils_color_getColorEmoji.html">telegramBot/utils/color/getColorEmoji</a></li><li><a href="module-tokens_access.html">tokens/access</a></li><li><a href="module-tokens_csrf.html">tokens/csrf</a></li><li><a href="module-tokens_refresh.html">tokens/refresh</a></li><li><a href="module-validators_board.html">validators/board</a></li><li><a href="module-validators_common.html">validators/common</a></li><li><a href="module-validators_emailConfirm.html">validators/emailConfirm</a></li><li><a href="module-validators_enum.html">validators/enum</a></li><li><a href="module-validators_jwt.html">validators/jwt</a></li><li><a href="module-validators_login.html">validators/login</a></li><li><a href="module-validators_normalizeEmail.html">validators/normalizeEmail</a></li><li><a href="module-validators_register.html">validators/register</a></li><li><a href="module-validators_task.html">validators/task</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jul 14 2025 14:37:29 GMT+0300 (Москва, стандартное время)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

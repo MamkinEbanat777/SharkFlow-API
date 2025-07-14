@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Module: generators/uniqueLogin</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Module: generators/uniqueLogin</h1>
+
+    
+
+
+
+
+<section>
+
+<header>
+    
+        
+            
+        
+    
+</header>
+
+<article>
+    <div class="container-overview">
+    
+        
+            <div class="description">Генераторы уникальных логинов.</div>
+        
+
+        
+            
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_generators_generateUniqueLogin.js.html">utils/generators/generateUniqueLogin.js</a>, <a href="utils_generators_generateUniqueLogin.js.html#line1">line 1</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        
+    
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <h3 class="subsection-title">Methods</h3>
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id=".generateUniqueLogin"><span class="type-signature">(static) </span>generateUniqueLogin<span class="signature">(base)</span><span class="type-signature"> &rarr; {Promise.&lt;string>}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Генерирует уникальный логин на основе базовой строки
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>base</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Базовая строка для логина</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_generators_generateUniqueLogin.js.html">utils/generators/generateUniqueLogin.js</a>, <a href="utils_generators_generateUniqueLogin.js.html#line29">line 29</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Throws:</h5>
+
+        
+
+<dl>
+    <dt>
+        <div class="param-desc">
+        Если не удалось сгенерировать уникальный логин
+        </div>
+    </dt>
+    <dd></dd>
+    <dt>
+        <dl>
+            <dt>
+                Type
+            </dt>
+            <dd>
+                
+<span class="param-type">Error</span>
+
+
+            </dd>
+        </dl>
+    </dt>
+    <dd></dd>
+</dl>
+
+
+    
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Уникальный логин
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">Promise.&lt;string></span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+            
+
+    
+
+    
+    <h4 class="name" id="~sanitizeLogin"><span class="type-signature">(inner) </span>sanitizeLogin<span class="signature">(base)</span><span class="type-signature"> &rarr; {string}</span></h4>
+    
+
+    
+
+
+
+<div class="description">
+    Очищает и транслитерирует базовую строку в валидный логин
+</div>
+
+
+
+
+
+
+
+
+
+    <h5>Parameters:</h5>
+    
+
+<table class="params">
+    <thead>
+    <tr>
+        
+        <th>Name</th>
+        
+
+        <th>Type</th>
+
+        
+
+        
+
+        <th class="last">Description</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    
+
+        <tr>
+            
+                <td class="name"><code>base</code></td>
+            
+
+            <td class="type">
+            
+                
+<span class="param-type">string</span>
+
+
+            
+            </td>
+
+            
+
+            
+
+            <td class="description last">Базовая строка для логина</td>
+        </tr>
+
+    
+    </tbody>
+</table>
+
+
+
+
+
+
+<dl class="details">
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+    <dt class="tag-source">Source:</dt>
+    <dd class="tag-source"><ul class="dummy"><li>
+        <a href="utils_generators_generateUniqueLogin.js.html">utils/generators/generateUniqueLogin.js</a>, <a href="utils_generators_generateUniqueLogin.js.html#line13">line 13</a>
+    </li></ul></dd>
+    
+
+    
+
+    
+
+    
+</dl>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<h5>Returns:</h5>
+
+        
+<div class="param-desc">
+    Очищенный логин
+</div>
+
+
+
+<dl>
+    <dt>
+        Type
+    </dt>
+    <dd>
+        
+<span class="param-type">string</span>
+
+
+    </dd>
+</dl>
+
+    
+
+
+
+
+
+        
+    
+
+    
+
+    
+</article>
+
+</section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Modules</h3><ul><li><a href="module-cookie_login.html">cookie/login</a></li><li><a href="module-cookie_register.html">cookie/register</a></li><li><a href="module-crypto_decrypt.html">crypto/decrypt</a></li><li><a href="module-crypto_encrypt.html">crypto/encrypt</a></li><li><a href="module-generators_confirmationCode.html">generators/confirmationCode</a></li><li><a href="module-generators_uniqueLogin.html">generators/uniqueLogin</a></li><li><a href="module-generators_uuid.html">generators/uuid</a></li><li><a href="module-handlers_routeError.html">handlers/routeError</a></li><li><a href="module-helpers_auth.html">helpers/auth</a></li><li><a href="module-helpers_avatar.html">helpers/avatar</a></li><li><a href="module-helpers_board.html">helpers/board</a></li><li><a href="module-helpers_confirmation.html">helpers/confirmation</a></li><li><a href="module-helpers_deviceSession.html">helpers/deviceSession</a></li><li><a href="module-helpers_googleOAuth.html">helpers/googleOAuth</a></li><li><a href="module-helpers_guestConversion.html">helpers/guestConversion</a></li><li><a href="module-helpers_sendUserConfirmationCode.html">helpers/sendUserConfirmationCode</a></li><li><a href="module-helpers_task.html">helpers/task</a></li><li><a href="module-helpers_totp.html">helpers/totp</a></li><li><a href="module-helpers_uploadAvatarAndUpdateUser.html">helpers/uploadAvatarAndUpdateUser</a></li><li><a href="module-helpers_user.html">helpers/user</a></li><li><a href="module-helpers_validateConfirmationCode.html">helpers/validateConfirmationCode</a></li><li><a href="module-helpers_verifyTurnstileCaptcha.html">helpers/verifyTurnstileCaptcha</a></li><li><a href="module-jobs_deleteOldGuests.html">jobs/deleteOldGuests</a></li><li><a href="module-loggers_auth.html">loggers/auth</a></li><li><a href="module-loggers_base.html">loggers/base</a></li><li><a href="module-loggers_board.html">loggers/board</a></li><li><a href="module-loggers_error.html">loggers/error</a></li><li><a href="module-loggers_mail.html">loggers/mail</a></li><li><a href="module-loggers_middleware.html">loggers/middleware</a></li><li><a href="module-loggers_socket.html">loggers/socket</a></li><li><a href="module-loggers_store.html">loggers/store</a></li><li><a href="module-loggers_system.html">loggers/system</a></li><li><a href="module-loggers_task.html">loggers/task</a></li><li><a href="module-loggers_telegram.html">loggers/telegram</a></li><li><a href="module-mail_emailRenderer.html">mail/emailRenderer</a></li><li><a href="module-mail_mailer.html">mail/mailer</a></li><li><a href="module-mail_sendConfirmationEmail.html">mail/sendConfirmationEmail</a></li><li><a href="module-prismaConfig_client.html">prismaConfig/client</a></li><li><a href="module-rateLimiters_auth.html">rateLimiters/auth</a></li><li><a href="module-rateLimiters_board.html">rateLimiters/board</a></li><li><a href="module-rateLimiters_task.html">rateLimiters/task</a></li><li><a href="module-routesLoader_loadRoutes.html">routesLoader/loadRoutes</a></li><li><a href="module-telegramBot_actions_chooseColor.html">telegramBot/actions/chooseColor</a></li><li><a href="module-telegramBot_bot.html">telegramBot/bot</a></li><li><a href="module-telegramBot_commands_auth_start.html">telegramBot/commands/auth/start</a></li><li><a href="module-telegramBot_commands_boards_getBoards.html">telegramBot/commands/boards/getBoards</a></li><li><a href="module-telegramBot_commands_help_help.html">telegramBot/commands/help/help</a></li><li><a href="module-telegramBot_commands_menu_menu.html">telegramBot/commands/menu/menu</a></li><li><a href="module-telegramBot_commands_users_ivan.html">telegramBot/commands/users/ivan</a></li><li><a href="module-telegramBot_commands_users_logout.html">telegramBot/commands/users/logout</a></li><li><a href="module-telegramBot_commands_users_me.html">telegramBot/commands/users/me</a></li><li><a href="module-telegramBot_events_boardsTrigger.html">telegramBot/events/boardsTrigger</a></li><li><a href="module-telegramBot_events_leftChatMember.html">telegramBot/events/leftChatMember</a></li><li><a href="module-telegramBot_events_newChatMembers.html">telegramBot/events/newChatMembers</a></li><li><a href="module-telegramBot_events_writeBoardParams.html">telegramBot/events/writeBoardParams</a></li><li><a href="module-telegramBot_handlers_boards_createBoard.html">telegramBot/handlers/boards/createBoard</a></li><li><a href="module-telegramBot_handlers_boards_getBoards.html">telegramBot/handlers/boards/getBoards</a></li><li><a href="module-telegramBot_handlers_callback.html">telegramBot/handlers/callback</a></li><li><a href="module-telegramBot_handlers_mainMenu.html">telegramBot/handlers/mainMenu</a></li><li><a href="module-telegramBot_handlers_users_logout.html">telegramBot/handlers/users/logout</a></li><li><a href="module-telegramBot_handlers_users_showHelp.html">telegramBot/handlers/users/showHelp</a></li><li><a href="module-telegramBot_handlers_users_showProfile.html">telegramBot/handlers/users/showProfile</a></li><li><a href="module-telegramBot_loadConfig.html">telegramBot/loadConfig</a></li><li><a href="module-telegramBot_send.html">telegramBot/send</a></li><li><a href="module-telegramBot_store_tempBoardCreate.html">telegramBot/store/tempBoardCreate</a></li><li><a href="module-telegramBot_utils_color_getColorEmoji.html">telegramBot/utils/color/getColorEmoji</a></li><li><a href="module-tokens_access.html">tokens/access</a></li><li><a href="module-tokens_csrf.html">tokens/csrf</a></li><li><a href="module-tokens_refresh.html">tokens/refresh</a></li><li><a href="module-validators_board.html">validators/board</a></li><li><a href="module-validators_common.html">validators/common</a></li><li><a href="module-validators_emailConfirm.html">validators/emailConfirm</a></li><li><a href="module-validators_enum.html">validators/enum</a></li><li><a href="module-validators_jwt.html">validators/jwt</a></li><li><a href="module-validators_login.html">validators/login</a></li><li><a href="module-validators_normalizeEmail.html">validators/normalizeEmail</a></li><li><a href="module-validators_register.html">validators/register</a></li><li><a href="module-validators_task.html">validators/task</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Mon Jul 14 2025 14:37:29 GMT+0300 (Москва, стандартное время)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>
