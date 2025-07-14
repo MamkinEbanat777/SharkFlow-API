@@ -13,4 +13,5 @@ export const allowedTypes = [
   'connectYandex',
   'disableYandex',
   'telegramAuth',
+  'twoFactorAuth',
 ];
