@@ -7,11 +7,12 @@ import {
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
 const router = Router();
 
 router.post('/auth/logout/all', authenticateMiddleware, async (req, res) => {
-  const refreshToken = req.cookies.log___tf_12f_t2;
+  const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
 
@@ -62,7 +63,7 @@ router.post('/auth/logout/all', authenticateMiddleware, async (req, res) => {
       logLogoutInvalidToken(userUuid, ipAddress);
     }
 
-    res.clearCookie('log___tf_12f_t2', {
+    res.clearCookie(REFRESH_COOKIE_NAME, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

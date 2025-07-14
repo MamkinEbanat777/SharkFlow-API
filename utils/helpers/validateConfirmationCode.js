@@ -8,6 +8,7 @@ import {
   registerFailedAttempt,
   resetConfirmationAttempts,
 } from '../../store/userVerifyStore.js';
+import { logSuspiciousAuthActivity } from '../loggers/authLoggers.js';
 import { isValidUUID } from '../validators/taskValidators.js';
 
 /**

@@ -5,8 +5,9 @@
 import { createAccessToken } from '../tokens/accessToken.js';
 import { createCsrfToken } from '../tokens/csrfToken.js';
 import { issueRefreshToken } from '../tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
+import { getRefreshCookieOptions } from '../cookie/refreshCookie.js';
 import { isValidUUID } from '../validators/taskValidators.js';
+import { REFRESH_COOKIE_NAME } from '../../config/cookiesConfig.js';
 
 import DeviceDetector from 'device-detector-js';
 
@@ -18,12 +19,10 @@ import DeviceDetector from 'device-detector-js';
  * const ipAddress = getClientIP(req);
  */
 export const getClientIP = (req) => {
-  return (
-    req.headers['x-forwarded-for']?.split(',').shift() ||
-    req.socket.remoteAddress ||
-    'unknown'
-  );
+  const ip = req.ip;
+  return typeof ip === 'string' && ip !== '' ? ip : 'unknown';
 };
+
 
 /**
  * Создание всех токенов аутентификации для пользователя
@@ -61,7 +60,7 @@ export const createAuthTokens = async (user, rememberMe, deviceSessionId) => {
  */
 export const setAuthCookies = (res, refreshToken, rememberMe) => {
   res.cookie(
-    'log___tf_12f_t2',
+    REFRESH_COOKIE_NAME,
     refreshToken,
     getRefreshCookieOptions(rememberMe),
   );

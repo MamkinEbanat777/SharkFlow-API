@@ -13,6 +13,7 @@ import { validateConfirmationCode } from '../../../utils/helpers/validateConfirm
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
 const router = Router();
 
@@ -21,7 +22,7 @@ router.post(
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
-    const refreshToken = req.cookies.log___tf_12f_t2;
+    const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
     const userUuid = req.userUuid;
     const { confirmationCode } = req.body;
     const ipAddress = getClientIP(req);
@@ -137,7 +138,7 @@ router.post(
         }),
       ]);
 
-      res.clearCookie('log___tf_12f_t2', {
+      res.clearCookie(REFRESH_COOKIE_NAME, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

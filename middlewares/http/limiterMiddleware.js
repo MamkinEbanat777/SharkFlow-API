@@ -1,3 +1,5 @@
+import { getClientIP } from '../../utils/helpers/authHelpers';
+
 const requestBuckets = new Map();
 const violationCounts = new Map();
 const bannedClients = new Map();
@@ -14,8 +16,8 @@ const BAN_TIME_MS = 60 * 1000;
 const MAX_VIOLATIONS = 20;
 
 function getClientKey(req) {
-  const ip = req.ip || req.connection.remoteAddress || 'unknown_ip';
-  const ua = req.headers['user-agent'] || 'unknown_ua';
+  const ip = getClientIP(req);
+  const ua = req.headers['user-agent'] || 'unknown';
   return `${ip}::${ua}`;
 }
 
@@ -57,7 +59,8 @@ export function limiterMiddleware(req, res, next) {
     return res.status(429).json({
       error: 'Слишком много запросов. Повторите попытку позже',
     });
-  } else {
+  }
+  if (freshTimestamps.length <= MAX_REQUESTS_PER_INTERVAL) {
     violationCounts.set(key, 0);
   }
 

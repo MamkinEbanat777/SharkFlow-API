@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { createAccessToken } from '../../../utils/tokens/accessToken.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../../utils/cookie/loginCookie.js';
+import { getRefreshCookieOptions } from '../../../utils/cookie/refreshCookie.js';
 import {
   validateRefreshToken,
   isTokenExpired,
@@ -18,12 +18,13 @@ import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
 import axios from 'axios';
 import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
 import { logLocationError } from '../../../utils/loggers/systemLoggers.js';
+import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
 const router = Router();
 
 router.post('/auth/refresh', async (req, res) => {
   const referrer = req.get('Referer') || null;
-  const refreshToken = req.cookies.log___tf_12f_t2;
+  const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
   const ipAddress = getClientIP(req);
   const deviceId = req.headers['x-device-id'];
 
@@ -154,7 +155,7 @@ router.post('/auth/refresh', async (req, res) => {
       });
 
       res.cookie(
-        'log___tf_12f_t2',
+        REFRESH_COOKIE_NAME,
         newRefreshToken,
         getRefreshCookieOptions(tokenRecord.rememberMe),
       );

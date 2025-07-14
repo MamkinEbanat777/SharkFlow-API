@@ -4,10 +4,7 @@ import {
   createAuthTokens,
   setAuthCookies,
 } from '../../../../utils/helpers/authHelpers.js';
-import {
-  incrementLoginAttempts,
-  resetLoginAttempts,
-} from '../../../../utils/rateLimiters/authRateLimiters.js';
+import { resetLoginAttempts } from '../../../../utils/rateLimiters/authRateLimiters.js';
 import { logLoginSuccess } from '../../../../utils/loggers/authLoggers.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { deleteUserTempData } from '../../../../store/userTempData.js';
@@ -16,8 +13,10 @@ import {
   verifyTotpCode,
   validateTotpCodeFormat,
 } from '../../../../utils/helpers/totpHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-import { createOrUpdateDeviceSession, getGeoLocation } from '../../../../utils/helpers/deviceSessionHelper.js';
+import {
+  createOrUpdateDeviceSession,
+  getGeoLocation,
+} from '../../../../utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
 

@@ -14,6 +14,12 @@ import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
+import {
+  GUEST_COOKIE_NAME,
+  REGISTER_COOKIE_NAME,
+} from '../../../config/cookiesConfig.js';
+import { getRegistrationCookieOptions } from '../../../utils/cookie/registerCookie.js';
+import { getGuestCookieOptions } from '../../../utils/cookie/guestCookie.js';
 
 const router = Router();
 
@@ -22,8 +28,8 @@ router.post(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode } = req.body;
-    const regUuid = req.cookies.sd_f93j8f___;
-    const guestUuid = req.cookies.log___sf_21s_t1;
+    const regUuid = req.cookies[REGISTER_COOKIE_NAME];
+    const guestUuid = req.cookies[GUEST_COOKIE_NAME];
     const ipAddress = getClientIP(req);
 
     try {
@@ -88,7 +94,7 @@ router.post(
               role: 'user',
             },
           });
-          res.clearCookie('log___sf_21s_t1');
+          res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
         }
       }
 
@@ -112,6 +118,8 @@ router.post(
       await deleteUserTempData('registration', regUuid);
 
       await deleteConfirmationCode('registration', regUuid);
+
+      res.clearCookie(REGISTER_COOKIE_NAME, getRegistrationCookieOptions());
 
       logRegistrationSuccess(email, userRecord.id, ipAddress);
 

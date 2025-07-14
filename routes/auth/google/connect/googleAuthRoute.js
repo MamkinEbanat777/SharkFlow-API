@@ -2,7 +2,7 @@ import { Router } from 'express';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../../utils/tokens/accessToken.js';
 import { issueRefreshToken } from '../../../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../../../utils/cookie/loginCookie.js';
+import { getRefreshCookieOptions } from '../../../../utils/cookie/refreshCookie.js';
 import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
 import { OAuth2Client } from 'google-auth-library';
 import { generateUniqueLogin } from '../../../../utils/generators/generateUniqueLogin.js';
@@ -17,6 +17,9 @@ import {
   validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
 import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHelper.js';
+import { getGuestCookieOptions } from '../../../../utils/cookie/guestCookie.js';
+import { GUEST_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
+import { REFRESH_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 
 const router = Router();
 
@@ -30,7 +33,7 @@ router.post('/auth/oauth/google', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, captchaToken } = req.body;
-  const guestUuid = req.cookies.log___sf_21s_t1;
+  const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 
   if (!code) {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
@@ -127,7 +130,8 @@ router.post('/auth/oauth/google', async (req, res) => {
         });
       } else {
         return res.status(403).json({
-          error: 'Аккаунт с таким email существует, но не привязан к Google. Войдите через пароль или привяжите Google аккаунт.',
+          error:
+            'Аккаунт с таким email существует, но не привязан к Google. Войдите через пароль или привяжите Google аккаунт.',
         });
       }
     } else if (userByGoogleSub) {
@@ -145,11 +149,10 @@ router.post('/auth/oauth/google', async (req, res) => {
     }
 
     if (!user) {
-      // Проверяем возможность конвертации гостевого аккаунта
       if (guestUuid) {
         const baseLogin = given_name || email.split('@')[0] || 'user';
         const login = await generateUniqueLogin(baseLogin);
-        
+
         const convertedUser = await convertGuestToUser(guestUuid, {
           email,
           login,
@@ -160,13 +163,13 @@ router.post('/auth/oauth/google', async (req, res) => {
             password: null,
           },
         });
-        
+
         if (convertedUser) {
           user = convertedUser;
-          res.clearCookie('log___sf_21s_t1');
+          res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
         }
       }
-      
+
       if (!user) {
         const baseLogin = given_name || email.split('@')[0] || 'user';
         const login = await generateUniqueLogin(baseLogin);
@@ -179,7 +182,7 @@ router.post('/auth/oauth/google', async (req, res) => {
             googleOAuthEnabled: true,
             avatarUrl: null,
             password: null,
-            role: 'user', 
+            role: 'user',
           },
         });
       }
@@ -203,7 +206,6 @@ router.post('/auth/oauth/google', async (req, res) => {
         .json({ error: 'Аккаунт недоступен. Обратитесь в поддержку.' });
     }
 
-    // Проверяем, что пользователь не является гостевым (после возможной конвертации)
     if (user.role === 'guest') {
       return res
         .status(403)
@@ -234,7 +236,11 @@ router.post('/auth/oauth/google', async (req, res) => {
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
 
-    res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(false));
+    res.cookie(
+      REFRESH_COOKIE_NAME,
+      refreshToken,
+      getRefreshCookieOptions(false),
+    );
     return res.status(200).json({
       accessToken: accessToken,
       csrfToken: csrfToken,

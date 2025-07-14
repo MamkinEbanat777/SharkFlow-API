@@ -3,7 +3,7 @@ import axios from 'axios';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../../utils/tokens/accessToken.js';
 import { issueRefreshToken } from '../../../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../../../utils/cookie/loginCookie.js';
+import { getRefreshCookieOptions } from '../../../../utils/cookie/refreshCookie.js';
 import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
 import { generateUniqueLogin } from '../../../../utils/generators/generateUniqueLogin.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
@@ -17,6 +17,9 @@ import {
   validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
 import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHelper.js';
+import { GUEST_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
+import { getGuestCookieOptions } from '../../../../utils/cookie/guestCookie.js';
+import { REFRESH_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 
 const router = Router();
 
@@ -24,7 +27,7 @@ router.post('/auth/oauth/yandex', async (req, res) => {
   const ipAddress = getClientIP(req);
   const userAgent = req.get('user-agent') || null;
   const { code, state, captchaToken } = req.body;
-  const guestUuid = req.cookies.log___sf_21s_t1;
+  const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 
   if (!code || typeof code !== 'string') {
     return res.status(400).json({ error: 'Код авторизации обязателен' });
@@ -136,14 +139,15 @@ router.post('/auth/oauth/yandex', async (req, res) => {
           user = existing;
         } else {
           return res.status(403).json({
-            error: 'Аккаунт с таким email существует, но не привязан к Yandex. Войдите через пароль или привяжите Yandex аккаунт.',
+            error:
+              'Аккаунт с таким email существует, но не привязан к Yandex. Войдите через пароль или привяжите Yandex аккаунт.',
           });
         }
       } else {
         if (guestUuid) {
           const base = yandexUser.login || email.split('@')[0] || 'user';
           const login = await generateUniqueLogin(base);
-          
+
           const convertedUser = await convertGuestToUser(guestUuid, {
             email,
             login,
@@ -154,14 +158,13 @@ router.post('/auth/oauth/yandex', async (req, res) => {
               password: null,
             },
           });
-          
+
           if (convertedUser) {
             user = convertedUser;
-            res.clearCookie('log___sf_21s_t1');
+            res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
           }
         }
-        
-        // Если конвертация не удалась или гостевого аккаунта нет, создаем нового пользователя
+
         if (!user) {
           const base = yandexUser.login || email.split('@')[0] || 'user';
           const login = await generateUniqueLogin(base);
@@ -174,7 +177,7 @@ router.post('/auth/oauth/yandex', async (req, res) => {
               yandexOAuthEnabled: true,
               avatarUrl: null,
               password: null,
-              role: 'user', 
+              role: 'user',
             },
           });
         }
@@ -228,7 +231,11 @@ router.post('/auth/oauth/yandex', async (req, res) => {
     const accessToken = createAccessToken(user.uuid, user.role);
     const csrfToken = createCsrfToken(user.uuid);
 
-    res.cookie('log___tf_12f_t2', refreshToken, getRefreshCookieOptions(true));
+    res.cookie(
+      REFRESH_COOKIE_NAME,
+      refreshToken,
+      getRefreshCookieOptions(true),
+    );
 
     return res.status(200).json({
       accessToken,

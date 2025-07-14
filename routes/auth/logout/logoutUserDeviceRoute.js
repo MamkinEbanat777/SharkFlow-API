@@ -5,6 +5,7 @@ import { logLogout } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateDeviceId } from '../../../utils/helpers/deviceSessionHelper.js';
+import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
 const router = Router();
 
@@ -19,7 +20,7 @@ router.post(
     const validatedDeviceId = validateDeviceId(req, res);
     if (!validatedDeviceId) return;
 
-    const refreshToken = req.cookies['log___tf_12f_t2'];
+    const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
     let currentDeviceId = null;
     if (refreshToken) {
       const tokenRecord = await prisma.refreshToken.findFirst({

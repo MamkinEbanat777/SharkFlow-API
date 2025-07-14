@@ -4,7 +4,7 @@ import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { getGuestCookieOptions } from '../../../utils/cookie/registerCookie.js';
+import { getGuestCookieOptions } from '../../../utils/cookie/guestCookie.js';
 import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
@@ -12,6 +12,7 @@ import {
 } from '../../../utils/helpers/authHelpers.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
+import { GUEST_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
 const router = Router();
 
@@ -47,7 +48,7 @@ router.post('/auth/guest-login', async (req, res) => {
   }
 
   try {
-    const guestUuid = req.cookies.log___sf_21s_t1;
+    const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 
     if (guestUuid) {
       const existingGuest = await findUserByUuid(guestUuid);
@@ -88,7 +89,7 @@ router.post('/auth/guest-login', async (req, res) => {
         );
         setAuthCookies(res, tokens.refreshToken, false);
         res.cookie(
-          'log___sf_21s_t1',
+          GUEST_COOKIE_NAME,
           existingGuest.uuid,
           getGuestCookieOptions(),
         );
@@ -145,7 +146,7 @@ router.post('/auth/guest-login', async (req, res) => {
     }
     const tokens = await createAuthTokens(guest, false, deviceSession.id);
     setAuthCookies(res, tokens.refreshToken, false);
-    res.cookie('log___sf_21s_t1', guest.uuid, getGuestCookieOptions());
+    res.cookie(GUEST_COOKIE_NAME, guest.uuid, getGuestCookieOptions());
 
     return res.status(200).json({
       accessToken: tokens.accessToken,

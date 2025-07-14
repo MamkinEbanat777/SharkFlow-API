@@ -15,6 +15,7 @@ import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
+import { REGISTER_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
 const router = Router();
 
@@ -109,7 +110,7 @@ router.post(
         hashedPassword,
       });
 
-      res.cookie('sd_f93j8f___', uuid, getRegistrationCookieOptions());
+      res.cookie(REGISTER_COOKIE_NAME, uuid, getRegistrationCookieOptions());
 
       return res
         .status(200)

@@ -11,7 +11,7 @@ import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 const router = Router();
 
 router.post('/auth/logout', authenticateMiddleware, async (req, res) => {
-  const refreshToken = req.cookies.log___tf_12f_t2;
+  const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
   const userUuid = req.userUuid;
   const ipAddress = getClientIP(req);
   const deviceId = req.headers['x-device-id'];
@@ -81,7 +81,7 @@ router.post('/auth/logout', authenticateMiddleware, async (req, res) => {
       logLogoutInvalidToken(userUuid, ipAddress);
     }
 
-    res.clearCookie('log___tf_12f_t2', {
+    res.clearCookie(REFRESH_COOKIE_NAME, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',

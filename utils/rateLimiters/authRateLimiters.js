@@ -3,9 +3,19 @@
  * @description Rate limiter'ы для аутентификации.
  */
 
+import { normalizeEmail } from '../validators/normalizeEmail';
+
 const loginAttempts = new Map();
-const MAX_LOGIN_ATTEMPTS = 5;
-const LOGIN_BLOCK_DURATION = 5 * 60 * 1000; 
+
+const LOGIN_RATE_LIMIT_CONFIG = {
+  maxAttempts: 5,
+  blockDuration: 5 * 60 * 1000, // 5 минут
+};
+
+function getLoginKey(ip, email) {
+  if (!email) return;
+  return `${ip}-${normalizeEmail(email)}`;
+}
 
 /**
  * Проверяет, заблокирован ли IP-адрес для попыток входа
@@ -14,20 +24,30 @@ const LOGIN_BLOCK_DURATION = 5 * 60 * 1000;
  * @returns {Object} Результат проверки
  */
 export const checkLoginRateLimit = (ipAddress, email) => {
-  const key = `${ipAddress}-${email}`;
+  const key = getLoginKey(ipAddress, email);
   const attempts = loginAttempts.get(key);
-  
-  if (attempts && attempts.count >= MAX_LOGIN_ATTEMPTS) {
-    const timeLeft = attempts.blockedUntil - Date.now();
-    if (timeLeft > 0) {
-      return {
-        blocked: true,
-        timeLeft: Math.ceil(timeLeft / 1000 / 60) 
-      };
-    } else {
+
+  if (attempts) {
+    const now = Date.now();
+
+    if (attempts.blockedUntil && now > attempts.blockedUntil) {
       loginAttempts.delete(key);
+      return { blocked: false };
+    }
+
+    if (attempts.count >= LOGIN_RATE_LIMIT_CONFIG.maxAttempts) {
+      const timeLeftMs = attempts.blockedUntil - now;
+
+      if (timeLeftMs > 0) {
+        return {
+          blocked: true,
+          timeLeftMs,
+          retryAfterSec: Math.ceil(timeLeftMs / 1000),
+        };
+      }
     }
   }
+
   return { blocked: false };
 };
 
@@ -37,20 +57,22 @@ export const checkLoginRateLimit = (ipAddress, email) => {
  * @param {string} email - Email пользователя
  */
 export const incrementLoginAttempts = (ipAddress, email) => {
-  const key = `${ipAddress}-${email}`;
+  const key = getLoginKey(ipAddress, email);
+  const now = Date.now();
   const attempts = loginAttempts.get(key) || { count: 0, blockedUntil: 0 };
-  
+
   attempts.count++;
-  
-  if (attempts.count >= MAX_LOGIN_ATTEMPTS) {
-    attempts.blockedUntil = Date.now() + LOGIN_BLOCK_DURATION;
+
+  if (attempts.count >= LOGIN_RATE_LIMIT_CONFIG.maxAttempts) {
+    attempts.blockedUntil = now + LOGIN_RATE_LIMIT_CONFIG.blockDuration;
+    console.warn(
+      `[RateLimiter] IP ${ipAddress} заблокирован на ${
+        LOGIN_RATE_LIMIT_CONFIG.blockDuration / 60000
+      } мин. для email ${normalizeEmail(email)}`,
+    );
   }
-  
+
   loginAttempts.set(key, attempts);
-  
-  setTimeout(() => {
-    loginAttempts.delete(key);
-  }, LOGIN_BLOCK_DURATION);
 };
 
 /**
@@ -58,7 +80,8 @@ export const incrementLoginAttempts = (ipAddress, email) => {
  * @param {string} ipAddress - IP адрес
  * @param {string} email - Email пользователя
  */
+
 export const resetLoginAttempts = (ipAddress, email) => {
-  const key = `${ipAddress}-${email}`;
+  const key = getLoginKey(ipAddress, email);
   loginAttempts.delete(key);
-}; 
+};

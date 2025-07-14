@@ -19,11 +19,11 @@ const filterSensitiveData = (changes) => {
   return filtered;
 };
 
-const maskEmail = (email) => {
+export const maskEmail = (email) => {
   if (!email || typeof email !== 'string') return '[NO_EMAIL]';
   const [local, domain] = email.split('@');
   if (!domain) return email;
-  return `${local.slice(0, 2)}***@${domain}`;
+  return `${local.slice(0, 3)}***@${domain}`;
 };
 
 const validateParams = (userUuid, ip) => {

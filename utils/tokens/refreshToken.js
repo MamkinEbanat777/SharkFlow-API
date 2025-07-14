@@ -4,8 +4,9 @@
  */
 import jwt from 'jsonwebtoken';
 import { generateUUID } from '../generators/generateUUID.js';
-import { getRefreshCookieOptions } from '../cookie/loginCookie.js';
+import { getRefreshCookieOptions } from '../cookie/refreshCookie.js';
 import prisma from '../prismaConfig/prismaClient.js';
+import { REFRESH_COOKIE_NAME } from '../../config/cookiesConfig.js';
 
 /**
  * Создает JWT refresh-токен
@@ -83,7 +84,7 @@ export async function issueRefreshToken({
 
   if (setCookie && res && !res.headersSent) {
     res.cookie(
-      'log___tf_12f_t2',
+      REFRESH_COOKIE_NAME,
       refreshToken,
       getRefreshCookieOptions(rememberMe),
     );
