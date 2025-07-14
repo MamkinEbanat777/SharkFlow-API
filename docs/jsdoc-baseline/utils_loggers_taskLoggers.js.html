@@ -1,0 +1,164 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Source: utils/loggers/taskLoggers.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: utils/loggers/taskLoggers.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * @module loggers/task
+ * @description Логгеры для работы с задачами.
+ */
+import { logInfo, logWarn, logError, logSuspicious } from &#x27;./baseLogger.js&#x27;;
+
+const validateParams &#x3D; (userUuid, ip) &#x3D;&gt; {
+  if (!userUuid) throw new Error(&#x27;userUuid is required&#x27;);
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+};
+
+/**
+ * Логирование создания задачи
+ * @param {string} title - Название задачи
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logTaskCreation(&#x27;Implement user authentication&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logTaskCreation &#x3D; (title, userUuid, ip) &#x3D;&gt; {
+  if (!title) throw new Error(&#x27;title is required&#x27;);
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Task&#x27;, &#x27;created&#x27;, &#x60;&quot;${title}&quot; by user ${userUuid} from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование удаления задачи
+ * @param {string} title - Название задачи
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logTaskDeletion(&#x27;Implement user authentication&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logTaskDeletion &#x3D; (title, userUuid, ip) &#x3D;&gt; {
+  if (!title) throw new Error(&#x27;title is required&#x27;);
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Task&#x27;, &#x27;deleted&#x27;, &#x60;&quot;${title}&quot; by user ${userUuid} from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование обновления задачи
+ * @param {string} title - Название задачи
+ * @param {Object} changes - Объект с изменениями
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logTaskUpdate(&#x27;Implement user authentication&#x27;, {status: &#x27;completed&#x27;, priority: &#x27;high&#x27;}, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logTaskUpdate &#x3D; (title, changes, userUuid, ip) &#x3D;&gt; {
+  if (!title) throw new Error(&#x27;title is required&#x27;);
+  validateParams(userUuid, ip);
+  logInfo(
+    &#x27;Task&#x27;,
+    &#x27;updated&#x27;,
+    &#x60;&quot;${title}&quot; by user ${userUuid} from IP: ${ip}, changes: ${JSON.stringify(changes)}&#x60;,
+  );
+};
+
+/**
+ * Логирование получения задач (только в development)
+ * @param {number} tasksCount - Количество полученных задач
+ * @param {number} totalTasks - Общее количество задач
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logTaskFetch(25, 100, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logTaskFetch &#x3D; (tasksCount, totalTasks, userUuid, ip) &#x3D;&gt; {
+  if (typeof tasksCount !&#x3D;&#x3D; &#x27;number&#x27;) throw new Error(&#x27;tasksCount must be a number&#x27;);
+  if (typeof totalTasks !&#x3D;&#x3D; &#x27;number&#x27;) throw new Error(&#x27;totalTasks must be a number&#x27;);
+  validateParams(userUuid, ip);
+  
+  if (process.env.NODE_ENV &#x3D;&#x3D;&#x3D; &#x27;development&#x27;) {
+    logInfo(
+      &#x27;Task&#x27;,
+      &#x27;fetched&#x27;,
+      &#x60;${tasksCount}/${totalTasks} by user ${userUuid} from IP: ${ip}&#x60;,
+    );
+  }
+};
+
+/**
+ * Логирование ошибки при работе с задачами
+ * @param {string} action - Действие, которое вызвало ошибку
+ * @param {Error} error - Объект ошибки
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logTaskError(&#x27;creation&#x27;, new Error(&#x27;Database connection failed&#x27;), &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logTaskError &#x3D; (action, error, userUuid, ip) &#x3D;&gt; {
+  if (!action) throw new Error(&#x27;action is required&#x27;);
+  validateParams(userUuid, ip);
+  logError(&#x27;Task&#x27;, action, &#x60;for user ${userUuid} from IP: ${ip}&#x60;, error);
+};
+
+/**
+ * Логирование подозрительной активности при работе с задачами
+ * @param {string} action - Действие, которое вызвало подозрение
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} [details&#x3D;&#x27;&#x27;] - Дополнительные детали
+ * @example
+ * logSuspiciousActivity(&#x27;mass_deletion&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Deleted 100 tasks in 1 minute&#x27;);
+ */
+export const logSuspiciousActivity &#x3D; (action, userUuid, ip, details &#x3D; &#x27;&#x27;) &#x3D;&gt; {
+  if (!action) throw new Error(&#x27;action is required&#x27;);
+  validateParams(userUuid, ip);
+  logSuspicious(&#x27;Task&#x27;, action, userUuid, ip, details);
+};
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

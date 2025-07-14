@@ -1,0 +1,1574 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Module: loggers/auth</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <div class="symbol-detail-labels"><span class="label label-kind">module</span></div>
+            <h1><small></small><span class="symbol-name">loggers/auth</span></h1>
+            <p class="source-link">Source: <a href="utils_loggers_authLoggers.js.html">utils/<wbr>loggers/<wbr>authLoggers.<wbr>js</a></p>
+            <div class="symbol-description">
+              <p>Логгеры для аутентификации и авторизации.</p>
+            </div>
+            <dl class="dl-compact">
+            </dl>
+          </header>
+          <section id="summary">
+            <div class="summary-callout">
+              <h2 class="summary-callout-heading">Properties</h2>
+              <div class="summary-content">
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-loggers_auth.html#.logGoogleUnlinkFailure">logGoogleUnlinkFailure</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logGoogleUnlinkSuccess">logGoogleUnlinkSuccess</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logLoginFailure">logLoginFailure</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logLoginSuccess">logLoginSuccess</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logLogout">logLogout</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logLogoutInvalidToken">logLogoutInvalidToken</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logRegistrationFailure">logRegistrationFailure</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-loggers_auth.html#.logRegistrationRequest">logRegistrationRequest</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logRegistrationSuccess">logRegistrationSuccess</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logSuspiciousAuthActivity">logSuspiciousAuthActivity</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logTokenRefresh">logTokenRefresh</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logTokenRefreshFailure">logTokenRefreshFailure</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserDelete">logUserDelete</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserDeleteFailure">logUserDeleteFailure</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-loggers_auth.html#.logUserDeleteRequest">logUserDeleteRequest</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserDeleteRequestFailure">logUserDeleteRequestFailure</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserFetch">logUserFetch</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserUpdate">logUserUpdate</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserUpdateFailure">logUserUpdateFailure</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserUpdateRequest">logUserUpdateRequest</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_auth.html#.logUserUpdateRequestFailure">logUserUpdateRequestFailure</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h2>Properties</h2>
+            <section>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logGoogleUnlinkFailure"><span class="symbol-name">logGoogleUnlinkFailure</span></h3>
+              <p>Логирование неудачного отвязывания Google аккаунта</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logGoogleUnlinkFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Google API error&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logGoogleUnlinkSuccess"><span class="symbol-name">logGoogleUnlinkSuccess</span></h3>
+              <p>Логирование успешного отвязывания Google аккаунта</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logGoogleUnlinkSuccess(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logLoginFailure"><span class="symbol-name">logLoginFailure</span></h3>
+              <p>Логирование неудачной попытки входа</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logLoginFailure(&#x27;user@example.com&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Wrong password&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>Yes</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                        <p>Defaults to <code>'Invalid credentials'</code>.</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logLoginSuccess"><span class="symbol-name">logLoginSuccess</span></h3>
+              <p>Логирование успешного входа пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logLoginSuccess(&#x27;user@example.com&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logLogout"><span class="symbol-name">logLogout</span></h3>
+              <p>Логирование выхода пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logLogout(&#x27;john_doe&#x27;, &#x27;john@example.com&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>login</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Логин пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logLogoutInvalidToken"><span class="symbol-name">logLogoutInvalidToken</span></h3>
+              <p>Логирование попытки выхода с недействительным токеном</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logLogoutInvalidToken(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logRegistrationFailure"><span class="symbol-name">logRegistrationFailure</span></h3>
+              <p>Логирование неудачной регистрации</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logRegistrationFailure(&#x27;newuser@example.com&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Email already exists&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logRegistrationRequest"><span class="symbol-name">logRegistrationRequest</span></h3>
+              <p>Логирование запроса на регистрацию</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logRegistrationRequest(&#x27;newuser@example.com&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logRegistrationSuccess"><span class="symbol-name">logRegistrationSuccess</span></h3>
+              <p>Логирование успешной регистрации</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logRegistrationSuccess(&#x27;newuser@example.com&#x27;, 123, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userId</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>ID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logSuspiciousAuthActivity"><span class="symbol-name">logSuspiciousAuthActivity</span></h3>
+              <p>Логирование подозрительной активности в аутентификации</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logSuspiciousAuthActivity(&#x27;multiple_failed_logins&#x27;, &#x27;john@example.com&#x27;, &#x27;192.168.1.1&#x27;, &#x27;5 attempts in 1 minute&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>action</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Действие, которое вызвало подозрение</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>identifier</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Идентификатор пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>details</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>Yes</p>
+                      </td>
+                      <td>
+                        <p>Дополнительные детали</p>
+                        <p>Defaults to <code>''</code>.</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTokenRefresh"><span class="symbol-name">logTokenRefresh</span></h3>
+              <p>Логирование обновления токена</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTokenRefresh(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, true);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>rotated</p>
+                      </td>
+                      <td>
+                        <p>boolean</p>
+                      </td>
+                      <td>
+                        <p>Yes</p>
+                      </td>
+                      <td>
+                        <p>Флаг ротации токена</p>
+                        <p>Defaults to <code>false</code>.</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTokenRefreshFailure"><span class="symbol-name">logTokenRefreshFailure</span></h3>
+              <p>Логирование неудачного обновления токена</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTokenRefreshFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Token expired&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserDelete"><span class="symbol-name">logUserDelete</span></h3>
+              <p>Логирование удаления пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserDelete(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserDeleteFailure"><span class="symbol-name">logUserDeleteFailure</span></h3>
+              <p>Логирование неудачного удаления пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserDeleteFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;User not found&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserDeleteRequest"><span class="symbol-name">logUserDeleteRequest</span></h3>
+              <p>Логирование запроса на удаление пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserDeleteRequest(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;john@example.com&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserDeleteRequestFailure"><span class="symbol-name">logUserDeleteRequestFailure</span></h3>
+              <p>Логирование неудачного запроса на удаление пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserDeleteRequestFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Permission denied&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserFetch"><span class="symbol-name">logUserFetch</span></h3>
+              <p>Логирование получения данных пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserFetch(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserUpdate"><span class="symbol-name">logUserUpdate</span></h3>
+              <p>Логирование обновления данных пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserUpdate(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, {name: &#x27;John&#x27;, email: &#x27;john@example.com&#x27;}, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>changes</p>
+                      </td>
+                      <td>
+                        <p>Object</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Объект с изменениями (чувствительные данные будут отфильтрованы)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserUpdateFailure"><span class="symbol-name">logUserUpdateFailure</span></h3>
+              <p>Логирование неудачного обновления данных пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserUpdateFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Validation failed&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserUpdateRequest"><span class="symbol-name">logUserUpdateRequest</span></h3>
+              <p>Логирование запроса на обновление данных пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserUpdateRequest(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;john@example.com&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>email</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Email пользователя (будет замаскирован)</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logUserUpdateRequestFailure"><span class="symbol-name">logUserUpdateRequestFailure</span></h3>
+              <p>Логирование неудачного запроса на обновление данных пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logUserUpdateRequestFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Invalid data&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>reason</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Причина неудачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+            </section>
+          </section>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

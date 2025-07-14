@@ -1,0 +1,194 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Source: utils/helpers/userHelpers.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: utils/helpers/userHelpers.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * @module helpers/user
+ * @description Вспомогательные функции для работы с пользователями.
+ */
+import prisma from &#x27;../prismaConfig/prismaClient.js&#x27;;
+import { isValidUUID } from &#x27;../validators/taskValidators.js&#x27;;
+
+/**
+ * Поиск пользователя по UUID (только активные, не удаленные)
+ * @param {string} uuid - UUID пользователя
+ * @param {Object} select - Объект для выбора полей (опционально)
+ * @returns {Promise&amp;lt;Object|null&gt;} Пользователь или null если не найден
+ * @example
+ * const user &#x3D; await findUserByUuid(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;);
+ * const userWithEmail &#x3D; await findUserByUuid(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, { email: true, login: true });
+ */
+export const findUserByUuid &#x3D; async (uuid, select &#x3D; {}) &#x3D;&gt; {
+  if (!isValidUUID(uuid)) {
+    throw new Error(&#x27;Invalid user UUID&#x27;);
+  }
+  return await prisma.user.findFirst({
+    where: { uuid, isDeleted: false },
+    ...(Object.keys(select).length &gt; 0 ? { select } : {}),
+  });
+};
+
+/**
+ * Поиск пользователя по email (только активные, не удаленные)
+ * @param {string} email - Email пользователя
+ * @param {Object} select - Объект для выбора полей (опционально)
+ * @returns {Promise&amp;lt;Object|null&gt;} Пользователь или null если не найден
+ * @example
+ * const user &#x3D; await findUserByEmail(&#x27;user@example.com&#x27;);
+ * const userWithRole &#x3D; await findUserByEmail(&#x27;user@example.com&#x27;, { role: true, isActive: true });
+ */
+export const findUserByEmail &#x3D; async (email, select &#x3D; {}) &#x3D;&gt; {
+  return await prisma.user.findFirst({
+    where: { email, isDeleted: false },
+    ...(Object.keys(select).length &gt; 0 ? { select } : {}),
+  });
+};
+
+/**
+ * Поиск пользователя по Google Sub ID (только активные, не удаленные)
+ * @param {string} googleSub - Google Sub ID пользователя
+ * @param {Object} select - Объект для выбора полей (опционально)
+ * @returns {Promise&amp;lt;Object|null&gt;} Пользователь или null если не найден
+ * @example
+ * const user &#x3D; await findUserByGoogleSub(&#x27;google_sub_123&#x27;);
+ * const userWithGoogle &#x3D; await findUserByGoogleSub(&#x27;google_sub_123&#x27;, { googleEmail: true, googleOAuthEnabled: true });
+ */
+export const findUserByGoogleSub &#x3D; async (googleSub, select &#x3D; {}) &#x3D;&gt; {
+  return await prisma.user.findFirst({
+    where: { googleSub, isDeleted: false },
+    ...(Object.keys(select).length &gt; 0 ? { select } : {}),
+  });
+};
+
+/**
+ * Проверка существования пользователя с выбросом ошибки
+ * @param {Object|null} user - Объект пользователя
+ * @param {string} errorMessage - Кастомное сообщение об ошибке
+ * @returns {Object} Пользователь если существует
+ * @throws {Error} Если пользователь не найден
+ * @example
+ * const user &#x3D; requireUserExists(foundUser);
+ * const user &#x3D; requireUserExists(foundUser, &#x27;Пользователь не найден в системе&#x27;);
+ */
+export const requireUserExists &#x3D; (
+  user,
+  errorMessage &#x3D; &#x27;Пользователь не найден&#x27;,
+) &#x3D;&gt; {
+  if (!user) {
+    throw new Error(errorMessage);
+  }
+  return user;
+};
+
+/**
+ * Проверка активности пользователя
+ * @param {Object} user - Объект пользователя
+ * @returns {Object} Пользователь если активен
+ * @throws {Error} Если пользователь заблокирован
+ * @example
+ * const activeUser &#x3D; requireUserActive(user);
+ */
+export const requireUserActive &#x3D; (user) &#x3D;&gt; {
+  if (!user.isActive) {
+    throw new Error(&#x27;Аккаунт заблокирован. Обратитесь в поддержку.&#x27;);
+  }
+  return user;
+};
+
+/**
+ * Проверка что пользователь не удален
+ * @param {Object} user - Объект пользователя
+ * @returns {Object} Пользователь если не удален
+ * @throws {Error} Если пользователь удален
+ * @example
+ * const notDeletedUser &#x3D; requireUserNotDeleted(user);
+ */
+export const requireUserNotDeleted &#x3D; (user) &#x3D;&gt; {
+  if (user.isDeleted) {
+    throw new Error(&#x27;Пользователь удален&#x27;);
+  }
+  return user;
+};
+
+/**
+ * Поиск пользователя по UUID с автоматической проверкой существования
+ * @param {string} uuid - UUID пользователя
+ * @param {Object} select - Объект для выбора полей (опционально)
+ * @returns {Promise&amp;lt;Object&gt;} Пользователь
+ * @throws {Error} Если пользователь не найден
+ * @example
+ * const user &#x3D; await findUserByUuidOrThrow(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;);
+ * const userWithEmail &#x3D; await findUserByUuidOrThrow(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, { email: true });
+ */
+export const findUserByUuidOrThrow &#x3D; async (uuid, select &#x3D; {}) &#x3D;&gt; {
+  if (!isValidUUID(uuid)) {
+    throw new Error(&#x27;Invalid user UUID&#x27;);
+  }
+  const user &#x3D; await findUserByUuid(uuid, select);
+  return requireUserExists(user);
+};
+
+/**
+ * Поиск пользователя по email с автоматической проверкой существования
+ * @param {string} email - Email пользователя
+ * @param {Object} select - Объект для выбора полей (опционально)
+ * @returns {Promise&amp;lt;Object&gt;} Пользователь
+ * @throws {Error} Если пользователь не найден
+ * @example
+ * const user &#x3D; await findUserByEmailOrThrow(&#x27;user@example.com&#x27;);
+ * const userWithRole &#x3D; await findUserByEmailOrThrow(&#x27;user@example.com&#x27;, { role: true });
+ */
+export const findUserByEmailOrThrow &#x3D; async (email, select &#x3D; {}) &#x3D;&gt; {
+  const user &#x3D; await findUserByEmail(email, select);
+  return requireUserExists(user);
+};
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

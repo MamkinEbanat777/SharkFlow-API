@@ -1,0 +1,635 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Module: helpers/task</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <div class="symbol-detail-labels"><span class="label label-kind">module</span></div>
+            <h1><small></small><span class="symbol-name">helpers/task</span></h1>
+            <p class="source-link">Source: <a href="utils_helpers_taskHelpers.js.html">utils/<wbr>helpers/<wbr>taskHelpers.<wbr>js</a></p>
+            <div class="symbol-description">
+              <p>Вспомогательные функции для работы с задачами.</p>
+            </div>
+            <dl class="dl-compact">
+            </dl>
+          </header>
+          <section id="summary">
+            <div class="summary-callout">
+              <h2 class="summary-callout-heading">Properties</h2>
+              <div class="summary-content">
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-helpers_task.html#.findBoardByUuidForUser">findBoardByUuidForUser</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-helpers_task.html#.findTaskByUuid">findTaskByUuid</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-helpers_task.html#.findTaskWithBoardAccess">findTaskWithBoardAccess</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-helpers_task.html#.getTasksForBoard">getTasksForBoard</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-helpers_task.html#.getUserTaskCount">getUserTaskCount</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-helpers_task.html#.softDeleteTask">softDeleteTask</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-helpers_task.html#.validateTaskData">validateTaskData</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h2>Properties</h2>
+            <section>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".findBoardByUuidForUser"><span class="symbol-name">findBoardByUuidForUser</span></h3>
+              <p>Поиск доски по UUID для пользователя (с проверкой владельца)</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const board &#x3D; await findBoardByUuidForUser(&#x27;board-uuid&#x27;, &#x27;user-uuid&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>boardUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID доски</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя-владельца</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>select</p>
+                      </td>
+                      <td>
+                        <p>Object</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Объект для выбора полей (опционально)</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Promise containing (Object or null)</code> 
+                  <p>Доска или null если не найдена</p>
+                  </p>
+                </dd>
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".findTaskByUuid"><span class="symbol-name">findTaskByUuid</span></h3>
+              <p>Поиск задачи по UUID в рамках доски</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const task &#x3D; await findTaskByUuid(&#x27;task-uuid&#x27;, 123);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>taskUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID задачи</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>boardId</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>ID доски</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>select</p>
+                      </td>
+                      <td>
+                        <p>Object</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Объект для выбора полей (опционально)</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Promise containing (Object or null)</code> 
+                  <p>Задача или null если не найдена</p>
+                  </p>
+                </dd>
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".findTaskWithBoardAccess"><span class="symbol-name">findTaskWithBoardAccess</span></h3>
+              <p>Поиск задачи с проверкой доступа к доске</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const task &#x3D; await findTaskWithBoardAccess(&#x27;task-uuid&#x27;, &#x27;board-uuid&#x27;, &#x27;user-uuid&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>taskUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID задачи</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>boardUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID доски</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя-владельца</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>select</p>
+                      </td>
+                      <td>
+                        <p>Object</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Объект для выбора полей (опционально)</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Promise containing (Object or null)</code> 
+                  <p>Задача или null если не найдена</p>
+                  </p>
+                </dd>
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".getTasksForBoard"><span class="symbol-name">getTasksForBoard</span></h3>
+              <p>Получение всех задач для доски пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const tasks &#x3D; await getTasksForBoard(&#x27;board-uuid&#x27;, &#x27;user-uuid&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>boardUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID доски</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя-владельца</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Promise containing Array</code> 
+                  <p>Массив задач</p>
+                  </p>
+                </dd>
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".getUserTaskCount"><span class="symbol-name">getUserTaskCount</span></h3>
+              <p>Получение количества задач пользователя</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const taskCount &#x3D; await getUserTaskCount(&#x27;user-uuid&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameter</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Promise containing number</code> 
+                  <p>Количество задач</p>
+                  </p>
+                </dd>
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".softDeleteTask"><span class="symbol-name">softDeleteTask</span></h3>
+              <p>Мягкое удаление задачи</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const deletedTask &#x3D; await softDeleteTask(123);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameter</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>taskId</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>ID задачи</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Promise containing Object</code> 
+                  <p>Обновленная задача</p>
+                  </p>
+                </dd>
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".validateTaskData"><span class="symbol-name">validateTaskData</span></h3>
+              <p>Валидация данных задачи</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>const validation &#x3D; validateTaskData({ title: &#x27;Task&#x27;, priority: &#x27;HIGH&#x27; });
+if (!validation.isValid) {
+  logError(&#x27;TaskValidation&#x27;, &#x27;validationFailed&#x27;, validation.errors);
+}</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>data</p>
+                      </td>
+                      <td>
+                        <p>Object</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Данные для валидации</p>
+                        <p>Values in <code>data</code> have the following properties:</p>
+                        <table class="jsdoc-details-table">
+                          <thead>
+                            <tr>
+                              <th>Name</th>
+                              <th>Type</th>
+                              <th>Optional</th>
+                              <th>Description</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            <tr>
+                              <td>
+                                <p>title</p>
+                              </td>
+                              <td>
+                                <p>string</p>
+                              </td>
+                              <td>
+                                <p>Yes</p>
+                              </td>
+                              <td>
+                                <p>Название задачи</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <p>dueDate</p>
+                              </td>
+                              <td>
+                                <p>(string, Date, or null)</p>
+                              </td>
+                              <td>
+                                <p>Yes</p>
+                              </td>
+                              <td>
+                                <p>Дедлайн задачи</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <p>description</p>
+                              </td>
+                              <td>
+                                <p>string</p>
+                              </td>
+                              <td>
+                                <p>Yes</p>
+                              </td>
+                              <td>
+                                <p>Описание задачи</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <p>priority</p>
+                              </td>
+                              <td>
+                                <p>(string or null)</p>
+                              </td>
+                              <td>
+                                <p>Yes</p>
+                              </td>
+                              <td>
+                                <p>Приоритет задачи</p>
+                              </td>
+                            </tr>
+                            <tr>
+                              <td>
+                                <p>status</p>
+                              </td>
+                              <td>
+                                <p>(string or null)</p>
+                              </td>
+                              <td>
+                                <p>Yes</p>
+                              </td>
+                              <td>
+                                <p>Статус задачи</p>
+                              </td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+                <dt>Returns</dt>
+                <dd>
+                  <p><code>Object</code> 
+                  <p>Результат валидации {isValid: boolean, errors: Array, data: Object}</p>
+                  </p>
+                </dd>
+              </dl>
+            </section>
+          </section>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

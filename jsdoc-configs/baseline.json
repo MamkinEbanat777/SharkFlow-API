@@ -1,0 +1,34 @@
+{
+  "tags": {
+    "allowUnknownTags": true,
+    "dictionaries": ["jsdoc"]
+  },
+  "source": {
+    "include": [
+      "utils",
+      "routes",
+      "telegramBot",
+      "middlewares",
+      "socket",
+      "store"
+    ],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(node_modules/|docs)"
+  },
+  "plugins": [
+    "plugins/markdown"
+  ],
+  "templates": {
+    "cleverLinks": false,
+    "monospaceLinks": false,
+    "default": {
+      "outputSourceFiles": true
+    }
+  },
+  "opts": {
+    "destination": "./docs/jsdoc-baseline",
+    "recurse": true,
+    "readme": "./README.md",
+    "template": "node_modules/jsdoc-baseline"
+  }
+} 

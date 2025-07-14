@@ -1,0 +1,575 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Module: loggers/task</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <div class="symbol-detail-labels"><span class="label label-kind">module</span></div>
+            <h1><small></small><span class="symbol-name">loggers/task</span></h1>
+            <p class="source-link">Source: <a href="utils_loggers_taskLoggers.js.html">utils/<wbr>loggers/<wbr>taskLoggers.<wbr>js</a></p>
+            <div class="symbol-description">
+              <p>Логгеры для работы с задачами.</p>
+            </div>
+            <dl class="dl-compact">
+            </dl>
+          </header>
+          <section id="summary">
+            <div class="summary-callout">
+              <h2 class="summary-callout-heading">Properties</h2>
+              <div class="summary-content">
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-loggers_task.html#.logSuspiciousActivity">logSuspiciousActivity</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_task.html#.logTaskCreation">logTaskCreation</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-loggers_task.html#.logTaskDeletion">logTaskDeletion</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_task.html#.logTaskError">logTaskError</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+                <div class="summary-column">
+                  <dl class="dl-summary-callout">
+                    <dt><a href="module-loggers_task.html#.logTaskFetch">logTaskFetch</a></dt>
+                    <dd>
+                    </dd>
+                    <dt><a href="module-loggers_task.html#.logTaskUpdate">logTaskUpdate</a></dt>
+                    <dd>
+                    </dd>
+                  </dl>
+                </div>
+              </div>
+            </div>
+          </section>
+          <section>
+            <h2>Properties</h2>
+            <section>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logSuspiciousActivity"><span class="symbol-name">logSuspiciousActivity</span></h3>
+              <p>Логирование подозрительной активности при работе с задачами</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logSuspiciousActivity(&#x27;mass_deletion&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Deleted 100 tasks in 1 minute&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>action</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Действие, которое вызвало подозрение</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>details</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>Yes</p>
+                      </td>
+                      <td>
+                        <p>Дополнительные детали</p>
+                        <p>Defaults to <code>''</code>.</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTaskCreation"><span class="symbol-name">logTaskCreation</span></h3>
+              <p>Логирование создания задачи</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTaskCreation(&#x27;Implement user authentication&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>title</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Название задачи</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTaskDeletion"><span class="symbol-name">logTaskDeletion</span></h3>
+              <p>Логирование удаления задачи</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTaskDeletion(&#x27;Implement user authentication&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>title</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Название задачи</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTaskError"><span class="symbol-name">logTaskError</span></h3>
+              <p>Логирование ошибки при работе с задачами</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTaskError(&#x27;creation&#x27;, new Error(&#x27;Database connection failed&#x27;), &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>action</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Действие, которое вызвало ошибку</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>error</p>
+                      </td>
+                      <td>
+                        <p>Error</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Объект ошибки</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTaskFetch"><span class="symbol-name">logTaskFetch</span></h3>
+              <p>Логирование получения задач (только в development)</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTaskFetch(25, 100, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>tasksCount</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Количество полученных задач</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>totalTasks</p>
+                      </td>
+                      <td>
+                        <p>number</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Общее количество задач</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+              <div class="symbol-detail-labels"><span class="label label-constant">constant</span>&nbsp;<span class="label label-static">static</span></div>
+              <h3 id=".logTaskUpdate"><span class="symbol-name">logTaskUpdate</span></h3>
+              <p>Логирование обновления задачи</p>
+              <section>
+                <h4>
+                  Example
+                </h4>
+                <div>
+                  <pre class="prettyprint"><code>logTaskUpdate(&#x27;Implement user authentication&#x27;, {status: &#x27;completed&#x27;, priority: &#x27;high&#x27;}, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);</code></pre>
+                </div>
+              </section>
+              <section>
+                <h4>Parameters</h4>
+                <table class="jsdoc-details-table">
+                  <thead>
+                    <tr>
+                      <th>Name</th>
+                      <th>Type</th>
+                      <th>Optional</th>
+                      <th>Description</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>
+                        <p>title</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Название задачи</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>changes</p>
+                      </td>
+                      <td>
+                        <p>Object</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>Объект с изменениями</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>userUuid</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>UUID пользователя</p>
+                      </td>
+                    </tr>
+                    <tr>
+                      <td>
+                        <p>ip</p>
+                      </td>
+                      <td>
+                        <p>string</p>
+                      </td>
+                      <td>
+                        <p>&nbsp;</p>
+                      </td>
+                      <td>
+                        <p>IP адрес клиента</p>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </section>
+              <dl class="dl-compact">
+              </dl>
+            </section>
+          </section>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

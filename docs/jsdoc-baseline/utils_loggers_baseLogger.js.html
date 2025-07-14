@@ -1,0 +1,247 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Source: utils/loggers/baseLogger.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: utils/loggers/baseLogger.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * @module loggers/base
+ * @description Базовые функции для логирования.
+ */
+import winston from &#x27;winston&#x27;;
+import LokiTransport from &#x27;winston-loki&#x27;;
+
+const levelColors &#x3D; {
+  INFO: &#x27;\x1b[34m&#x27;,
+  WARN: &#x27;\x1b[33m&#x27;,
+  ERROR: &#x27;\x1b[31m&#x27;,
+  RESET: &#x27;\x1b[0m&#x27;,
+};
+
+const entityColor &#x3D; &#x27;\x1b[36m&#x27;;
+const actionColor &#x3D; &#x27;\x1b[35m&#x27;;
+
+const timeFormat &#x3D; winston.format((info) &#x3D;&gt; {
+  const date &#x3D; new Date(info.timestamp);
+  const hh &#x3D; String(date.getHours()).padStart(2, &#x27;0&#x27;);
+  const mm &#x3D; String(date.getMinutes()).padStart(2, &#x27;0&#x27;);
+  const ss &#x3D; String(date.getSeconds()).padStart(2, &#x27;0&#x27;);
+  info.timestamp &#x3D; &#x60;${hh}:${mm}:${ss}&#x60;;
+  return info;
+});
+
+const colorizeLevel &#x3D; winston.format((info) &#x3D;&gt; {
+  const level &#x3D; info.level.toUpperCase();
+  const color &#x3D; levelColors[level] || &#x27;&#x27;;
+  const reset &#x3D; levelColors.RESET;
+  info.level &#x3D; &#x60;${color}[${level}]${reset}&#x60;;
+  return info;
+});
+
+const injectReadableMessage &#x3D; winston.format((info) &#x3D;&gt; {
+  if (
+    typeof info.message &#x3D;&#x3D;&#x3D; &#x27;object&#x27; &amp;amp;&amp;amp;
+    info.message !&#x3D;&#x3D; null &amp;amp;&amp;amp;
+    (info.message.entity || info.message.action || info.message.details)
+  ) {
+    const { entity, action, details } &#x3D; info.message;
+    const parts &#x3D; [];
+    if (entity) parts.push(&#x60;[${entity}]&#x60;);
+    if (action) parts.push(action);
+    if (details) parts.push(details);
+    info._formattedMessage &#x3D; parts.join(&#x27;: &#x27;);
+  } else if (typeof info.message &#x3D;&#x3D;&#x3D; &#x27;string&#x27;) {
+    info._formattedMessage &#x3D; info.message;
+  }
+  return info;
+});
+
+const consoleFormat &#x3D; winston.format.printf(
+  ({ timestamp, level, _formattedMessage }) &#x3D;&gt; {
+    if (!_formattedMessage) return &#x60;${timestamp} ${level} -&#x60;;
+
+    let coloredMsg &#x3D; _formattedMessage.replace(
+      /\[([^\]]+)\]/g,
+      &#x60;${entityColor}[$1]${levelColors.RESET}&#x60;,
+    );
+
+    coloredMsg &#x3D; coloredMsg.replace(/] ([^:]+):/, (match, p1) &#x3D;&gt; {
+      return &#x60;] ${actionColor}${p1}${levelColors.RESET}:&#x60;;
+    });
+
+    return &#x60;${timestamp} ${level} ${coloredMsg}&#x60;;
+  },
+);
+
+const getLogLevel &#x3D; () &#x3D;&gt; {
+  const env &#x3D; process.env.NODE_ENV || &#x27;development&#x27;;
+  const envLevel &#x3D; process.env.LOG_LEVEL;
+  return envLevel || (env &#x3D;&#x3D;&#x3D; &#x27;production&#x27; ? &#x27;info&#x27; : &#x27;debug&#x27;);
+};
+
+const transports &#x3D; [
+  new winston.transports.Console({
+    format: winston.format.combine(
+      winston.format.timestamp(),
+      timeFormat(),
+      colorizeLevel(),
+      injectReadableMessage(),
+      consoleFormat,
+    ),
+  }),
+];
+
+const parseHttpLogDetails &#x3D; (details) &#x3D;&gt; {
+  const regex &#x3D;
+    /^(\S+) - - \[([^\]]+)\] &quot;(GET|POST|PUT|DELETE|PATCH|HEAD|OPTIONS) ([^&quot;]+) (HTTP\/[0-9.]*)&quot; (\d{3}) (\d+) &quot;([^&quot;]*)&quot; &quot;([^&quot;]*)&quot;/;
+
+  const match &#x3D; details.match(regex);
+  if (!match) return {};
+
+  const [
+    ,
+    ip,
+    rawDate,
+    method,
+    path,
+    protocol,
+    status,
+    responseSize,
+    referer,
+    userAgent,
+  ] &#x3D; match;
+
+  const timestamp &#x3D; new Date(rawDate.replace(&#x27;:&#x27;, &#x27; &#x27;, 1)).toISOString();
+
+  return {
+    ip,
+    timestamp,
+    method,
+    path,
+    protocol,
+    status: parseInt(status),
+    response_size: parseInt(responseSize),
+    referer,
+    user_agent: userAgent,
+  };
+};
+
+if (
+  process.env.LOKI_URL &amp;amp;&amp;amp;
+  process.env.LOKI_USER_ID &amp;amp;&amp;amp;
+  process.env.LOKI_API_KEY
+) {
+  transports.push(
+    new LokiTransport({
+      host: process.env.LOKI_URL,
+      basicAuth: &#x60;${process.env.LOKI_USER_ID}:${process.env.LOKI_API_KEY}&#x60;,
+      labels: { app: &#x27;SharkFlow-API&#x27;, env: &#x60;${process.env.NODE_ENV}&#x60; },
+      json: true,
+      format: winston.format.json(),
+      replaceTimestamp: true,
+      clearOnError: true,
+      onConnectionError: (err) &#x3D;&gt; console.error(&#x27;LokiTransport: &#x27;, err),
+    }),
+  );
+}
+
+const prepareLogData &#x3D; (entity, action, details, error &#x3D; null) &#x3D;&gt; {
+  const base &#x3D; { entity, action };
+
+  if (entity &#x3D;&#x3D;&#x3D; &#x27;HTTP&#x27; &amp;amp;&amp;amp; typeof details &#x3D;&#x3D;&#x3D; &#x27;string&#x27;) {
+    const parsed &#x3D; parseHttpLogDetails(details);
+    return { ...base, ...parsed };
+  }
+
+  let combinedDetails &#x3D; details;
+  if (error) {
+    const errorMsg &#x3D; error?.stack || error?.message || error || &#x27;&#x27;;
+    combinedDetails &#x3D; &#x60;${details} ${errorMsg}&#x60;.trim();
+  }
+
+  return { ...base, details: combinedDetails };
+};
+
+const winstonLogger &#x3D; winston.createLogger({
+  level: getLogLevel(),
+  transports,
+});
+
+export const logInfo &#x3D; (entity, action, details) &#x3D;&gt; {
+  winstonLogger.info(prepareLogData(entity, action, details));
+};
+
+export const logWarn &#x3D; (entity, action, details) &#x3D;&gt; {
+  winstonLogger.warn(prepareLogData(entity, action, details));
+};
+
+export const logError &#x3D; (entity, action, details, error) &#x3D;&gt; {
+  winstonLogger.error(prepareLogData(entity, action, details, error));
+};
+
+export const logSuspicious &#x3D; (entity, action, userUuid, ip, extra &#x3D; &#x27;&#x27;) &#x3D;&gt; {
+  const details &#x3D; &#x60;Suspicious activity by ${userUuid} from IP ${ip}. ${extra}&#x60;;
+  const meta &#x3D; {
+    user_uuid: userUuid,
+    ip,
+    severity: &#x27;suspicious&#x27;,
+  };
+  winstonLogger.warn({ entity, action: &#x27;security&#x27;, details, ...meta });
+};
+
+const logger &#x3D; {
+  logInfo,
+  logWarn,
+  logError,
+  logSuspicious,
+};
+
+export default logger;
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>

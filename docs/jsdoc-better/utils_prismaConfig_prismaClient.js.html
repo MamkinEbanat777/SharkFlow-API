@@ -1,0 +1,131 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title> utils/prismaConfig/prismaClient.js</title>
+
+  <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="./build/entry.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <link href="https://fonts.googleapis.com/css?family=Roboto:100,400,700|Inconsolata,700" rel="stylesheet">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css" integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+  <link type="text/css" rel="stylesheet" href="https://jmblog.github.io/color-themes-for-google-code-prettify/themes/tomorrow-night.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/app.min.css">
+  <link type="text/css" rel="stylesheet" href="styles/iframe.css">
+  <link type="text/css" rel="stylesheet" href="">
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+
+  
+</head>
+
+
+
+<body class="layout small-header">
+    <div id="stickyNavbarOverlay"></div>
+    
+
+<div class="top-nav">
+    <div class="inner">
+        <a id="hamburger" role="button" class="navbar-burger" aria-label="menu" aria-expanded="false">
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+            <span aria-hidden="true"></span>
+        </a>
+        <div class="logo">
+            
+            
+        </div>
+        <div class="menu">
+            
+            <div class="navigation">
+                <a
+                    href="index.html"
+                    class="link"
+                >
+                    Documentation
+                </a>
+                
+                
+                
+            </div>
+        </div>
+    </div>
+</div>
+    <div id="main">
+        <div
+            class="sidebar "
+            id="sidebarNav"
+        >
+            
+            <nav>
+                
+                    <h2><a href="index.html">Documentation</a></h2><div class="category"><h3>Modules</h3><ul><li><a href="module-cookie_login.html">cookie/login</a></li><li><a href="module-cookie_register.html">cookie/register</a></li><li><a href="module-crypto_decrypt.html">crypto/decrypt</a></li><li><a href="module-crypto_encrypt.html">crypto/encrypt</a></li><li><a href="module-generators_confirmationCode.html">generators/confirmationCode</a></li><li><a href="module-generators_uniqueLogin.html">generators/uniqueLogin</a></li><li><a href="module-generators_uuid.html">generators/uuid</a></li><li><a href="module-handlers_routeError.html">handlers/routeError</a></li><li><a href="module-helpers_auth.html">helpers/auth</a></li><li><a href="module-helpers_avatar.html">helpers/avatar</a></li><li><a href="module-helpers_board.html">helpers/board</a></li><li><a href="module-helpers_confirmation.html">helpers/confirmation</a></li><li><a href="module-helpers_deviceSession.html">helpers/deviceSession</a></li><li><a href="module-helpers_googleOAuth.html">helpers/googleOAuth</a></li><li><a href="module-helpers_guestConversion.html">helpers/guestConversion</a></li><li><a href="module-helpers_sendUserConfirmationCode.html">helpers/sendUserConfirmationCode</a></li><li><a href="module-helpers_task.html">helpers/task</a></li><li><a href="module-helpers_totp.html">helpers/totp</a></li><li><a href="module-helpers_uploadAvatarAndUpdateUser.html">helpers/uploadAvatarAndUpdateUser</a></li><li><a href="module-helpers_user.html">helpers/user</a></li><li><a href="module-helpers_validateConfirmationCode.html">helpers/validateConfirmationCode</a></li><li><a href="module-helpers_verifyTurnstileCaptcha.html">helpers/verifyTurnstileCaptcha</a></li><li><a href="module-jobs_deleteOldGuests.html">jobs/deleteOldGuests</a></li><li><a href="module-loggers_auth.html">loggers/auth</a></li><li><a href="module-loggers_base.html">loggers/base</a></li><li><a href="module-loggers_board.html">loggers/board</a></li><li><a href="module-loggers_error.html">loggers/error</a></li><li><a href="module-loggers_mail.html">loggers/mail</a></li><li><a href="module-loggers_middleware.html">loggers/middleware</a></li><li><a href="module-loggers_socket.html">loggers/socket</a></li><li><a href="module-loggers_store.html">loggers/store</a></li><li><a href="module-loggers_system.html">loggers/system</a></li><li><a href="module-loggers_task.html">loggers/task</a></li><li><a href="module-loggers_telegram.html">loggers/telegram</a></li><li><a href="module-mail_emailRenderer.html">mail/emailRenderer</a></li><li><a href="module-mail_mailer.html">mail/mailer</a></li><li><a href="module-mail_sendConfirmationEmail.html">mail/sendConfirmationEmail</a></li><li><a href="module-prismaConfig_client.html">prismaConfig/client</a></li><li><a href="module-rateLimiters_auth.html">rateLimiters/auth</a></li><li><a href="module-rateLimiters_board.html">rateLimiters/board</a></li><li><a href="module-rateLimiters_task.html">rateLimiters/task</a></li><li><a href="module-routesLoader_loadRoutes.html">routesLoader/loadRoutes</a></li><li><a href="module-telegramBot_actions_chooseColor.html">telegramBot/actions/chooseColor</a></li><li><a href="module-telegramBot_bot.html">telegramBot/bot</a></li><li><a href="module-telegramBot_commands_auth_start.html">telegramBot/commands/auth/start</a></li><li><a href="module-telegramBot_commands_boards_getBoards.html">telegramBot/commands/boards/getBoards</a></li><li><a href="module-telegramBot_commands_help_help.html">telegramBot/commands/help/help</a></li><li><a href="module-telegramBot_commands_menu_menu.html">telegramBot/commands/menu/menu</a></li><li><a href="module-telegramBot_commands_users_ivan.html">telegramBot/commands/users/ivan</a></li><li><a href="module-telegramBot_commands_users_logout.html">telegramBot/commands/users/logout</a></li><li><a href="module-telegramBot_commands_users_me.html">telegramBot/commands/users/me</a></li><li><a href="module-telegramBot_events_boardsTrigger.html">telegramBot/events/boardsTrigger</a></li><li><a href="module-telegramBot_events_leftChatMember.html">telegramBot/events/leftChatMember</a></li><li><a href="module-telegramBot_events_newChatMembers.html">telegramBot/events/newChatMembers</a></li><li><a href="module-telegramBot_events_writeBoardParams.html">telegramBot/events/writeBoardParams</a></li><li><a href="module-telegramBot_handlers_boards_createBoard.html">telegramBot/handlers/boards/createBoard</a></li><li><a href="module-telegramBot_handlers_boards_getBoards.html">telegramBot/handlers/boards/getBoards</a></li><li><a href="module-telegramBot_handlers_callback.html">telegramBot/handlers/callback</a></li><li><a href="module-telegramBot_handlers_mainMenu.html">telegramBot/handlers/mainMenu</a></li><li><a href="module-telegramBot_handlers_users_logout.html">telegramBot/handlers/users/logout</a></li><li><a href="module-telegramBot_handlers_users_showHelp.html">telegramBot/handlers/users/showHelp</a></li><li><a href="module-telegramBot_handlers_users_showProfile.html">telegramBot/handlers/users/showProfile</a></li><li><a href="module-telegramBot_loadConfig.html">telegramBot/loadConfig</a></li><li><a href="module-telegramBot_send.html">telegramBot/send</a></li><li><a href="module-telegramBot_store_tempBoardCreate.html">telegramBot/store/tempBoardCreate</a></li><li><a href="module-telegramBot_utils_color_getColorEmoji.html">telegramBot/utils/color/getColorEmoji</a></li><li><a href="module-tokens_access.html">tokens/access</a></li><li><a href="module-tokens_csrf.html">tokens/csrf</a></li><li><a href="module-tokens_refresh.html">tokens/refresh</a></li><li><a href="module-validators_board.html">validators/board</a></li><li><a href="module-validators_common.html">validators/common</a></li><li><a href="module-validators_emailConfirm.html">validators/emailConfirm</a></li><li><a href="module-validators_enum.html">validators/enum</a></li><li><a href="module-validators_jwt.html">validators/jwt</a></li><li><a href="module-validators_login.html">validators/login</a></li><li><a href="module-validators_normalizeEmail.html">validators/normalizeEmail</a></li><li><a href="module-validators_register.html">validators/register</a></li><li><a href="module-validators_task.html">validators/task</a></li></ul></div>
+                
+            </nav>
+        </div>
+        <div class="core" id="main-content-wrapper">
+            <div class="content">
+                <header class="page-title">
+                    <p>Source</p>
+                    <h1>utils/prismaConfig/prismaClient.js</h1>
+                </header>
+                
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>import { PrismaClient } from '@prisma/client';
+
+/**
+ * @module prismaConfig/client
+ * @description Конфигурация и клиент Prisma.
+ */
+// const prisma = new PrismaClient({ log: ['query', 'info', 'warn', 'error'] });
+const prisma = new PrismaClient({});
+
+/**
+ * Экземпляр Prisma клиента для работы с базой данных
+ * @type {PrismaClient}
+ */
+export default prisma;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+            </div>
+            
+            <footer class="footer">
+                <div class="content has-text-centered">
+                    <p>Documentation generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc 3.6.11</a></p>
+                    <p class="sidebar-created-by">
+                        <a href="https://github.com/SoftwareBrothers/better-docs" target="_blank">BetterDocs theme</a> provided with <i class="fas fa-heart"></i> by
+                        <a href="http://softwarebrothers.co" target="_blank">SoftwareBrothers - JavaScript Development Agency</a>
+                    </p>
+                </div>
+            </footer>
+            
+        </div>
+        <div id="side-nav" class="side-nav">
+        </div>
+    </div>
+<script src="scripts/app.min.js"></script>
+<script>PR.prettyPrint();</script>
+<script src="scripts/linenumber.js"> </script>
+
+
+</body>
+</html>

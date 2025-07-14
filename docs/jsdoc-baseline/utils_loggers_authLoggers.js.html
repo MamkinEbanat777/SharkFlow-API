@@ -1,0 +1,413 @@
+<!doctype html>
+<html>
+
+<head>
+  <meta name="generator" content="JSDoc 3.6.11">
+  <meta charset="utf-8">
+  <title>Source: utils/loggers/authLoggers.js</title>
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Karla:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Noto+Serif:400,400i,700,700i" type="text/css">
+  <link rel="stylesheet" href="https://brick.a.ssl.fastly.net/Inconsolata:500" type="text/css">
+  <link href="css/baseline.css" rel="stylesheet">
+</head>
+
+<body onload="prettyPrint()">
+  <nav id="jsdoc-navbar" role="navigation" class="jsdoc-navbar">
+    <div id="jsdoc-navbar-container">
+      <div id="jsdoc-navbar-content">
+        <a href="index.html" class="jsdoc-navbar-package-name">Home</a>
+      </div>
+    </div>
+  </nav>
+  <div id="jsdoc-body-container">
+    <div id="jsdoc-content">
+      <div id="jsdoc-content-container">
+        <div id="jsdoc-banner" role="banner">
+        </div>
+        <div id="jsdoc-main" role="main">
+          <header class="page-header">
+            <h1>Source: utils/loggers/authLoggers.js</h1>
+          </header>
+          <article>
+            <pre class="prettyprint linenums"><code>/**
+ * @module loggers/auth
+ * @description Логгеры для аутентификации и авторизации.
+ */
+import { logInfo, logWarn, logError, logSuspicious } from &#x27;./baseLogger.js&#x27;;
+
+const filterSensitiveData &#x3D; (changes) &#x3D;&gt; {
+  if (!changes || typeof changes !&#x3D;&#x3D; &#x27;object&#x27;) return changes;
+  
+  const sensitiveFields &#x3D; [&#x27;password&#x27;, &#x27;token&#x27;, &#x27;secret&#x27;, &#x27;key&#x27;, &#x27;auth&#x27;];
+  const filtered &#x3D; { ...changes };
+  
+  sensitiveFields.forEach(field &#x3D;&gt; {
+    if (filtered[field]) {
+      filtered[field] &#x3D; &#x27;[REDACTED]&#x27;;
+    }
+  });
+  
+  return filtered;
+};
+
+const maskEmail &#x3D; (email) &#x3D;&gt; {
+  if (!email || typeof email !&#x3D;&#x3D; &#x27;string&#x27;) return &#x27;[NO_EMAIL]&#x27;;
+  const [local, domain] &#x3D; email.split(&#x27;@&#x27;);
+  if (!domain) return email;
+  return &#x60;${local.slice(0, 2)}***@${domain}&#x60;;
+};
+
+const validateParams &#x3D; (userUuid, ip) &#x3D;&gt; {
+  if (!userUuid) throw new Error(&#x27;userUuid is required&#x27;);
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+};
+
+/**
+ * Логирование успешного входа пользователя
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logLoginSuccess(&#x27;user@example.com&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logLoginSuccess &#x3D; (email, userUuid, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Auth&#x27;, &#x27;login success&#x27;, &#x60;${maskEmail(email)} (${userUuid}) from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование неудачной попытки входа
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} ip - IP адрес клиента
+ * @param {string} [reason&#x3D;&#x27;Invalid credentials&#x27;] - Причина неудачи
+ * @example
+ * logLoginFailure(&#x27;user@example.com&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Wrong password&#x27;);
+ */
+export const logLoginFailure &#x3D; (email, ip, reason &#x3D; &#x27;Invalid credentials&#x27;) &#x3D;&gt; {
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+  logWarn(&#x27;Auth&#x27;, &#x27;login failure&#x27;, &#x60;${maskEmail(email)} from IP: ${ip} - ${reason}&#x60;);
+};
+
+/**
+ * Логирование выхода пользователя
+ * @param {string} login - Логин пользователя
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logLogout(&#x27;john_doe&#x27;, &#x27;john@example.com&#x27;, &#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logLogout &#x3D; (login, email, userUuid, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Auth&#x27;, &#x27;logout&#x27;, &#x60;${login} (${maskEmail(email)}) (${userUuid}) from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование попытки выхода с недействительным токеном
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logLogoutInvalidToken(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logLogoutInvalidToken &#x3D; (userUuid, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(&#x27;Auth&#x27;, &#x27;logout invalid token&#x27;, &#x60;from IP: ${ip}, user: ${userUuid}&#x60;);
+};
+
+/**
+ * Логирование обновления токена
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {boolean} [rotated&#x3D;false] - Флаг ротации токена
+ * @example
+ * logTokenRefresh(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, true);
+ */
+export const logTokenRefresh &#x3D; (userUuid, ip, rotated &#x3D; false) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(
+    &#x27;Auth&#x27;,
+    &#x27;token refresh&#x27;,
+    &#x60;${userUuid} from IP: ${ip}${rotated ? &#x27; (rotated)&#x27; : &#x27;&#x27;}&#x60;,
+  );
+};
+
+/**
+ * Логирование неудачного обновления токена
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logTokenRefreshFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Token expired&#x27;);
+ */
+export const logTokenRefreshFailure &#x3D; (userUuid, ip, reason) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;token refresh failure&#x27;,
+    &#x60;${userUuid} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+
+/**
+ * Логирование запроса на регистрацию
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logRegistrationRequest(&#x27;newuser@example.com&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logRegistrationRequest &#x3D; (email, ip) &#x3D;&gt; {
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+  logInfo(&#x27;Auth&#x27;, &#x27;registration request&#x27;, &#x60;${maskEmail(email)} from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование успешной регистрации
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {number} userId - ID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logRegistrationSuccess(&#x27;newuser@example.com&#x27;, 123, &#x27;192.168.1.1&#x27;);
+ */
+export const logRegistrationSuccess &#x3D; (email, userId, ip) &#x3D;&gt; {
+  if (!userId) throw new Error(&#x27;userId is required&#x27;);
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+  logInfo(
+    &#x27;Auth&#x27;,
+    &#x27;registration success&#x27;,
+    &#x60;${maskEmail(email)} (${userId}) from IP: ${ip}&#x60;,
+  );
+};
+
+/**
+ * Логирование неудачной регистрации
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logRegistrationFailure(&#x27;newuser@example.com&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Email already exists&#x27;);
+ */
+export const logRegistrationFailure &#x3D; (email, ip, reason) &#x3D;&gt; {
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;registration failure&#x27;,
+    &#x60;${maskEmail(email)} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+
+/**
+ * Логирование получения данных пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logUserFetch(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logUserFetch &#x3D; (userUuid, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Auth&#x27;, &#x27;user fetch&#x27;, &#x60;${userUuid} from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование обновления данных пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {Object} changes - Объект с изменениями (чувствительные данные будут отфильтрованы)
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logUserUpdate(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, {name: &#x27;John&#x27;, email: &#x27;john@example.com&#x27;}, &#x27;192.168.1.1&#x27;);
+ */
+export const logUserUpdate &#x3D; (userUuid, changes, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  const filteredChanges &#x3D; filterSensitiveData(changes);
+  logInfo(
+    &#x27;Auth&#x27;,
+    &#x27;user update&#x27;,
+    &#x60;${userUuid} from IP: ${ip}, changes: ${JSON.stringify(filteredChanges)}&#x60;,
+  );
+};
+
+/**
+ * Логирование неудачного обновления данных пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logUserUpdateFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Validation failed&#x27;);
+ */
+export const logUserUpdateFailure &#x3D; (userUuid, ip, reason) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;user update failure&#x27;,
+    &#x60;${userUuid} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+
+/**
+ * Логирование запроса на обновление данных пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logUserUpdateRequest(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;john@example.com&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logUserUpdateRequest &#x3D; (userUuid, email, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(
+    &#x27;Auth&#x27;,
+    &#x27;user update request&#x27;,
+    &#x60;${userUuid} (${maskEmail(email)}) from IP: ${ip}&#x60;,
+  );
+};
+
+/**
+ * Логирование неудачного запроса на обновление данных пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logUserUpdateRequestFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Invalid data&#x27;);
+ */
+export const logUserUpdateRequestFailure &#x3D; (userUuid, ip, reason) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;user update request failure&#x27;,
+    &#x60;${userUuid} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+
+/**
+ * Логирование удаления пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logUserDelete(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logUserDelete &#x3D; (userUuid, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Auth&#x27;, &#x27;user delete&#x27;, &#x60;${userUuid} from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование неудачного удаления пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logUserDeleteFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;User not found&#x27;);
+ */
+export const logUserDeleteFailure &#x3D; (userUuid, ip, reason) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;user delete failure&#x27;,
+    &#x60;${userUuid} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+
+/**
+ * Логирование запроса на удаление пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logUserDeleteRequest(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;john@example.com&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logUserDeleteRequest &#x3D; (userUuid, email, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(
+    &#x27;Auth&#x27;,
+    &#x27;user delete request&#x27;,
+    &#x60;${userUuid} (${maskEmail(email)}) from IP: ${ip}&#x60;,
+  );
+};
+
+/**
+ * Логирование неудачного запроса на удаление пользователя
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logUserDeleteRequestFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Permission denied&#x27;);
+ */
+export const logUserDeleteRequestFailure &#x3D; (userUuid, ip, reason) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;user delete request failure&#x27;,
+    &#x60;${userUuid} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+
+/**
+ * Логирование подозрительной активности в аутентификации
+ * @param {string} action - Действие, которое вызвало подозрение
+ * @param {string} identifier - Идентификатор пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} [details&#x3D;&#x27;&#x27;] - Дополнительные детали
+ * @example
+ * logSuspiciousAuthActivity(&#x27;multiple_failed_logins&#x27;, &#x27;john@example.com&#x27;, &#x27;192.168.1.1&#x27;, &#x27;5 attempts in 1 minute&#x27;);
+ */
+export const logSuspiciousAuthActivity &#x3D; (
+  action,
+  identifier,
+  ip,
+  details &#x3D; &#x27;&#x27;,
+) &#x3D;&gt; {
+  if (!action) throw new Error(&#x27;action is required&#x27;);
+  if (!identifier) throw new Error(&#x27;identifier is required&#x27;);
+  if (!ip) throw new Error(&#x27;ip is required&#x27;);
+  logSuspicious(&#x27;Auth&#x27;, action, identifier, ip, details);
+};
+
+/**
+ * Логирование успешного отвязывания Google аккаунта
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logGoogleUnlinkSuccess(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;);
+ */
+export const logGoogleUnlinkSuccess &#x3D; (userUuid, ip) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logInfo(&#x27;Auth&#x27;, &#x27;google unlink&#x27;, &#x60;${userUuid} from IP: ${ip}&#x60;);
+};
+
+/**
+ * Логирование неудачного отвязывания Google аккаунта
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logGoogleUnlinkFailure(&#x27;123e4567-e89b-12d3-a456-426614174000&#x27;, &#x27;192.168.1.1&#x27;, &#x27;Google API error&#x27;);
+ */
+export const logGoogleUnlinkFailure &#x3D; (userUuid, ip, reason) &#x3D;&gt; {
+  validateParams(userUuid, ip);
+  logWarn(
+    &#x27;Auth&#x27;,
+    &#x27;google unlink failure&#x27;,
+    &#x60;${userUuid} from IP: ${ip} - ${reason}&#x60;,
+  );
+};
+</code></pre>
+          </article>
+        </div>
+      </div>
+      <nav id="jsdoc-toc-nav" role="navigation"></nav>
+    </div>
+  </div>
+  <footer id="jsdoc-footer" class="jsdoc-footer">
+    <div id="jsdoc-footer-container">
+      <p>
+        Generated by <a href="https://github.com/jsdoc3/jsdoc">JSDoc</a> 3.6.11 on July 14, 2025.
+      </p>
+    </div>
+  </footer>
+  <script src="scripts/jquery.min.js"></script>
+  <script src="scripts/tree.jquery.js"></script>
+  <script src="scripts/prettify.js"></script>
+  <script src="scripts/jsdoc-toc.js"></script>
+  <script src="scripts/linenumber.js"></script>
+  <script src="scripts/scrollanchor.js"></script>
+</body>
+
+</html>
