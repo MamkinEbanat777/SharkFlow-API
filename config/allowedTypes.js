@@ -1,4 +1,4 @@
-export const ALLOWED_TYPES = [
+export const allowedTypes = [
   'registration',
   'passwordReset',
   'deleteUser',
@@ -12,4 +12,5 @@ export const ALLOWED_TYPES = [
   'disableGithub',
   'connectYandex',
   'disableYandex',
+  'telegramAuth',
 ];

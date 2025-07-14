@@ -12,7 +12,7 @@ import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js'
 const router = Router();
 
 router.post(
-  '/auth/yandex/confirm-disable',
+  '/auth/oauth/yandex/confirm-disable',
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;

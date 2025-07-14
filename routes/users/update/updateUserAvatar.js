@@ -28,7 +28,7 @@ router.patch('/users/avatar', authenticateMiddleware, async (req, res) => {
         .status(404)
         .json({ error: 'Пользователь не найден или удалён' });
     }
-
+    console.log()
     const updatedUser = await updateUserAvatar(
       userUuid,
       imgUrl,

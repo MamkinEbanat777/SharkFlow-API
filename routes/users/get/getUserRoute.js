@@ -21,7 +21,9 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
       googleOAuthEnabled: true,
       googleEmail: true,
       githubEmail: true,
+      yandexEmail: true,
       telegramEnabled: true,
+      yandexOAuthEnabled: true,
       githubOAuthEnabled: true,
     });
 

@@ -1,11 +1,11 @@
 import { redis } from '../config/redisconfig.js';
 import { logStoreError } from '../utils/loggers/storeLoggers.js';
-import { ALLOWED_TYPES } from '../config/allowedRedisTypes.js';
+import { allowedTypes } from '../config/allowedTypes.js';
 
 const EXPIRE_SECONDS = 15 * 60;
 
 function getUserTempKey(type, uuid) {
-  if (!ALLOWED_TYPES.includes(type)) {
+  if (!allowedTypes.includes(type)) {
     throw new Error(`Unknown temp data type: ${type}`);
   }
   return `userTemp:${type}:${uuid}`;

@@ -48,7 +48,6 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
             logMailSendError(error);
             return reject(error);
           }
-          // success лог можно добавить при необходимости
           resolve(result);
         },
       );
@@ -68,6 +67,8 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
       return;
     }
 
+    console.log(result);
+
     const secureUrl = result?.secure_url || null;
     if (secureUrl) {
       const update = await prisma.user.update({
@@ -75,7 +76,9 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
         data: { avatarUrl: secureUrl },
       });
       if (!update) {
-        logMailSendError(new Error('Аватар не обновлён: пользователь не найден или удалён'));
+        logMailSendError(
+          new Error('Аватар не обновлён: пользователь не найден или удалён'),
+        );
       }
     } else {
       logMailSendError(new Error('Cloudinary вернул пустой secure_url'));
