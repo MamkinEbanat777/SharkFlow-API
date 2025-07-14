@@ -1,0 +1,18 @@
+{
+  "source": {
+    "include": [
+      "utils",
+      "routes",
+      "middlewares",
+      "store",
+      "telegramBot"
+    ],
+    "includePattern": ".+\\.js$",
+    "excludePattern": "(^|\/|\\\\)_"
+  },
+  "opts": {
+    "destination": "./docs/jsdoc-docdash",
+    "template": "node_modules/docdash",
+    "recurse": true
+  }
+} 

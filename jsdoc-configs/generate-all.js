@@ -5,16 +5,13 @@ import fs from 'fs';
 import path from 'path';
 
 const configs = [
-  'clean-theme.json',
-  'better-docs.json', 
-  'docdash.json',
-  'tui.json',
-  'baseline.json',
-  'simple.json',
-  'default.json'
+  'jsdoc-clean.json',
+  'jsdoc-docdash.json',
+  'jsdoc-docolatte.json',
+  'jsdoc-default.json'
 ];
 
-console.log('🎨 Генерация документации для всех тем...\n');
+console.log('🎨 Генерация документации для всех тем JSDoc...\n');
 
 configs.forEach((config, index) => {
   try {
@@ -28,10 +25,7 @@ configs.forEach((config, index) => {
 
 console.log('🎉 Все темы сгенерированы!');
 console.log('\n📁 Доступные темы:');
-console.log('- docs/jsdoc-clean/     (clean-jsdoc-theme)');
-console.log('- docs/jsdoc-better/    (better-docs)');
-console.log('- docs/jsdoc-docdash/   (docdash)');
-console.log('- docs/jsdoc-tui/       (tui-jsdoc-template)');
-console.log('- docs/jsdoc-baseline/  (jsdoc-baseline)');
-console.log('- docs/jsdoc-simple/    (jsdoc-simple-theme)');
-console.log('- docs/jsdoc-default/   (стандартная JSDoc)'); 
+console.log('- docs/jsdoc-clean/      (clean-jsdoc-theme)');
+console.log('- docs/jsdoc-docdash/    (docdash)');
+console.log('- docs/jsdoc-docolatte/  (docolatte)');
+console.log('- docs/jsdoc-default/    (стандартная тема JSDoc)'); 

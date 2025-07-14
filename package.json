@@ -22,13 +22,11 @@
     "axios": "^1.10.0",
     "bad-words": "^4.0.0",
     "bcrypt": "^6.0.0",
-    "better-docs": "^2.7.3",
     "cloudinary": "^2.7.0",
     "compression": "^1.8.0",
     "cookie-parser": "^1.4.7",
     "cors": "^2.8.5",
     "device-detector-js": "^3.0.3",
-    "docdash": "^2.0.2",
     "dotenv": "^16.5.0",
     "dotenv-flow": "^4.1.0",
     "ejs": "^3.1.10",
@@ -39,9 +37,6 @@
     "handlebars": "^4.7.8",
     "helmet": "^8.1.0",
     "hpp": "^0.2.3",
-    "jsdoc-baseline": "^0.1.5",
-    "jsdoc-simple-theme": "^1.2.6",
-    "jsdoc-template": "^1.2.0",
     "jsonwebtoken": "^9.0.2",
     "morgan": "^1.10.0",
     "node-cron": "^4.1.1",
@@ -55,7 +50,6 @@
     "telegraf": "^4.16.3",
     "telegraf-inline-menu": "^6.3.0",
     "transliteration": "^2.3.5",
-    "tui-jsdoc-template": "^1.2.2",
     "ua-parser-js": "^2.0.4",
     "uuid": "^11.1.0",
     "winston": "^3.17.0",
@@ -68,6 +62,10 @@
   "devDependencies": {
     "@eslint/js": "^9.31.0",
     "clean-jsdoc-theme": "^4.3.0",
+    "docdash": "^2.0.2",
+    "docolatte": "^4.5.1",
+    "glob": "^11.0.3",
+    "jsdoc": "^4.0.4",
     "nodemon": "^3.1.10"
   }
 }
