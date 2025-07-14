@@ -17,7 +17,7 @@ router.get(
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const upload_preset = process.env.CLOUDINARY_UPLOAD_PRECET;
+    const upload_preset = process.env.NODE_ENV === 'production' ?  process.env.CLOUDINARY_UPLOAD_PRECET : "Precet-SharkFlow";
     const paramsToSign = {
       timestamp,
       upload_preset,
