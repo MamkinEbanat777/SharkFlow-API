@@ -1,10 +1,8 @@
 import { Router } from 'express';
 import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
-import { deleteConfirmationCode } from '../../../../store/userVerifyStore.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 import { getUserTempData } from '../../../../store/userTempData.js';
 import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';

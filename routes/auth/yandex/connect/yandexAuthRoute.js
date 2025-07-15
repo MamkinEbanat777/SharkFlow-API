@@ -1,26 +1,17 @@
 import { Router } from 'express';
 import axios from 'axios';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-import { createAccessToken } from '../../../../utils/tokens/accessToken.js';
-import { issueRefreshToken } from '../../../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../../../utils/cookie/refreshCookie.js';
 import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
-import { generateUniqueLogin } from '../../../../utils/generators/generateUniqueLogin.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvatarAndUpdateUser.js';
-import { createCsrfToken } from '../../../../utils/tokens/csrfToken.js';
 import { generateUUID } from '../../../../utils/generators/generateUUID.js';
 import { verifyTurnstileCaptcha } from '../../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 import {
-  createOrUpdateDeviceSession,
   getGeoLocation,
   validateDeviceId,
 } from '../../../../utils/helpers/deviceSessionHelper.js';
-import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHelper.js';
 import { GUEST_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 import { getGuestCookieOptions } from '../../../../utils/cookie/guestCookie.js';
-import { REFRESH_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
-import { findUserOAuth, findUserOAuthByEmail, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
+import { findUserOAuth, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
 import { findOrCreateUserWithOAuth } from '../../../../utils/helpers/oauthHelpers.js';
 import { createUserSessionAndTokens } from '../../../../utils/helpers/authSessionHelpers.js';
 

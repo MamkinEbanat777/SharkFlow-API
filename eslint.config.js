@@ -1,4 +1,5 @@
 import js from '@eslint/js';
+import unusedImports from 'eslint-plugin-unused-imports';
 
 export default [
   {
@@ -96,12 +97,20 @@ export default [
         undefined: 'readonly'
       }
     },
+    plugins: {
+      'unused-imports': unusedImports,
+    },
     rules: {
       'no-unused-vars': ['error', {
         vars: 'all',
         args: 'after-used',
         ignoreRestSiblings: false
-      }]
+      }],
+      'unused-imports/no-unused-imports': 'warn',
+      'unused-imports/no-unused-vars': [
+        'warn',
+        { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
+      ],
     }
   }
 ];

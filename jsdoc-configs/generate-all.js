@@ -1,8 +1,6 @@
 #!/usr/bin/env node
 
 import { execSync } from 'child_process';
-import fs from 'fs';
-import path from 'path';
 
 const configs = [
   'jsdoc-clean.json',

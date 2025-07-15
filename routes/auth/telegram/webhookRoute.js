@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import bot from '../../../telegramBot/bot.js';
+import { logTelegramCommand } from '../../utils/loggers/telegramLoggers.js';
 
 const router = Router();
 
@@ -25,6 +26,7 @@ router.post('/telegram/webhook', async (req, res) => {
       });
     }
 
+    logTelegramCommand('webhook', updateId.toString(), ipAddress);
     await bot.handleUpdate(updateData, res);
 
     return res.status(200).json({

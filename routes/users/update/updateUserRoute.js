@@ -8,10 +8,8 @@ import {
 } from '../../../utils/loggers/authLoggers.js';
 import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
-import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
 import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
 

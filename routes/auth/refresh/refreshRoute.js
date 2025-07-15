@@ -23,7 +23,6 @@ import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 const router = Router();
 
 router.post('/auth/refresh', async (req, res) => {
-  const referrer = req.get('Referer') || null;
   const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
   const { ipAddress } = getRequestInfo(req);
   const deviceId = req.headers['x-device-id'];

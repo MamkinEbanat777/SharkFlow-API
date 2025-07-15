@@ -5,7 +5,6 @@ import { validateAndDeleteConfirmationCode } from '../../../../utils/helpers/con
 import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
 import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();

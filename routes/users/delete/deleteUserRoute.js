@@ -1,7 +1,6 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
 import {
   logUserDelete,
   logUserDeleteFailure,
@@ -9,7 +8,6 @@ import {
 import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import cloudinary from 'cloudinary';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
