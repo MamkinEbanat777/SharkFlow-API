@@ -1,8 +1,8 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { logLogout } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { logLogout, logLogoutInvalidToken } from '../../../utils/loggers/authLoggers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateDeviceId } from '../../../utils/helpers/deviceSessionHelper.js';
 import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
@@ -14,7 +14,7 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
     const { deviceId } = req.params;
 
     const validatedDeviceId = validateDeviceId(req, res);

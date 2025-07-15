@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { getUserTempData } from '../../../store/userTempData.js';
 import { deleteUserTempData } from '../../../store/userTempData.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 import { setUserTempData } from '../../../store/userTempData.js';
 import {
   logAccountRestoreSuccess,
@@ -15,6 +15,7 @@ import {
 } from '../../../utils/loggers/authLoggers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { logRegistrationFailure } from '../../../utils/loggers/authLoggers.js';
+import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 
@@ -23,8 +24,7 @@ router.post(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const { confirmationCode, restoreKey } = req.body;
-    const ipAddress = getClientIP(req);
-    const userAgent = req.get('user-agent') || null;
+    const { ipAddress, userAgent } = getRequestInfo(req);
 
     try {
       const storedData = await getUserTempData('restoreUser', restoreKey);
@@ -39,26 +39,20 @@ router.post(
 
       const { userUuid } = storedData;
 
-      const success = await validateConfirmationCode(
+      const validation = await validateAndDeleteConfirmationCode(
         userUuid,
         'restoreUser',
         confirmationCode,
         {
-          failure: (uuid, reason) =>
-            logRegistrationFailure('', ipAddress, reason),
+          failure: (uuid, reason) => logRegistrationFailure('', ipAddress, reason),
         },
       );
-
-      if (!success) {
-        logAccountRestoreFailure('', ipAddress, 'Неверный код подтверждения');
-        return res.status(400).json({ error: 'Неверный код' });
+      if (!validation.isValid) {
+        logAccountRestoreFailure('', ipAddress, validation.error || 'Неверный код подтверждения');
+        return res.status(400).json({ error: validation.error || 'Неверный код' });
       }
 
-      const user = await findUserByUuid(userUuid, true);
-      if (!user) {
-        logAccountRestoreFailure('', ipAddress, 'Пользователь не найден');
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid, true);
 
       if (!user.twoFactorEnabled) {
         await prisma.user.update({
@@ -69,7 +63,6 @@ router.post(
         });
         logAccountRestoreSuccess(user.email, user.uuid, ipAddress);
         await deleteUserTempData('restoreUser', restoreKey);
-        await deleteConfirmationCode('restoreUser', userUuid);
         return res.status(200).json({
           message: 'Пользователь успешно восстановил аккаунт',
         });

@@ -11,7 +11,7 @@ import {
   logRegistrationRequest,
   logRegistrationFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
@@ -25,7 +25,7 @@ router.post(
   async (req, res) => {
     const { user, captchaToken } = req.validatedBody;
     const { email, login, password } = user;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
     if (process.env.NODE_ENV === 'production') {
       if (!captchaToken) {
         return res

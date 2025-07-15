@@ -30,12 +30,13 @@ router.post(
 
       await findUserByUuidOrThrow(userUuid, false, { uuid: true });
 
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: {
-          yandexId: null,
-          yandexOAuthEnabled: false,
-        },
+      const user = await prisma.user.findFirst({ where: { uuid: userUuid } });
+      if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+      await prisma.userOAuth.updateMany({
+        where: { userId: user.id, provider: 'yandex' },
+        data: { enabled: false },
       });
 
       return res.json({ message: 'Yandex успешно отвязан от вашего аккаунта' });

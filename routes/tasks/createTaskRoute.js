@@ -3,7 +3,7 @@ import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
 import { logTaskCreation } from '../../utils/loggers/taskLoggers.js';
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 import {
   findBoardByUuidForUser,
@@ -20,7 +20,7 @@ router.post(
   async (req, res) => {
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     const board = await findBoardByUuidForUser(boardUuid, userUuid, {
       id: true,

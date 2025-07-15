@@ -2,7 +2,7 @@ import { Router } from 'express';
 import prisma from '../../utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 import { logTaskUpdate } from '../../utils/loggers/taskLoggers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 import {
@@ -20,7 +20,7 @@ router.patch(
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid, taskUuid } = req.params;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     const { title, dueDate, description, priority, status } = req.body;
 

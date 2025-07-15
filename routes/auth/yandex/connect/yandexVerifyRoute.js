@@ -6,9 +6,10 @@ import { authenticateMiddleware } from '../../../../middlewares/http/authenticat
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../../utils/helpers/validateConfirmationCode.js';
 import { getUserTempData } from '../../../../store/userTempData.js';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { deleteUserTempData } from '../../../../store/userTempData.js';
+import { validateAndDeleteConfirmationCode } from '../../../../utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 
@@ -20,18 +21,14 @@ router.post(
     const { confirmationCode } = req.body;
     const userUuid = req.userUuid;
     try {
-      const valid = await validateConfirmationCode(
+      const validation = await validateAndDeleteConfirmationCode(
         userUuid,
         'connectYandex',
         confirmationCode,
       );
-      if (!valid) {
-        return res
-          .status(400)
-          .json({ error: 'Неверный или просроченный код подтверждения' });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
       }
-
-      await deleteConfirmationCode('connectYandex', userUuid);
 
       const storedData = await getUserTempData('connectYandex', userUuid);
       if (!storedData) {
@@ -42,19 +39,13 @@ router.post(
 
       const { yandexId, normalizedYandexEmail } = storedData;
 
-      const user = await findUserByUuid(userUuid);
+      const user = await findUserByUuidOrThrow(userUuid);
 
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
-
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: {
-          yandexEmail: normalizedYandexEmail,
-          yandexId,
-          yandexOAuthEnabled: true,
-        },
+      // Вместо обновления пользователя обновляем/создаём UserOAuth
+      await prisma.userOAuth.upsert({
+        where: { provider_providerId: { provider: 'yandex', providerId: yandexId } },
+        update: { userId: user.id, email: normalizedYandexEmail, enabled: true },
+        create: { userId: user.id, provider: 'yandex', providerId: yandexId, email: normalizedYandexEmail, enabled: true },
       });
 
       res.status(200).json({

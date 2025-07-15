@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import bot from '../../../telegramBot/bot.js';
 
 const router = Router();
 
 router.post('/telegram/webhook', async (req, res) => {
-  const ipAddress = getClientIP(req);
+  const { ipAddress } = getRequestInfo(req);
   const updateData = req.body;
 
   try {

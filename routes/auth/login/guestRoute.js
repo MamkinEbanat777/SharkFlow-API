@@ -1,6 +1,5 @@
 import { Router } from 'express';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
@@ -9,16 +8,22 @@ import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
   setAuthCookies,
+  getRequestInfo,
 } from '../../../utils/helpers/authHelpers.js';
 import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
 import { GUEST_COOKIE_NAME } from '../../../config/cookiesConfig.js';
+import {
+  logLoginSuccess,
+  logLoginFailure,
+  logRegistrationSuccess,
+  logSuspiciousAuthActivity
+} from '../../../utils/loggers/authLoggers.js';
 
 const router = Router();
 
 router.post('/auth/guest-login', async (req, res) => {
-  const ipAddress = getClientIP(req);
-  const userAgent = req.get('user-agent') || null;
+  const { ipAddress, userAgent } = getRequestInfo(req);
 
   if (process.env.NODE_ENV === 'production') {
     const { captchaToken } = req.body;
@@ -55,6 +60,7 @@ router.post('/auth/guest-login', async (req, res) => {
       if (existingGuest && existingGuest.role === 'guest') {
         const deviceId = req.headers['x-device-id'];
         if (!deviceId) {
+          logSuspiciousAuthActivity('guest_login_no_device', guestUuid, ipAddress, 'Нет deviceId');
           return res.status(401).json({ error: 'Устройство не найдено' });
         }
         let deviceSession = await prisma.userDeviceSession.findFirst({
@@ -93,12 +99,16 @@ router.post('/auth/guest-login', async (req, res) => {
           existingGuest.uuid,
           getGuestCookieOptions(),
         );
-
+        logLoginSuccess('guest', existingGuest.uuid, ipAddress);
         return res.status(200).json({
           accessToken: tokens.accessToken,
           csrfToken: tokens.csrfToken,
           role: existingGuest.role,
         });
+      } else if (existingGuest) {
+        logSuspiciousAuthActivity('guest_login_not_guest_role', existingGuest.uuid, ipAddress, 'Попытка guest-login с не guest-ролью');
+      } else {
+        logSuspiciousAuthActivity('guest_login_uuid_not_found', guestUuid, ipAddress, 'guestUuid не найден');
       }
     }
 
@@ -145,11 +155,13 @@ router.post('/auth/guest-login', async (req, res) => {
             },
           });
         }
+        logRegistrationSuccess('guest', guest.id, ipAddress);
         return { guest, deviceSession };
       });
       const tokens = await createAuthTokens(guest, false, deviceSession.id);
       setAuthCookies(res, tokens.refreshToken, false);
       res.cookie(GUEST_COOKIE_NAME, guest.uuid, getGuestCookieOptions());
+      logLoginSuccess('guest', guest.uuid, ipAddress);
       return res.status(200).json({
         accessToken: tokens.accessToken,
         csrfToken: tokens.csrfToken,
@@ -157,6 +169,7 @@ router.post('/auth/guest-login', async (req, res) => {
       });
     }
   } catch (error) {
+    logLoginFailure('guest', ipAddress, error.message);
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при гостевом входе',
       status: 500,

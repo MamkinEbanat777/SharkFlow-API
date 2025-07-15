@@ -7,13 +7,13 @@ import {
   logTelegramUnlinkSuccess,
   logTelegramUnlinkError,
 } from '../../../utils/loggers/telegramLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
 router.delete('/telegram/unlink', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const ipAddress = getClientIP(req);
+  const { ipAddress } = getRequestInfo(req);
 
   try {
     const user = await findUserByUuidOrThrow(userUuid);

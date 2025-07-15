@@ -5,7 +5,7 @@ import {
   logLogout,
   logLogoutInvalidToken,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
 
@@ -14,7 +14,7 @@ const router = Router();
 router.post('/auth/logout', authenticateMiddleware, async (req, res) => {
   const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
   const userUuid = req.userUuid;
-  const ipAddress = getClientIP(req);
+  const { ipAddress } = getRequestInfo(req);
   const deviceId = req.headers['x-device-id'];
 
   if (!deviceId) {

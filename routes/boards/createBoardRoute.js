@@ -7,7 +7,7 @@ import {
   sanitizeColor,
 } from '../../utils/validators/boardValidators.js';
 import { logBoardCreation } from '../../utils/loggers/boardLoggers.js';
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 import { getUserBoardCount } from '../../utils/helpers/boardHelpers.js';
 
@@ -15,7 +15,7 @@ const router = Router();
 
 router.post('/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const ipAddress = getClientIP(req);
+  const { ipAddress } = getRequestInfo(req);
 
   const rawTitle = req.body.title;
   const rawColor = req.body.color;

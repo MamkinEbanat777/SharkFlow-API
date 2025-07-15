@@ -6,14 +6,15 @@ import {
   logUserDelete,
   logUserDeleteFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import cloudinary from 'cloudinary';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
+import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 
@@ -25,7 +26,7 @@ router.post(
     const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
     const userUuid = req.userUuid;
     const { confirmationCode } = req.body;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     if (!refreshToken || !userUuid) {
       return res.status(401).json({ error: 'Нет доступа или неавторизован' });
@@ -48,26 +49,20 @@ router.post(
         .json({ error: 'Недействительный или чужой токен' });
     }
 
-    const valid = await validateConfirmationCode(
+    const validation = await validateAndDeleteConfirmationCode(
       userUuid,
       'deleteUser',
       confirmationCode,
     );
-    if (!valid) {
-      return res
-        .status(400)
-        .json({ error: 'Неверный или просроченный код подтверждения' });
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.error });
     }
 
     try {
-      const user = await findUserByUuid(userUuid, false, {
+      const user = await findUserByUuidOrThrow(userUuid, false, {
         publicId: true,
         role: true,
       });
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
 
       if (user.role === 'guest') {
         return res
@@ -136,8 +131,6 @@ router.post(
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         path: '/',
       });
-
-      await deleteConfirmationCode('deleteUser', userUuid);
 
       logUserDelete(userUuid, ipAddress);
 

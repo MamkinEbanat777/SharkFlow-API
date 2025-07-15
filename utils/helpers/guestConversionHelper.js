@@ -51,7 +51,6 @@ export const convertGuestToUser = async (guestUuid, userData) => {
         where: { uuid: guestUuid },
         data: updateData,
       });
-      // Если есть OAuth-данные, создаём/обновляем UserOAuth
       if (userData.oauthData && userData.oauthData.provider && userData.oauthData.providerId) {
         await tx.userOAuth.upsert({
           where: { userId_provider: { userId: updatedUser.id, provider: userData.oauthData.provider } },

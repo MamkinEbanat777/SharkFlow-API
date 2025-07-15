@@ -4,7 +4,7 @@ import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 import { createAccessToken } from '../../../../utils/tokens/accessToken.js';
 import { issueRefreshToken } from '../../../../utils/tokens/refreshToken.js';
 import { getRefreshCookieOptions } from '../../../../utils/cookie/refreshCookie.js';
-import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
 import { generateUniqueLogin } from '../../../../utils/generators/generateUniqueLogin.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { uploadAvatarAndUpdateUser } from '../../../../utils/helpers/uploadAvatarAndUpdateUser.js';
@@ -27,8 +27,7 @@ import { createUserSessionAndTokens } from '../../../../utils/helpers/authSessio
 const router = Router();
 
 router.post('/auth/oauth/yandex', async (req, res) => {
-  const ipAddress = getClientIP(req);
-  const userAgent = req.get('user-agent') || null;
+  const { ipAddress, userAgent } = getRequestInfo(req);
   const { code, state, captchaToken } = req.body;
   const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 

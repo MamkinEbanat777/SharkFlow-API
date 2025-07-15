@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
 import { logTaskFetch } from '../../utils/loggers/taskLoggers.js';
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 import { getTasksForBoard } from '../../utils/helpers/taskHelpers.js';
 
@@ -15,7 +15,7 @@ router.get(
   async (req, res) => {
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     try {
       const tasks = await getTasksForBoard(boardUuid, userUuid);

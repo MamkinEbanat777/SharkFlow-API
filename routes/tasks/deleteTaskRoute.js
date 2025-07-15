@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
 import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 import { logTaskDeletion } from '../../utils/loggers/taskLoggers.js';
 import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
 import {
@@ -18,7 +18,7 @@ router.delete(
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid, taskUuid } = req.params;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     try {
       const taskToDelete = await findTaskWithBoardAccess(

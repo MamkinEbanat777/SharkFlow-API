@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import axios from 'axios';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '../../../../store/userTempData.js';
@@ -15,8 +15,7 @@ router.post(
   '/auth/oauth/yandex/connect',
   authenticateMiddleware,
   async (req, res) => {
-    const ipAddress = getClientIP(req);
-    const userAgent = req.get('user-agent') || null;
+    const { ipAddress, userAgent } = getRequestInfo(req);
     const userUuid = req.userUuid;
     const { code } = req.body;
 
@@ -71,11 +70,7 @@ router.post(
         });
       }
 
-      const user = await findUserByUuid(userUuid);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid);
 
       const existingUserWithYandexId = await prisma.user.findFirst({
         where: { yandexId: String(yandexUser.id) },
@@ -136,12 +131,11 @@ router.post(
         });
       }
 
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: {
-          yandexId: String(yandexUser.id),
-          yandexOAuthEnabled: true,
-        },
+      // Вместо обновления пользователя обновляем/создаём UserOAuth
+      await prisma.userOAuth.upsert({
+        where: { provider_providerId: { provider: 'yandex', providerId: String(yandexUser.id) } },
+        update: { userId: user.id, email: email, enabled: true },
+        create: { userId: user.id, provider: 'yandex', providerId: String(yandexUser.id), email: email, enabled: true },
       });
 
       return res

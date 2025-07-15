@@ -1,5 +1,5 @@
 import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 
 export const validateBoardUuid = (req, res, next) => {
   const { boardUuid } = req.params;
@@ -14,9 +14,10 @@ export const validateBoardUuid = (req, res, next) => {
 };
 
 export const addBoardContext = (req, res, next) => {
+  const { ipAddress } = getRequestInfo(req);
   req.boardContext = {
     userUuid: req.userUuid,
-    ipAddress: getClientIP(req),
+    ipAddress,
   };
   next();
 }; 

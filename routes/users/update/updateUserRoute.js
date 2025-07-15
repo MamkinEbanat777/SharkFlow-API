@@ -6,13 +6,14 @@ import {
   logUserUpdate,
   logUserUpdateFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
 import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
+import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 
@@ -22,7 +23,7 @@ router.patch(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const userUuid = req.userUuid;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     try {
       const { confirmationCode, updatedFields } = req.body;
@@ -39,15 +40,13 @@ router.patch(
         return res.status(400).json({ error: 'Код подтверждения обязателен' });
       }
 
-      const valid = await validateConfirmationCode(
+      const validation = await validateAndDeleteConfirmationCode(
         userUuid,
         'updateUser',
         confirmationCode,
       );
-      if (!valid) {
-        return res
-          .status(400)
-          .json({ error: 'Неверный или просроченный код подтверждения' });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error });
       }
 
       const dataToUpdate = {};
@@ -58,11 +57,7 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const user = await findUserByUuid(userUuid, false, { role: true });
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid, false, { role: true });
 
       if (!user.role === 'guest') {
         return res
@@ -88,8 +83,6 @@ router.patch(
       });
 
       logUserUpdate(userUuid, dataToUpdate, ipAddress);
-
-      await deleteConfirmationCode('updateUser', userUuid);
 
       return res.json({
         message: 'Данные успешно обновлены',

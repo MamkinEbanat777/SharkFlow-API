@@ -4,10 +4,10 @@ import {
   logUserDeleteRequest,
   logUserDeleteRequestFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -16,15 +16,10 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     try {
-      const user = await findUserByUuid(userUuid, false, { email: true });
-
-      if (!user) {
-        logUserDeleteRequestFailure(userUuid, ipAddress, 'User not found');
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid, false, { email: true });
 
       const email = user.email;
       if (!email) {

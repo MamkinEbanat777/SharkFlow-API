@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
@@ -16,7 +16,7 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     try {
       const user = await findUserByUuidOrThrow(userUuid);

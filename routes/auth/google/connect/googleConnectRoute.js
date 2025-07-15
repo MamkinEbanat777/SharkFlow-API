@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { getClientIP } from '../../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
 import { OAuth2Client } from 'google-auth-library';
 import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
 import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
 import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '../../../../store/userTempData.js';
-import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
 import { findUserOAuth, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
@@ -22,8 +22,7 @@ router.post(
   '/auth/oauth/google/connect',
   authenticateMiddleware,
   async (req, res) => {
-    const ipAddress = getClientIP(req);
-    const userAgent = req.get('user-agent') || null;
+    const { ipAddress, userAgent } = getRequestInfo(req);
     const userUuid = req.userUuid;
     const { code } = req.body;
 
@@ -59,11 +58,7 @@ router.post(
         });
       }
 
-      const user = await findUserByUuid(userUuid);
-
-      if (!user) {
-        return res.status(404).json({ error: 'Пользователь не найден' });
-      }
+      const user = await findUserByUuidOrThrow(userUuid);
 
       const normalizedUserEmail = normalizeEmail(user.email);
       const normalizedGoogleEmail = normalizeEmail(email);

@@ -12,20 +12,20 @@ import {
   logTokenRefresh,
   logTokenRefreshFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
 import axios from 'axios';
 import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
 import { logLocationError } from '../../../utils/loggers/systemLoggers.js';
 import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 
 const router = Router();
 
 router.post('/auth/refresh', async (req, res) => {
   const referrer = req.get('Referer') || null;
   const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
-  const ipAddress = getClientIP(req);
+  const { ipAddress } = getRequestInfo(req);
   const deviceId = req.headers['x-device-id'];
 
   if (!deviceId) {
@@ -44,7 +44,8 @@ router.post('/auth/refresh', async (req, res) => {
     logLocationError(ipAddress, error);
   }
 
-  const deviceinfo = parseDeviceInfo(req.get('user-agent'));
+  const { userAgent } = getRequestInfo(req);
+  const deviceinfo = parseDeviceInfo(userAgent);
 
   const tokenValidation = validateRefreshToken(refreshToken);
   if (!tokenValidation.isValid) {
@@ -117,7 +118,7 @@ router.post('/auth/refresh', async (req, res) => {
         clientName: deviceinfo.clientName,
         clientVersion: deviceinfo.clientVersion,
         geoLocation: geoLocation,
-        userAgent: req.get('user-agent'),
+        userAgent: userAgent,
       },
     });
 

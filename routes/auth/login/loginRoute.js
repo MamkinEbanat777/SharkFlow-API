@@ -13,7 +13,7 @@ import {
   logLoginFailure,
   maskEmail,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { generateUUID } from '../../../utils/generators/generateUUID.js';
 import { setUserTempData } from '../../../store/userTempData.js';
@@ -35,8 +35,7 @@ router.post(
   '/auth/login',
   validateMiddleware(loginValidate),
   async (req, res) => {
-    const ipAddress = getClientIP(req);
-    const userAgent = req.get('user-agent') || null;
+    const { ipAddress, userAgent } = getRequestInfo(req);
     const { user, captchaToken } = req.validatedBody;
     const { email, password, rememberMe } = user;
     const deviceId = validateDeviceId(req, res);

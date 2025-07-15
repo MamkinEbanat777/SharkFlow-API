@@ -1,4 +1,4 @@
-import { getClientIP } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
 
 const requestBuckets = new Map();
 const violationCounts = new Map();
@@ -16,7 +16,7 @@ const BAN_TIME_MS = 60 * 1000;
 const MAX_VIOLATIONS = 20;
 
 function getClientKey(req) {
-  const ip = getClientIP(req);
+  const { ipAddress: ip } = getRequestInfo(req);
   const ua = req.headers['user-agent'] || 'unknown';
   return `${ip}::${ua}`;
 }

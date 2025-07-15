@@ -10,9 +10,8 @@ import {
   logRegistrationSuccess,
   logRegistrationFailure,
 } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { validateConfirmationCode } from '../../../utils/helpers/validateConfirmationCode.js';
 import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
 import {
   GUEST_COOKIE_NAME,
@@ -20,6 +19,7 @@ import {
 } from '../../../config/cookiesConfig.js';
 import { getRegistrationCookieOptions } from '../../../utils/cookie/registerCookie.js';
 import { getGuestCookieOptions } from '../../../utils/cookie/guestCookie.js';
+import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 
@@ -30,7 +30,7 @@ router.post(
     const { confirmationCode } = req.body;
     const regUuid = req.cookies[REGISTER_COOKIE_NAME];
     const guestUuid = req.cookies[GUEST_COOKIE_NAME];
-    const ipAddress = getClientIP(req);
+    const { ipAddress } = getRequestInfo(req);
 
     try {
       if (!regUuid) {
@@ -46,18 +46,17 @@ router.post(
 
       const { email, login, hashedPassword } = storedData;
 
-      const success = await validateConfirmationCode(
+      // Вместо validateConfirmationCode + deleteConfirmationCode
+      const validation = await validateAndDeleteConfirmationCode(
         regUuid,
         'registration',
         confirmationCode,
         {
-          failure: (uuid, reason) =>
-            logRegistrationFailure(email, ipAddress, reason),
+          failure: (uuid, reason) => logRegistrationFailure(email, ipAddress, reason),
         },
       );
-
-      if (!success) {
-        return res.status(400).json({ error: 'Неверный код' });
+      if (!validation.isValid) {
+        return res.status(400).json({ error: validation.error || 'Неверный код' });
       }
 
       let userRecord;

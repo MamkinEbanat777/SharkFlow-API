@@ -1,25 +1,24 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
 import { logUserFetch } from '../../../utils/loggers/authLoggers.js';
-import { getClientIP } from '../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 import prisma from '../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 
 router.get('/users/devices', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const ipAddress = getClientIP(req);
+  const { ipAddress } = getRequestInfo(req);
 
   try {
-    const user = await findUserByUuid(userUuid, false, {
+    const user = await findUserByUuidOrThrow(userUuid, false, {
       id: true,
+      login: true,
+      email: true,
+      role: true,
     });
-
-    if (!user) {
-      return res.status(404).json({ error: 'Пользователь не найден' });
-    }
 
     logUserFetch(userUuid, ipAddress);
 

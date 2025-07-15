@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
 import { getUserTempData } from '../../../store/userTempData.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
 import { logAccountRestoreFailure } from '../../../utils/loggers/authLoggers.js';
 
 const router = Router();
@@ -19,12 +19,7 @@ router.post('/auth/restore/confirm', async (req, res) => {
 
     const { userUuid } = storedData;
 
-    const user = await findUserByUuid(userUuid, true);
-
-    if (!user) {
-      logAccountRestoreFailure('', req.ip, 'Пользователь не найден');
-      return res.status(404).json({ error: 'Пользователь не найден' });
-    }
+    const user = await findUserByUuidOrThrow(userUuid, true);
 
     const email = user.email;
     if (!email) {
