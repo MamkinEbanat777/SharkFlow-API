@@ -102,57 +102,60 @@ router.post('/auth/guest-login', async (req, res) => {
       }
     }
 
-    const rawUuid = uuidv4();
-    const fakeEmail = `guest-${rawUuid}@guest.local`;
-    const fakeLogin = `guest-${rawUuid.slice(0, 8)}`;
-    const hashedPassword = await bcrypt.hash(rawUuid, 10);
-    const guest = await prisma.user.create({
-      data: {
-        email: fakeEmail,
-        login: fakeLogin,
-        password: hashedPassword,
-        role: 'guest',
-      },
-    });
-
-    const deviceId = req.headers['x-device-id'];
-    if (!deviceId) {
-      return res.status(401).json({ error: 'Устройство не найдено' });
-    }
-    let deviceSession = await prisma.userDeviceSession.findFirst({
-      where: { userId: guest.id, deviceId, isActive: true },
-    });
-    if (deviceSession) {
-      deviceSession = await prisma.userDeviceSession.update({
-        where: { id: deviceSession.id },
-        data: {
-          userAgent,
-          ipAddress,
-          lastLoginAt: new Date(),
-          isActive: true,
-        },
+    if (!guestUuid) {
+      const { guest, deviceSession } = await prisma.$transaction(async (tx) => {
+        const rawUuid = uuidv4();
+        const fakeEmail = `guest-${rawUuid}@guest.local`;
+        const fakeLogin = `guest-${rawUuid.slice(0, 8)}`;
+        const hashedPassword = await bcrypt.hash(rawUuid, 10);
+        const guest = await tx.user.create({
+          data: {
+            email: fakeEmail,
+            login: fakeLogin,
+            password: hashedPassword,
+            role: 'guest',
+          },
+        });
+        const deviceId = req.headers['x-device-id'];
+        if (!deviceId) {
+          throw new Error('NO_DEVICE');
+        }
+        let deviceSession = await tx.userDeviceSession.findFirst({
+          where: { userId: guest.id, deviceId, isActive: true },
+        });
+        if (deviceSession) {
+          deviceSession = await tx.userDeviceSession.update({
+            where: { id: deviceSession.id },
+            data: {
+              userAgent,
+              ipAddress,
+              lastLoginAt: new Date(),
+              isActive: true,
+            },
+          });
+        } else {
+          deviceSession = await tx.userDeviceSession.create({
+            data: {
+              userId: guest.id,
+              deviceId,
+              userAgent,
+              ipAddress,
+              lastLoginAt: new Date(),
+              isActive: true,
+            },
+          });
+        }
+        return { guest, deviceSession };
       });
-    } else {
-      deviceSession = await prisma.userDeviceSession.create({
-        data: {
-          userId: guest.id,
-          deviceId,
-          userAgent,
-          ipAddress,
-          lastLoginAt: new Date(),
-          isActive: true,
-        },
+      const tokens = await createAuthTokens(guest, false, deviceSession.id);
+      setAuthCookies(res, tokens.refreshToken, false);
+      res.cookie(GUEST_COOKIE_NAME, guest.uuid, getGuestCookieOptions());
+      return res.status(200).json({
+        accessToken: tokens.accessToken,
+        csrfToken: tokens.csrfToken,
+        role: guest.role,
       });
     }
-    const tokens = await createAuthTokens(guest, false, deviceSession.id);
-    setAuthCookies(res, tokens.refreshToken, false);
-    res.cookie(GUEST_COOKIE_NAME, guest.uuid, getGuestCookieOptions());
-
-    return res.status(200).json({
-      accessToken: tokens.accessToken,
-      csrfToken: tokens.csrfToken,
-      role: guest.role,
-    });
   } catch (error) {
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при гостевом входе',

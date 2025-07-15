@@ -23,18 +23,6 @@ model User {
   publicId  String?  @db.VarChar(100)
 
   email       String  @unique @db.VarChar(320)
-  googleEmail String? @unique @db.VarChar(320)
-  githubEmail String? @unique @db.VarChar(320)
-  yandexEmail String? @unique @db.VarChar(320)
-
-  googleSub          String?  @unique @db.VarChar(255)
-  googleOAuthEnabled Boolean  @default(false)
-  telegramId         BigInt?  @unique
-  telegramEnabled    Boolean? @default(false)
-  githubId           String?  @unique @db.VarChar(255)
-  githubOAuthEnabled Boolean? @default(false)
-  yandexId           String?  @unique @db.VarChar(255)
-  yandexOAuthEnabled Boolean? @default(false)
 
   createdAt DateTime  @default(now())
   isActive  Boolean   @default(true)
@@ -50,6 +38,7 @@ model User {
   refreshTokens        RefreshToken[]
   userDeviceSessions   UserDeviceSession[]
   twoFactorBackupCodes TwoFactorBackupCode[]
+  userOAuths           UserOAuth[]
 
   @@index([uuid, isDeleted])
   @@index([email, isDeleted])
@@ -173,6 +162,22 @@ model RefreshToken {
   @@index([userId])
   @@index([userId, revoked])
   @@map("refresh_tokens")
+}
+
+model UserOAuth {
+  id         Int      @id @default(autoincrement())
+  userId     Int
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  provider   String   // 'google', 'github', 'yandex', etc.
+  providerId String   // sub/id от провайдера
+  email      String?  @db.VarChar(320)
+  enabled    Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@unique([provider, providerId])
+  @@index([userId])
+  @@map("user_oauth")
 }
 
 enum Status {

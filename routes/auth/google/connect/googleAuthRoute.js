@@ -20,6 +20,10 @@ import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHel
 import { getGuestCookieOptions } from '../../../../utils/cookie/guestCookie.js';
 import { GUEST_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 import { REFRESH_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
+import { findUserOAuth, findUserOAuthByEmail } from '../../../../utils/helpers/userHelpers.js';
+import { getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
+import { findOrCreateUserWithOAuth } from '../../../../utils/helpers/oauthHelpers.js';
+import { createUserSessionAndTokens } from '../../../../utils/helpers/authSessionHelpers.js';
 
 const router = Router();
 
@@ -91,100 +95,51 @@ router.post('/auth/oauth/google', async (req, res) => {
     let user = null;
     const avatarUrl = pic;
 
-    const userByEmail = await prisma.user.findFirst({
-      where: { email },
-    });
-
-    const userByGoogleSub = await prisma.user.findFirst({
-      where: { googleSub },
-    });
+    // Поиск по email среди обычных пользователей
+    const userByEmail = await prisma.user.findFirst({ where: { email } });
+    // Поиск по OAuth среди google
+    const userOAuth = await findUserOAuth('google', googleSub);
 
     if (userByEmail) {
       if (!userByEmail.isActive) {
-        return res
-          .status(403)
-          .json({ error: 'Аккаунт заблокирован. Обратитесь в поддержку.' });
+        return res.status(403).json({ error: 'Аккаунт заблокирован. Обратитесь в поддержку.' });
       }
-
-      if (userByEmail.googleSub === googleSub) {
+      // Проверяем, есть ли у этого пользователя уже связь с этим googleSub
+      const userGoogleOAuth = await getUserOAuthByUserId(userByEmail.id, 'google');
+      if (userGoogleOAuth && userGoogleOAuth.providerId === googleSub) {
         if (userByEmail.isDeleted) {
-          user = await prisma.user.update({
-            where: { id: userByEmail.id },
-            data: {
-              isDeleted: false,
-              deletedAt: null,
-              googleOAuthEnabled: true,
-            },
-          });
-        } else {
-          user = userByEmail;
+          // Восстанавливаем пользователя и активируем OAuth
+          await prisma.user.update({ where: { id: userByEmail.id }, data: { isDeleted: false, deletedAt: null } });
+          await prisma.userOAuth.updateMany({ where: { userId: userByEmail.id, provider: 'google', providerId: googleSub }, data: { enabled: true } });
         }
-      } else if (userByEmail.googleSub && userByEmail.googleSub !== googleSub) {
-        return res
-          .status(403)
-          .json({ error: 'Email уже привязан к другому Google аккаунту' });
+        user = userByEmail;
+      } else if (userGoogleOAuth && userGoogleOAuth.providerId !== googleSub) {
+        return res.status(403).json({ error: 'Email уже привязан к другому Google аккаунту' });
       } else if (userByEmail.isDeleted) {
-        return res.status(403).json({
-          error:
-            'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.',
-        });
+        return res.status(403).json({ error: 'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.' });
       } else {
-        return res.status(403).json({
-          error:
-            'Аккаунт с таким email существует, но не привязан к Google. Войдите через пароль или привяжите Google аккаунт.',
-        });
+        return res.status(403).json({ error: 'Аккаунт с таким email существует, но не привязан к Google. Войдите через пароль или привяжите Google аккаунт.' });
       }
-    } else if (userByGoogleSub) {
-      if (userByGoogleSub.isDeleted) {
-        return res.status(403).json({
-          error:
-            'Google аккаунт был связан с удаленным профилем. Пожалуйста, используйте другой Google аккаунт или обратитесь в поддержку.',
-        });
+    } else if (userOAuth) {
+      if (userOAuth.user.isDeleted) {
+        return res.status(403).json({ error: 'Google аккаунт был связан с удаленным профилем. Пожалуйста, используйте другой Google аккаунт или обратитесь в поддержку.' });
       } else {
-        return res.status(403).json({
-          error:
-            'Google аккаунт уже связан с другим профилем. Пожалуйста, используйте другой Google аккаунт.',
-        });
+        return res.status(403).json({ error: 'Google аккаунт уже связан с другим профилем. Пожалуйста, используйте другой Google аккаунт.' });
       }
     }
 
     if (!user) {
+      user = await findOrCreateUserWithOAuth({
+        provider: 'google',
+        providerId: googleSub,
+        email,
+        guestUuid,
+        givenName: given_name,
+        req,
+        res,
+      });
       if (guestUuid) {
-        const baseLogin = given_name || email.split('@')[0] || 'user';
-        const login = await generateUniqueLogin(baseLogin);
-
-        const convertedUser = await convertGuestToUser(guestUuid, {
-          email,
-          login,
-          oauthData: {
-            googleEmail: email,
-            googleSub,
-            googleOAuthEnabled: true,
-            password: null,
-          },
-        });
-
-        if (convertedUser) {
-          user = convertedUser;
-          res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
-        }
-      }
-
-      if (!user) {
-        const baseLogin = given_name || email.split('@')[0] || 'user';
-        const login = await generateUniqueLogin(baseLogin);
-        user = await prisma.user.create({
-          data: {
-            login,
-            googleEmail: email,
-            email: email,
-            googleSub,
-            googleOAuthEnabled: true,
-            avatarUrl: null,
-            password: null,
-            role: 'user',
-          },
-        });
+        res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
       }
     }
 
@@ -217,34 +172,23 @@ router.post('/auth/oauth/google', async (req, res) => {
 
     const geoLocation = await getGeoLocation(ipAddress);
 
-    const deviceSession = await createOrUpdateDeviceSession({
-      userId: user.id,
+    const { accessToken, csrfToken } = await createUserSessionAndTokens({
+      user,
       deviceId,
       userAgent,
       ipAddress,
+      req,
+      res,
+      rememberMe: true,
       referrer: req.get('Referer') || null,
       geoLocation,
     });
 
-    const refreshToken = await issueRefreshToken({
-      userUuid: user.uuid,
-      rememberMe: true,
-      userId: user.id,
-      deviceSessionId: deviceSession.id,
-    });
-
-    const accessToken = createAccessToken(user.uuid, user.role);
-    const csrfToken = createCsrfToken(user.uuid);
-
-    res.cookie(
-      REFRESH_COOKIE_NAME,
-      refreshToken,
-      getRefreshCookieOptions(false),
-    );
+    const googleOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'google'));
     return res.status(200).json({
-      accessToken: accessToken,
-      csrfToken: csrfToken,
-      googleOAuthEnabled: user.googleOAuthEnabled,
+      accessToken,
+      csrfToken,
+      googleOAuthEnabled,
     });
   } catch (error) {
     if (!res.headersSent) {

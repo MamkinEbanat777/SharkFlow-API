@@ -26,69 +26,62 @@ router.post('/auth/logout', authenticateMiddleware, async (req, res) => {
   }
 
   try {
-    const tokenRecord = await prisma.refreshToken.findFirst({
-      where: {
-        token: refreshToken,
-        user: { uuid: userUuid },
-        revoked: false,
-      },
-      select: {
-        id: true,
-        userId: true,
-        user: {
-          select: {
-            login: true,
-            email: true,
+    await prisma.$transaction(async (tx) => {
+      const tokenRecord = await tx.refreshToken.findFirst({
+        where: {
+          token: refreshToken,
+          user: { uuid: userUuid },
+          revoked: false,
+        },
+        select: {
+          id: true,
+          userId: true,
+          user: {
+            select: {
+              login: true,
+              email: true,
+            },
           },
         },
-      },
+      });
+      if (tokenRecord) {
+        await tx.refreshToken.update({
+          where: { id: tokenRecord.id },
+          data: { revoked: true },
+        });
+        const user = await tx.user.findUnique({
+          where: { uuid: userUuid },
+          select: { id: true },
+        });
+        if (!user) {
+          return res.status(401).json({ error: 'Пользователь не найден' });
+        }
+        const session = await tx.userDeviceSession.findFirst({
+          where: { userId: user.id, deviceId, isActive: true },
+        });
+        if (!session) {
+          return res.status(200).json({ message: 'Вы успешно вышли из системы' });
+        }
+        await tx.userDeviceSession.update({
+          where: { id: session.id },
+          data: { isActive: false },
+        });
+        logLogout(
+          tokenRecord.user.login,
+          tokenRecord.user.email,
+          userUuid,
+          ipAddress,
+        );
+      } else {
+        logLogoutInvalidToken(userUuid, ipAddress);
+      }
     });
-
-    if (tokenRecord) {
-      await prisma.refreshToken.update({
-        where: { id: tokenRecord.id },
-        data: { revoked: true },
-      });
-
-      const user = await prisma.user.findUnique({
-        where: { uuid: userUuid },
-        select: { id: true },
-      });
-
-      if (!user) {
-        return res.status(401).json({ error: 'Пользователь не найден' });
-      }
-
-      const session = await prisma.userDeviceSession.findFirst({
-        where: { userId: user.id, deviceId, isActive: true },
-      });
-
-      if (!session) {
-        return res.status(200).json({ message: 'Вы успешно вышли из системы' });
-      }
-
-      await prisma.userDeviceSession.update({
-        where: { id: session.id },
-        data: { isActive: false },
-      });
-
-      logLogout(
-        tokenRecord.user.login,
-        tokenRecord.user.email,
-        userUuid,
-        ipAddress,
-      );
-    } else {
-      logLogoutInvalidToken(userUuid, ipAddress);
-    }
-
     res.clearCookie(REFRESH_COOKIE_NAME, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       path: '/',
     });
-
     return res.status(200).json({ message: 'Вы успешно вышли из системы' });
   } catch (error) {
     handleRouteError(res, error, {

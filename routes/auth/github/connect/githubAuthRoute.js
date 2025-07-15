@@ -20,6 +20,9 @@ import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHel
 import { GUEST_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 import { REFRESH_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 import { getGuestCookieOptions } from '../../../../utils/cookie/guestCookie.js';
+import { findUserOAuth, findUserOAuthByEmail, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
+import { findOrCreateUserWithOAuth } from '../../../../utils/helpers/oauthHelpers.js';
+import { createUserSessionAndTokens } from '../../../../utils/helpers/authSessionHelpers.js';
 
 const router = Router();
 
@@ -122,64 +125,23 @@ router.post('/auth/oauth/github', async (req, res) => {
         .json({ error: 'Не удалось получить подтверждённый email из GitHub' });
     }
 
-    let user = await prisma.user.findFirst({
-      where: { githubId: String(githubUser.id) },
-    });
-
-    if (!user) {
-      const existing = await prisma.user.findFirst({ where: { email } });
-      if (existing) {
-        if (existing.githubId && existing.githubId !== String(githubUser.id)) {
-          return res
-            .status(403)
-            .json({ error: 'Email уже занят другим аккаунтом' });
-        }
-        if (existing.githubId === String(githubUser.id)) {
-          user = existing;
-        } else {
-          return res.status(403).json({
-            error:
-              'Аккаунт с таким email существует, но не привязан к GitHub. Войдите через пароль или привяжите GitHub аккаунт.',
-          });
-        }
-      } else {
-        if (guestUuid) {
-          const base = githubUser.login || email.split('@')[0] || 'user';
-          const login = await generateUniqueLogin(base);
-
-          const convertedUser = await convertGuestToUser(guestUuid, {
-            email,
-            login,
-            oauthData: {
-              githubEmail: email,
-              githubId: String(githubUser.id),
-              githubOAuthEnabled: true,
-              password: null,
-            },
-          });
-
-          if (convertedUser) {
-            user = convertedUser;
-            res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
-          }
-        }
-
-        if (!user) {
-          const base = githubUser.login || email.split('@')[0] || 'user';
-          const login = await generateUniqueLogin(base);
-          user = await prisma.user.create({
-            data: {
-              login,
-              email,
-              githubEmail: email,
-              githubId: String(githubUser.id),
-              githubOAuthEnabled: true,
-              avatarUrl: null,
-              password: null,
-              role: 'user',
-            },
-          });
-        }
+    let user = null;
+    // Поиск по OAuth среди github
+    const userOAuth = await findUserOAuth('github', String(githubUser.id));
+    if (userOAuth) {
+      user = userOAuth.user;
+    } else {
+      user = await findOrCreateUserWithOAuth({
+        provider: 'github',
+        providerId: String(githubUser.id),
+        email,
+        guestUuid,
+        givenName: githubUser.login,
+        req,
+        res,
+      });
+      if (guestUuid) {
+        res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
       }
     }
 
@@ -195,7 +157,6 @@ router.post('/auth/oauth/github', async (req, res) => {
       }
     }
 
-    // Проверяем, что пользователь не является гостевым (после возможной конвертации)
     if (user.role === 'guest' || !user.isActive) {
       return res
         .status(403)
@@ -207,35 +168,25 @@ router.post('/auth/oauth/github', async (req, res) => {
 
     const geoLocation = await getGeoLocation(ipAddress);
 
-    const deviceSession = await createOrUpdateDeviceSession({
-      userId: user.id,
+    // Новый универсальный хелпер для сессии и токенов
+    const { accessToken, csrfToken } = await createUserSessionAndTokens({
+      user,
       deviceId,
       userAgent,
       ipAddress,
+      req,
+      res,
+      rememberMe: true,
       referrer: req.get('Referer') || null,
       geoLocation,
     });
 
-    const refreshToken = await issueRefreshToken({
-      userUuid: user.uuid,
-      rememberMe: true,
-      userId: user.id,
-      deviceSessionId: deviceSession.id,
-    });
-
-    const accessToken = createAccessToken(user.uuid, user.role);
-    const csrfToken = createCsrfToken(user.uuid);
-
-    res.cookie(
-      REFRESH_COOKIE_NAME,
-      refreshToken,
-      getRefreshCookieOptions(true),
-    );
-
+    // Вместо user.githubOAuthEnabled возвращаем наличие enabled-связи:
+    const githubOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'github'));
     return res.status(200).json({
       accessToken,
       csrfToken,
-      githubOAuthEnabled: user.githubOAuthEnabled,
+      githubOAuthEnabled,
     });
   } catch (error) {
     handleRouteError(res, error, {

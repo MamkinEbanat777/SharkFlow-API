@@ -20,6 +20,9 @@ import { convertGuestToUser } from '../../../../utils/helpers/guestConversionHel
 import { GUEST_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
 import { getGuestCookieOptions } from '../../../../utils/cookie/guestCookie.js';
 import { REFRESH_COOKIE_NAME } from '../../../../config/cookiesConfig.js';
+import { findUserOAuth, findUserOAuthByEmail, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
+import { findOrCreateUserWithOAuth } from '../../../../utils/helpers/oauthHelpers.js';
+import { createUserSessionAndTokens } from '../../../../utils/helpers/authSessionHelpers.js';
 
 const router = Router();
 
@@ -123,64 +126,23 @@ router.post('/auth/oauth/yandex', async (req, res) => {
         .json({ error: 'Не удалось получить email из Yandex' });
     }
 
-    let user = await prisma.user.findFirst({
-      where: { yandexId: String(yandexUser.id) },
-    });
-
-    if (!user) {
-      const existing = await prisma.user.findFirst({ where: { email } });
-      if (existing) {
-        if (existing.yandexId && existing.yandexId !== String(yandexUser.id)) {
-          return res
-            .status(403)
-            .json({ error: 'Email уже занят другим аккаунтом' });
-        }
-        if (existing.yandexId === String(yandexUser.id)) {
-          user = existing;
-        } else {
-          return res.status(403).json({
-            error:
-              'Аккаунт с таким email существует, но не привязан к Yandex. Войдите через пароль или привяжите Yandex аккаунт.',
-          });
-        }
-      } else {
-        if (guestUuid) {
-          const base = yandexUser.login || email.split('@')[0] || 'user';
-          const login = await generateUniqueLogin(base);
-
-          const convertedUser = await convertGuestToUser(guestUuid, {
-            email,
-            login,
-            oauthData: {
-              yandexEmail: email,
-              yandexId: String(yandexUser.id),
-              yandexOAuthEnabled: true,
-              password: null,
-            },
-          });
-
-          if (convertedUser) {
-            user = convertedUser;
-            res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
-          }
-        }
-
-        if (!user) {
-          const base = yandexUser.login || email.split('@')[0] || 'user';
-          const login = await generateUniqueLogin(base);
-          user = await prisma.user.create({
-            data: {
-              login,
-              email,
-              yandexEmail: email,
-              yandexId: String(yandexUser.id),
-              yandexOAuthEnabled: true,
-              avatarUrl: null,
-              password: null,
-              role: 'user',
-            },
-          });
-        }
+    let user = null;
+    // Поиск по OAuth среди yandex
+    const userOAuth = await findUserOAuth('yandex', String(yandexUser.id));
+    if (userOAuth) {
+      user = userOAuth.user;
+    } else {
+      user = await findOrCreateUserWithOAuth({
+        provider: 'yandex',
+        providerId: String(yandexUser.id),
+        email,
+        guestUuid,
+        givenName: yandexUser.login,
+        req,
+        res,
+      });
+      if (guestUuid) {
+        res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
       }
     }
 
@@ -212,35 +174,25 @@ router.post('/auth/oauth/yandex', async (req, res) => {
 
     const geoLocation = await getGeoLocation(ipAddress);
 
-    const deviceSession = await createOrUpdateDeviceSession({
-      userId: user.id,
+    // Новый универсальный хелпер для сессии и токенов
+    const { accessToken, csrfToken } = await createUserSessionAndTokens({
+      user,
       deviceId,
       userAgent,
       ipAddress,
+      req,
+      res,
+      rememberMe: true,
       referrer: req.get('Referer') || null,
       geoLocation,
     });
 
-    const refreshToken = await issueRefreshToken({
-      userUuid: user.uuid,
-      rememberMe: true,
-      userId: user.id,
-      deviceSessionId: deviceSession.id,
-    });
-
-    const accessToken = createAccessToken(user.uuid, user.role);
-    const csrfToken = createCsrfToken(user.uuid);
-
-    res.cookie(
-      REFRESH_COOKIE_NAME,
-      refreshToken,
-      getRefreshCookieOptions(true),
-    );
-
+    // Вместо user.yandexOAuthEnabled возвращаем наличие enabled-связи:
+    const yandexOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'yandex'));
     return res.status(200).json({
       accessToken,
       csrfToken,
-      yandexOAuthEnabled: user.yandexOAuthEnabled,
+      yandexOAuthEnabled,
     });
   } catch (error) {
     handleRouteError(res, error, {

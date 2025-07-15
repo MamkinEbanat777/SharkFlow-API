@@ -80,22 +80,31 @@ router.post(
       }
 
       if (guestUuid) {
-        const existingGuest = await prisma.user.findFirst({
-          where: { uuid: guestUuid, isDeleted: false, role: 'guest' },
-        });
-
-        if (existingGuest && existingGuest.role === 'guest') {
-          userRecord = await prisma.user.update({
-            where: { uuid: guestUuid },
-            data: {
-              email,
-              login,
-              password: hashedPassword,
-              role: 'user',
+        await prisma.$transaction(async (tx) => {
+          const existingGuest = await tx.user.findFirst({
+            where: { uuid: guestUuid, isDeleted: false, role: 'guest' },
+          });
+          if (existingGuest && existingGuest.role === 'guest') {
+            userRecord = await tx.user.update({
+              where: { uuid: guestUuid },
+              data: {
+                email,
+                login,
+                password: hashedPassword,
+                role: 'user',
+              },
+            });
+            res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
+          }
+          await tx.refreshToken.deleteMany({
+            where: {
+              userId: userRecord.id,
+              revoked: false,
             },
           });
-          res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
-        }
+          await deleteUserTempData('registration', regUuid);
+          await deleteConfirmationCode('registration', regUuid);
+        });
       }
 
       if (!userRecord) {
@@ -107,17 +116,6 @@ router.post(
           },
         });
       }
-
-      await prisma.refreshToken.deleteMany({
-        where: {
-          userId: userRecord.id,
-          revoked: false,
-        },
-      });
-
-      await deleteUserTempData('registration', regUuid);
-
-      await deleteConfirmationCode('registration', regUuid);
 
       res.clearCookie(REGISTER_COOKIE_NAME, getRegistrationCookieOptions());
 

@@ -5,6 +5,7 @@ import { validateAndDeleteConfirmationCode } from '../../../../utils/helpers/con
 import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
 import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
+import { getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
@@ -30,12 +31,11 @@ router.post(
 
       await findUserByUuidOrThrow(userUuid, false, { uuid: true });
 
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: {
-          googleSub: null,
-          googleOAuthEnabled: false,
-        },
+      // Деактивируем OAuth связь
+      const user = await findUserByUuidOrThrow(userUuid, false, { id: true });
+      await prisma.userOAuth.updateMany({
+        where: { userId: user.id, provider: 'google', enabled: true },
+        data: { enabled: false },
       });
 
       return res.json({ message: 'Google успешно отвязан от вашего аккаунта' });

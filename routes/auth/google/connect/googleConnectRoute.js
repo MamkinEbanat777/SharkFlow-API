@@ -7,6 +7,7 @@ import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '../../../../store/userTempData.js';
 import { findUserByUuid } from '../../../../utils/helpers/userHelpers.js';
+import { findUserOAuth, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
 import prisma from '../../../../utils/prismaConfig/prismaClient.js';
 
 const router = Router();
@@ -67,31 +68,24 @@ router.post(
       const normalizedUserEmail = normalizeEmail(user.email);
       const normalizedGoogleEmail = normalizeEmail(email);
 
-      const existingUserWithGoogleSub = await prisma.user.findFirst({
-        where: { googleSub: googleSub },
-      });
-
+      const existingUserWithGoogleSub = await findUserOAuth('google', googleSub);
       if (
         existingUserWithGoogleSub &&
-        existingUserWithGoogleSub.uuid !== userUuid
+        existingUserWithGoogleSub.user.uuid !== userUuid
       ) {
         return res.status(409).json({
           error: 'Этот Google аккаунт уже привязан к другому пользователю',
         });
       }
-
-      if (user.googleSub && user.googleSub !== googleSub) {
+      const userGoogleOAuth = await getUserOAuthByUserId(user.id, 'google');
+      if (userGoogleOAuth && userGoogleOAuth.providerId !== googleSub) {
         return res.status(409).json({
           error: 'К аккаунту уже привязан другой Google аккаунт',
         });
       }
-
-      if (user.googleSub === googleSub) {
-        return res
-          .status(200)
-          .json({ message: 'Google уже привязан к аккаунту' });
+      if (userGoogleOAuth && userGoogleOAuth.providerId === googleSub) {
+        return res.status(200).json({ message: 'Google уже привязан к аккаунту' });
       }
-
       if (normalizedUserEmail !== normalizedGoogleEmail) {
         await sendUserConfirmationCode({
           userUuid,
@@ -103,30 +97,22 @@ router.post(
             failure: () => {},
           },
         });
-
         await setUserTempData('connectGoogle', userUuid, {
           googleSub,
           normalizedGoogleEmail,
         });
-
         return res.status(200).json({
           message:
             'Email Google не совпадает с email аккаунта. Требуется подтверждение.',
           requireEmailConfirmed: true,
         });
       }
-
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: {
-          googleSub,
-          googleOAuthEnabled: true,
-        },
+      await prisma.userOAuth.upsert({
+        where: { userId_provider: { userId: user.id, provider: 'google' } },
+        update: { providerId: googleSub, email: email, enabled: true },
+        create: { userId: user.id, provider: 'google', providerId: googleSub, email: email, enabled: true },
       });
-
-      return res
-        .status(200)
-        .json({ message: 'Google-аккаунт успешно привязан' });
+      return res.status(200).json({ message: 'Google-аккаунт успешно привязан' });
     } catch (error) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при подключении Google-аккаунта',

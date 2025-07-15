@@ -53,48 +53,51 @@ router.post(
     const { title, dueDate, description, priority, status } = validation.data;
 
     try {
-      const taskCount = await getUserTaskCount(userUuid);
-
-      const MAX_TASKS_PER_USER = 500;
-      if (taskCount >= MAX_TASKS_PER_USER) {
-        return res.status(400).json({
-          error: `Достигнут лимит задач (${MAX_TASKS_PER_USER}). Удалите некоторые задачи для создания новых.`,
+      // Проверка лимита и создание задачи в одной транзакции
+      const result = await prisma.$transaction(async (tx) => {
+        const taskCount = await getUserTaskCount(userUuid, tx);
+        const MAX_TASKS_PER_USER = 500;
+        if (taskCount >= MAX_TASKS_PER_USER) {
+          throw new Error('LIMIT_REACHED');
+        }
+        const newTask = await tx.task.create({
+          data: {
+            title,
+            description: description ?? '',
+            dueDate,
+            priority,
+            status,
+            board: { connect: { uuid: boardUuid } },
+          },
+          select: {
+            uuid: true,
+            title: true,
+            description: true,
+            dueDate: true,
+            createdAt: true,
+            updatedAt: true,
+            priority: true,
+            status: true,
+          },
         });
-      }
-
-      const newTask = await prisma.task.create({
-        data: {
-          title,
-          description: description ?? '',
-          dueDate,
-          priority,
-          status,
-          board: { connect: { uuid: boardUuid } },
-        },
-        select: {
-          uuid: true,
-          title: true,
-          description: true,
-          dueDate: true,
-          createdAt: true,
-          updatedAt: true,
-          priority: true,
-          status: true,
-        },
+        return newTask;
       });
-
+      // После транзакции считаем количество задач на доске
       const updatedTaskCount = await prisma.task.count({
         where: { board: { uuid: boardUuid } },
       });
-
-      logTaskCreation(title, userUuid, ipAddress);
-
+      logTaskCreation(result.title, userUuid, ipAddress);
       return res.status(201).json({
         message: 'Задача успешно создана',
-        task: newTask,
+        task: result,
         taskCount: updatedTaskCount,
       });
     } catch (error) {
+      if (error.message === 'LIMIT_REACHED') {
+        return res.status(400).json({
+          error: `Достигнут лимит задач (500). Удалите некоторые задачи для создания новых.`,
+        });
+      }
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при создании задачи',
         mappings: {

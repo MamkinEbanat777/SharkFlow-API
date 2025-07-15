@@ -45,18 +45,40 @@ export const findUserByEmail = async (
 };
 
 /**
- * Поиск пользователя по Google Sub ID (только активные, не удаленные)
- * @param {string} googleSub - Google Sub ID пользователя
- * @param {Object} select - Объект для выбора полей (опционально)
- * @returns {Promise<Object|null>} Пользователь или null если не найден
- * @example
- * const user = await findUserByGoogleSub('google_sub_123');
- * const userWithGoogle = await findUserByGoogleSub('google_sub_123', { googleEmail: true, googleOAuthEnabled: true });
+ * Поиск OAuth-записи пользователя по провайдеру и providerId
+ * @param {string} provider - Название провайдера ('google', 'github', 'yandex')
+ * @param {string} providerId - ID/sub/id провайдера
+ * @returns {Promise<Object|null>} UserOAuth или null
  */
-export const findUserByGoogleSub = async (googleSub, select = {}) => {
-  return await prisma.user.findFirst({
-    where: { googleSub, isDeleted: false },
-    ...(Object.keys(select).length > 0 ? { select } : {}),
+export const findUserOAuth = async (provider, providerId) => {
+  return await prisma.userOAuth.findFirst({
+    where: { provider, providerId, enabled: true },
+    include: { user: true },
+  });
+};
+
+/**
+ * Проверка, есть ли у пользователя активная OAuth-связь с провайдером
+ * @param {number} userId - ID пользователя
+ * @param {string} provider - Название провайдера ('google', 'github', 'yandex')
+ * @returns {Promise<Object|null>} UserOAuth или null
+ */
+export const getUserOAuthByUserId = async (userId, provider) => {
+  return await prisma.userOAuth.findFirst({
+    where: { userId, provider, enabled: true },
+  });
+};
+
+/**
+ * Поиск пользователя по email через OAuth (поиск UserOAuth по email и provider)
+ * @param {string} provider - Название провайдера
+ * @param {string} email - Email
+ * @returns {Promise<Object|null>} UserOAuth или null
+ */
+export const findUserOAuthByEmail = async (provider, email) => {
+  return await prisma.userOAuth.findFirst({
+    where: { provider, email, enabled: true },
+    include: { user: true },
   });
 };
 

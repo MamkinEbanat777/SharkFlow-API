@@ -114,7 +114,11 @@ router.post(
             deletedAt: new Date(),
           },
         }),
-
+        // Деактивируем все UserOAuth
+        prisma.userOAuth.updateMany({
+          where: { userId: user.id },
+          data: { enabled: false },
+        }),
         prisma.user.update({
           where: { uuid: userUuid },
           data: {
@@ -122,18 +126,6 @@ router.post(
             deletedAt: new Date(),
             avatarUrl: null,
             publicId: null,
-            googleSub: null,
-            googleEmail: null,
-            googleOAuthEnabled: false,
-            githubId: null,
-            githubEmail: null,
-            githubOAuthEnabled: false,
-            yandexId: null,
-            yandexEmail: null,
-            yandexOAuthEnabled: false,
-
-            telegramId: null,
-            telegramEnabled: false,
           },
         }),
       ]);
