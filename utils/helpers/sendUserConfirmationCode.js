@@ -30,6 +30,7 @@ export async function sendUserConfirmationCode({
   type,
   loggers,
   email,
+  isDeleted = false,
   skipUserCheck = false,
 }) {
   if (!isValidUUID(userUuid)) {
@@ -40,7 +41,7 @@ export async function sendUserConfirmationCode({
 
   if (!skipUserCheck) {
     const user = await prisma.user.findFirst({
-      where: { uuid: userUuid, isDeleted: false },
+      where: { uuid: userUuid, isDeleted: isDeleted },
       select: { email: true },
     });
 

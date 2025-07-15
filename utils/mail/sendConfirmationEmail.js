@@ -29,6 +29,7 @@ export async function sendConfirmationEmail({ to, type, confirmationCode }) {
     disableGithub: 'Отключение Github',
     connectYandex: 'Подключение Yandex',
     disableYandex: 'Отключение Yandex',
+    restoreUser: 'Восстановление аккаунта',
   };
 
   if (!subjectMap[type]) {

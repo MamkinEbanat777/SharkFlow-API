@@ -60,7 +60,7 @@ router.post(
     }
 
     try {
-      const user = await findUserByUuid(userUuid, {
+      const user = await findUserByUuid(userUuid, false, {
         publicId: true,
         role: true,
       });
@@ -131,7 +131,7 @@ router.post(
             yandexId: null,
             yandexEmail: null,
             yandexOAuthEnabled: false,
-            
+
             telegramId: null,
             telegramEnabled: false,
           },

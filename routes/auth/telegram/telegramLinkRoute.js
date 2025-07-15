@@ -11,7 +11,7 @@ router.get('/telegram/link', authenticateMiddleware, async (req, res) => {
   try {
     const userUuid = req.userUuid;
 
-    const user = await findUserByUuidOrThrow(userUuid, { role: true });
+    const user = await findUserByUuidOrThrow(userUuid, false, { role: true });
 
     if (!user) {
       return res.status(404).json({ error: 'Пользователь не найден' });

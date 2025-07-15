@@ -12,7 +12,7 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
   const ipAddress = getClientIP(req);
 
   try {
-    const user = await findUserByUuid(userUuid, {
+    const user = await findUserByUuid(userUuid, false, {
       login: true,
       email: true,
       role: true,

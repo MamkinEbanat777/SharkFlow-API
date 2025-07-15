@@ -19,7 +19,7 @@ router.post(
     const ipAddress = getClientIP(req);
 
     try {
-      const user = await findUserByUuid(userUuid, { email: true });
+      const user = await findUserByUuid(userUuid, false, { email: true });
 
       if (!user) {
         logUserDeleteRequestFailure(userUuid, ipAddress, 'User not found');

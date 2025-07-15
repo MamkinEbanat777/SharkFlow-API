@@ -28,7 +28,7 @@ router.post(
         return res.status(400).json({ error: validation.error });
       }
 
-      await findUserByUuidOrThrow(userUuid, { uuid: true });
+      await findUserByUuidOrThrow(userUuid, false, { uuid: true });
 
       await prisma.user.update({
         where: { uuid: userUuid },

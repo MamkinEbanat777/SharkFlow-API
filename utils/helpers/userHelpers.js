@@ -6,7 +6,7 @@ import prisma from '../prismaConfig/prismaClient.js';
 import { isValidUUID } from '../validators/taskValidators.js';
 
 /**
- * Поиск пользователя по UUID (только активные, не удаленные)
+ * Поиск пользователя по UUID
  * @param {string} uuid - UUID пользователя
  * @param {Object} select - Объект для выбора полей (опционально)
  * @returns {Promise<Object|null>} Пользователь или null если не найден
@@ -14,12 +14,12 @@ import { isValidUUID } from '../validators/taskValidators.js';
  * const user = await findUserByUuid('123e4567-e89b-12d3-a456-426614174000');
  * const userWithEmail = await findUserByUuid('123e4567-e89b-12d3-a456-426614174000', { email: true, login: true });
  */
-export const findUserByUuid = async (uuid, select = {}) => {
+export const findUserByUuid = async (uuid, isDeleted = false, select = {}) => {
   if (!isValidUUID(uuid)) {
     throw new Error('Invalid user UUID');
   }
   return await prisma.user.findFirst({
-    where: { uuid, isDeleted: false },
+    where: { uuid, isDeleted: isDeleted },
     ...(Object.keys(select).length > 0 ? { select } : {}),
   });
 };
@@ -33,9 +33,13 @@ export const findUserByUuid = async (uuid, select = {}) => {
  * const user = await findUserByEmail('user@example.com');
  * const userWithRole = await findUserByEmail('user@example.com', { role: true, isActive: true });
  */
-export const findUserByEmail = async (email, select = {}) => {
+export const findUserByEmail = async (
+  email,
+  isDeleted = false,
+  select = {},
+) => {
   return await prisma.user.findFirst({
-    where: { email, isDeleted: false },
+    where: { email, isDeleted: isDeleted },
     ...(Object.keys(select).length > 0 ? { select } : {}),
   });
 };
@@ -116,11 +120,11 @@ export const requireUserNotDeleted = (user) => {
  * const user = await findUserByUuidOrThrow('123e4567-e89b-12d3-a456-426614174000');
  * const userWithEmail = await findUserByUuidOrThrow('123e4567-e89b-12d3-a456-426614174000', { email: true });
  */
-export const findUserByUuidOrThrow = async (uuid, select = {}) => {
+export const findUserByUuidOrThrow = async (uuid, isDeleted = false, select = {}) => {
   if (!isValidUUID(uuid)) {
     throw new Error('Invalid user UUID');
   }
-  const user = await findUserByUuid(uuid, select);
+  const user = await findUserByUuid(uuid, isDeleted, select);
   return requireUserExists(user);
 };
 
@@ -134,7 +138,7 @@ export const findUserByUuidOrThrow = async (uuid, select = {}) => {
  * const user = await findUserByEmailOrThrow('user@example.com');
  * const userWithRole = await findUserByEmailOrThrow('user@example.com', { role: true });
  */
-export const findUserByEmailOrThrow = async (email, select = {}) => {
-  const user = await findUserByEmail(email, select);
+export const findUserByEmailOrThrow = async (email, isDeleted, select = {}) => {
+  const user = await findUserByEmail(email, isDeleted, select);
   return requireUserExists(user);
 };

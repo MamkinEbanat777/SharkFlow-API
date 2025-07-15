@@ -11,6 +11,7 @@ import {
 import {
   logLoginSuccess,
   logLoginFailure,
+  maskEmail,
 } from '../../../utils/loggers/authLoggers.js';
 import { getClientIP } from '../../../utils/helpers/authHelpers.js';
 import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
@@ -82,8 +83,41 @@ router.post(
 
     const geoLocation = await getGeoLocation(ipAddress);
 
+    const deletedUser = await findUserByEmail(normalizedEmail, true, {
+      id: true,
+      uuid: true,
+      password: true,
+      login: true,
+      email: true,
+      role: true,
+      twoFactorEnabled: true,
+      githubOAuthEnabled: true,
+      isDeleted: true,
+      avatarUrl: true,
+    });
+
+    if (deletedUser && deletedUser.isDeleted) {
+      if (!(await bcrypt.compare(password, deletedUser.password))) {
+        incrementLoginAttempts(ipAddress, normalizedEmail);
+        return res.status(401).json({ error: 'Неправильный email или пароль' });
+      }
+      const maskedEmail = maskEmail(deletedUser.email);
+      const restoreKey = generateUUID();
+      await setUserTempData('restoreUser', restoreKey, {
+        userUuid: deletedUser.uuid,
+      });
+
+      return res.status(200).json({
+        login: deletedUser.login,
+        email: maskedEmail,
+        avatarUrl: deletedUser.avatarUrl,
+        isDeleted: deletedUser.isDeleted,
+        restoreKey,
+      });
+    }
+
     try {
-      const user = await findUserByEmail(normalizedEmail, {
+      const user = await findUserByEmail(normalizedEmail, false, {
         id: true,
         uuid: true,
         password: true,

@@ -357,3 +357,29 @@ export const logGoogleUnlinkFailure = (userUuid, ip, reason) => {
     `${userUuid} from IP: ${ip} - ${reason}`,
   );
 };
+
+/**
+ * Логирование успешного восстановления аккаунта
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @example
+ * logAccountRestoreSuccess('user@example.com', '123e4567-e89b-12d3-a456-426614174000', '192.168.1.1');
+ */
+export const logAccountRestoreSuccess = (email, userUuid, ip) => {
+  validateParams(userUuid, ip);
+  logInfo('Auth', 'account restore success', `${maskEmail(email)} (${userUuid}) from IP: ${ip}`);
+};
+
+/**
+ * Логирование неудачной попытки восстановления аккаунта
+ * @param {string} email - Email пользователя (будет замаскирован)
+ * @param {string} ip - IP адрес клиента
+ * @param {string} reason - Причина неудачи
+ * @example
+ * logAccountRestoreFailure('user@example.com', '192.168.1.1', 'Invalid code');
+ */
+export const logAccountRestoreFailure = (email, ip, reason) => {
+  if (!ip) throw new Error('ip is required');
+  logWarn('Auth', 'account restore failure', `${maskEmail(email)} from IP: ${ip} - ${reason}`);
+};

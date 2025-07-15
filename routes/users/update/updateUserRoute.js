@@ -58,7 +58,7 @@ router.patch(
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
 
-      const user = await findUserByUuid(userUuid, { role: true });
+      const user = await findUserByUuid(userUuid, false, { role: true });
 
       if (!user) {
         return res.status(404).json({ error: 'Пользователь не найден' });

@@ -37,7 +37,7 @@ router.post('/auth/totp/verify', async (req, res) => {
 
     const { uuid, rememberMe, ipAddress, userAgent } = session;
 
-    const user = await findUserByUuidOrThrow(uuid, {
+    const user = await findUserByUuidOrThrow(uuid, false, {
       id: true,
       uuid: true,
       password: true,

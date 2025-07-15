@@ -13,7 +13,7 @@ router.post('/auth/totp/setup', authenticateMiddleware, async (req, res) => {
     const { totpCode } = req.body;
     const userUuid = req.userUuid;
 
-    const user = await findUserByUuidOrThrow(userUuid, {
+    const user = await findUserByUuidOrThrow(userUuid, false, {
       twoFactorPendingSecret: true,
       role: true,
     });

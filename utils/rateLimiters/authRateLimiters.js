@@ -3,7 +3,7 @@
  * @description Rate limiter'ы для аутентификации.
  */
 
-import { normalizeEmail } from '../validators/normalizeEmail';
+import { normalizeEmail } from '../validators/normalizeEmail.js';
 
 const loginAttempts = new Map();
 

@@ -1,4 +1,4 @@
-import { getClientIP } from '../../utils/helpers/authHelpers';
+import { getClientIP } from '../../utils/helpers/authHelpers.js';
 
 const requestBuckets = new Map();
 const violationCounts = new Map();
