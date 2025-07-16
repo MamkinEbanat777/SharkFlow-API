@@ -1,4 +1,4 @@
-import { redis } from '#config/redisconfig.js';
+import { redis } from '#config/httpRedisconfig.js';
 import { logStoreError } from '#utils/loggers/storeLoggers.js';
 import { allowedTypes } from '#config/allowedTypes.js';
 

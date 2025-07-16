@@ -1,4 +1,4 @@
-import { redis } from '#config/redisconfig.js';
+import { redis } from '#config/httpRedisconfig.js';
 import { allowedTypes } from '#config/allowedTypes.js';
 
 const EXPIRE_SECONDS = 15 * 60;
