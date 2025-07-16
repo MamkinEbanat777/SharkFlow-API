@@ -16,6 +16,11 @@ import { findUserOAuth } from '#utils/helpers/userHelpers.js';
 import { getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
 import { findOrCreateUserWithOAuth } from '#utils/helpers/oauthHelpers.js';
 import { createUserSessionAndTokens } from '#utils/helpers/authSessionHelpers.js';
+import {
+  logGoogleOAuthAttempt,
+  logGoogleOAuthSuccess,
+  logGoogleOAuthFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -30,7 +35,11 @@ router.post('/auth/oauth/google', async (req, res) => {
   const { code, captchaToken } = req.body;
   const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 
+  // Логгируем попытку входа через Google OAuth
+  logGoogleOAuthAttempt('login', '', '', ipAddress, userAgent);
+
   if (!code) {
+    logGoogleOAuthFailure('login', '', '', ipAddress, 'code missing', userAgent);
     return res.status(400).json({ error: 'Код авторизации обязателен' });
   }
 
@@ -78,28 +87,26 @@ router.post('/auth/oauth/google', async (req, res) => {
     } = ticket.getPayload();
     if (!googleSub)
       return res.status(400).json({ error: 'Некорректный токен Google' });
-    if (!email || !emailVerified)
+    if (!email || !emailVerified) {
+      logGoogleOAuthFailure('login', googleSub || '', '', ipAddress, 'email missing or not verified', userAgent);
       return res
         .status(400)
         .json({ error: 'Некорректный или неподтверждённый email Google' });
+    }
 
     let user = null;
     const avatarUrl = pic;
 
-    // Поиск по email среди обычных пользователей
     const userByEmail = await prisma.user.findFirst({ where: { email } });
-    // Поиск по OAuth среди google
     const userOAuth = await findUserOAuth('google', googleSub);
 
     if (userByEmail) {
       if (!userByEmail.isActive) {
         return res.status(403).json({ error: 'Аккаунт заблокирован. Обратитесь в поддержку.' });
       }
-      // Проверяем, есть ли у этого пользователя уже связь с этим googleSub
       const userGoogleOAuth = await getUserOAuthByUserId(userByEmail.id, 'google');
       if (userGoogleOAuth && userGoogleOAuth.providerId === googleSub) {
         if (userByEmail.isDeleted) {
-          // Восстанавливаем пользователя и активируем OAuth
           await prisma.user.update({ where: { id: userByEmail.id }, data: { isDeleted: false, deletedAt: null } });
           await prisma.userOAuth.updateMany({ where: { userId: userByEmail.id, provider: 'google', providerId: googleSub }, data: { enabled: true } });
         }
@@ -147,12 +154,14 @@ router.post('/auth/oauth/google', async (req, res) => {
     }
 
     if (user.isDeleted || !user.isActive) {
+      logGoogleOAuthFailure('login', googleSub || '', email, ipAddress, 'deleted or inactive', userAgent);
       return res
         .status(403)
         .json({ error: 'Аккаунт недоступен. Обратитесь в поддержку.' });
     }
 
     if (user.role === 'guest') {
+      logGoogleOAuthFailure('login', googleSub || '', email, ipAddress, 'guest', userAgent);
       return res
         .status(403)
         .json({ error: 'Гостевые аккаунты не могут использовать OAuth.' });
@@ -176,12 +185,14 @@ router.post('/auth/oauth/google', async (req, res) => {
     });
 
     const googleOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'google'));
+    logGoogleOAuthSuccess('login', googleSub || '', user.id || user.uuid, email, ipAddress, userAgent);
     return res.status(200).json({
       accessToken,
       csrfToken,
       googleOAuthEnabled,
     });
   } catch (error) {
+    logGoogleOAuthFailure('login', '', '', ipAddress, error?.message || 'unknown error', userAgent);
     if (!res.headersSent) {
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при логине через Google',

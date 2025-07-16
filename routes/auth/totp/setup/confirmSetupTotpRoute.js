@@ -3,6 +3,7 @@ import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
+import { logTotpSetupAttempt } from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -11,6 +12,7 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
+    logTotpSetupAttempt(userUuid);
 
     try {
       const user = await findUserByUuidOrThrow(userUuid);

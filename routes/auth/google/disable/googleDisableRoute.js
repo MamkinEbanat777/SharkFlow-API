@@ -6,6 +6,12 @@ import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js'
 import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import prisma from '#utils/prismaConfig/prismaClient.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import {
+  logGoogleOAuthDisableAttempt,
+  logGoogleOAuthDisableSuccess,
+  logGoogleOAuthDisableFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -14,8 +20,10 @@ router.post(
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
+    const { ipAddress, userAgent } = getRequestInfo(req);
     try {
       const userUuid = req.userUuid;
+      logGoogleOAuthDisableAttempt(userUuid, ipAddress, userAgent);
       const { confirmationCode } = req.body;
 
       const validation = await validateAndDeleteConfirmationCode(
@@ -25,20 +33,22 @@ router.post(
       );
 
       if (!validation.isValid) {
+        logGoogleOAuthDisableFailure(userUuid, ipAddress, validation.error, userAgent);
         return res.status(400).json({ error: validation.error });
       }
 
       await findUserByUuidOrThrow(userUuid, false, { uuid: true });
 
-      // Деактивируем OAuth связь
       const user = await findUserByUuidOrThrow(userUuid, false, { id: true });
       await prisma.userOAuth.updateMany({
         where: { userId: user.id, provider: 'google', enabled: true },
         data: { enabled: false },
       });
 
+      logGoogleOAuthDisableSuccess(userUuid, ipAddress, userAgent);
       return res.json({ message: 'Google успешно отвязан от вашего аккаунта' });
     } catch (error) {
+      logGoogleOAuthDisableFailure(req.userUuid, ipAddress, error?.message || 'unknown error', userAgent);
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при отвязке Google',
         status: 500,

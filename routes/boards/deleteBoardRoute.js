@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import { validateBoardUuid } from '#middlewares/http/boardMiddleware.js';
 import { logBoardDeletion } from '#utils/loggers/boardLoggers.js';
+import { logBoardDeletionAttempt } from '#utils/loggers/boardLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
@@ -18,7 +19,9 @@ router.delete(
   async (req, res) => {
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logBoardDeletionAttempt(boardUuid, userUuid, ipAddress, userAgent);
 
     try {
       const boardToDelete = await findBoardByUuid(boardUuid, userUuid, {

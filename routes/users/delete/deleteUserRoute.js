@@ -4,6 +4,7 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import {
   logUserDelete,
   logUserDeleteFailure,
+  logUserDeleteAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import cloudinary from 'cloudinary';
@@ -24,7 +25,9 @@ router.post(
     const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
     const userUuid = req.userUuid;
     const { confirmationCode } = req.body;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logUserDeleteAttempt(userUuid, ipAddress, userAgent);
 
     if (!refreshToken || !userUuid) {
       return res.status(401).json({ error: 'Нет доступа или неавторизован' });
@@ -107,7 +110,6 @@ router.post(
             deletedAt: new Date(),
           },
         }),
-        // Деактивируем все UserOAuth
         prisma.userOAuth.updateMany({
           where: { userId: user.id },
           data: { enabled: false },

@@ -3,6 +3,7 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import { validateTaskUuids } from '#middlewares/http/taskMiddleware.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { logTaskDeletion } from '#utils/loggers/taskLoggers.js';
+import { logTaskDeletionAttempt } from '#utils/loggers/taskLoggers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
   findTaskWithBoardAccess,
@@ -18,7 +19,9 @@ router.delete(
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid, taskUuid } = req.params;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logTaskDeletionAttempt(taskUuid, userUuid, ipAddress, userAgent);
 
     try {
       const taskToDelete = await findTaskWithBoardAccess(

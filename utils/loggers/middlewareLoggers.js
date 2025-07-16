@@ -12,8 +12,8 @@ import { logError } from './baseLogger.js';
  * @example
  * logAuthMiddlewareError('token_validation', '192.168.1.1', new Error('Invalid token format'));
  */
-export const logAuthMiddlewareError = (action, ip, error) => {
-  logError('AuthMiddleware', action, `from ${ip}`, error);
+export const logAuthMiddlewareError = (action, ip, ua, error) => {
+  logError('AuthMiddleware', action, `from ${ip}, ua: ${ua}`, error);
 };
 
 /**

@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import { logUserFetch } from '#utils/loggers/authLoggers.js';
+import { logUserFetchAttempt } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
@@ -10,7 +11,9 @@ const router = Router();
 
 router.get('/users/devices', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const { ipAddress } = getRequestInfo(req);
+  const { ipAddress, userAgent } = getRequestInfo(req);
+
+  logUserFetchAttempt(userUuid, ipAddress, userAgent);
 
   try {
     const user = await findUserByUuidOrThrow(userUuid, false, {

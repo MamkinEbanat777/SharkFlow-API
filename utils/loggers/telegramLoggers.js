@@ -117,4 +117,37 @@ export const logTelegramWebhookError = (userUuid, action, ip, error) => {
   if (!action) throw new Error('action is required');
   validateParams(userUuid, ip);
   logError('Telegram', 'webhookError', `${action} for ${userUuid} from IP: ${ip}`, error);
-}; 
+};
+
+/**
+ * Логгирует попытку генерации ссылки для привязки Telegram
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} userAgent - User-Agent клиента
+ */
+export function logTelegramLinkAttempt(userUuid, ip, userAgent) {
+  validateParams(userUuid, ip);
+  logInfo('Telegram', 'linkAttempt', `[LINK_ATTEMPT] user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}
+
+/**
+ * Логгирует попытку отвязки Telegram
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {string} userAgent - User-Agent клиента
+ */
+export function logTelegramUnlinkAttempt(userUuid, ip, userAgent) {
+  validateParams(userUuid, ip);
+  logInfo('Telegram', 'unlinkAttempt', `[UNLINK_ATTEMPT] user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}
+
+/**
+ * Логгирует попытку обработки Telegram webhook
+ * @param {string} action - Действие (например, 'webhook')
+ * @param {string} ip - IP адрес клиента
+ * @param {string} userAgent - User-Agent клиента
+ */
+export function logTelegramWebhookAttempt(action, ip, userAgent) {
+  if (!action) throw new Error('action is required');
+  logInfo('Telegram', 'webhookAttempt', `[WEBHOOK_ATTEMPT] action: ${action}, ip: ${ip}, ua: ${userAgent}`);
+} 

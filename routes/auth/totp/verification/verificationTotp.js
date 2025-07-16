@@ -2,10 +2,11 @@ import { Router } from 'express';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
+  getRequestInfo,
   setAuthCookies,
 } from '#utils/helpers/authHelpers.js';
 import { resetLoginAttempts } from '#utils/rateLimiters/authRateLimiters.js';
-import { logLoginSuccess } from '#utils/loggers/authLoggers.js';
+import { logLoginSuccess, logTotpVerifyAttempt } from '#utils/loggers/authLoggers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { deleteUserTempData } from '#store/userTempData.js';
 import { getUserTempData } from '#store/userTempData.js';
@@ -22,6 +23,10 @@ const router = Router();
 
 router.post('/auth/totp/verify', async (req, res) => {
   const { totpCode, sessionKey } = req.body;
+  const {ipAddress,userAgent} = getRequestInfo(req)
+
+  // Логгируем попытку верификации TOTP
+  logTotpVerifyAttempt(sessionKey, totpCode, ipAddress, userAgent);
 
   try {
     const session = await getUserTempData('twoFactorAuth', sessionKey);

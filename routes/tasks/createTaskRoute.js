@@ -3,6 +3,8 @@ import prisma from '#utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import { validateTaskUuids } from '#middlewares/http/taskMiddleware.js';
 import { logTaskCreation } from '#utils/loggers/taskLoggers.js';
+import { logTaskCreationAttempt } from '#utils/loggers/taskLoggers.js';
+import { logTaskCreationFailure } from '#utils/loggers/taskLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
@@ -20,7 +22,10 @@ router.post(
   async (req, res) => {
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    const rawTitle = req.body.title;
+    logTaskCreationAttempt(rawTitle, userUuid, ipAddress, userAgent);
 
     const board = await findBoardByUuidForUser(boardUuid, userUuid, {
       id: true,
@@ -32,7 +37,6 @@ router.post(
       });
     }
 
-    const rawTitle = req.body.title;
     const rawDueDate = req.body.dueDate?.trim() || null;
     const rawdescription = req.body.description;
     const rawPriority = req.body.priority?.trim() || null;
@@ -53,7 +57,6 @@ router.post(
     const { title, dueDate, description, priority, status } = validation.data;
 
     try {
-      // Проверка лимита и создание задачи в одной транзакции
       const result = await prisma.$transaction(async (tx) => {
         const taskCount = await getUserTaskCount(userUuid, tx);
         const MAX_TASKS_PER_USER = 500;
@@ -82,7 +85,6 @@ router.post(
         });
         return newTask;
       });
-      // После транзакции считаем количество задач на доске
       const updatedTaskCount = await prisma.task.count({
         where: { board: { uuid: boardUuid } },
       });
@@ -98,6 +100,7 @@ router.post(
           error: `Достигнут лимит задач (500). Удалите некоторые задачи для создания новых.`,
         });
       }
+      logTaskCreationFailure(rawTitle, userUuid, ipAddress, error);
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при создании задачи',
         mappings: {

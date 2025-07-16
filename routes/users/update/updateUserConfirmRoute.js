@@ -3,6 +3,7 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
+  logUserUpdateRequestAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
@@ -16,7 +17,9 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logUserUpdateRequestAttempt(userUuid, ipAddress, userAgent);
 
     try {
       const user = await findUserByUuidOrThrow(userUuid);

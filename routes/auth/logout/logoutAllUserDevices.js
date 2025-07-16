@@ -4,6 +4,8 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import {
   logLogout,
   logLogoutInvalidToken,
+  logLogoutAttempt,
+  logLogoutFailure,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
@@ -16,7 +18,10 @@ router.post('/auth/logout/all', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
   const { ipAddress } = getRequestInfo(req);
 
+  logLogoutAttempt(userUuid, ipAddress, '', 'all');
+
   if (!refreshToken) {
+    logLogoutFailure(userUuid, ipAddress, 'Refresh token отсутствует', '', 'all');
     return res.status(204).send();
   }
 

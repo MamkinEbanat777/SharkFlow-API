@@ -12,6 +12,7 @@ import {
   logLoginSuccess,
   logLoginFailure,
   maskEmail,
+  logLoginAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
@@ -40,6 +41,8 @@ router.post(
     const { email, password, rememberMe } = user;
     const deviceId = validateDeviceId(req, res);
     if (!deviceId) return;
+
+    logLoginAttempt(email, ipAddress, userAgent);
 
     if (process.env.NODE_ENV === 'production') {
       if (!captchaToken) {

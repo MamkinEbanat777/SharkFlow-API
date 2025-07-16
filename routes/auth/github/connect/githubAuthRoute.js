@@ -14,6 +14,11 @@ import { getGuestCookieOptions } from '#utils/cookie/guestCookie.js';
 import { findUserOAuth, getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
 import { findOrCreateUserWithOAuth } from '#utils/helpers/oauthHelpers.js';
 import { createUserSessionAndTokens } from '#utils/helpers/authSessionHelpers.js';
+import {
+  logGithubOAuthAttempt,
+  logGithubOAuthSuccess,
+  logGithubOAuthFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -22,7 +27,11 @@ router.post('/auth/oauth/github', async (req, res) => {
   const { code, state, captchaToken } = req.body;
   const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 
+  // Логгируем попытку входа через GitHub OAuth
+  logGithubOAuthAttempt('login', '', '', ipAddress, userAgent);
+
   if (!code) {
+    logGithubOAuthFailure('login', '', '', ipAddress, 'code missing', userAgent);
     return res.status(400).json({ error: 'Код авторизации обязателен' });
   }
 
@@ -110,13 +119,13 @@ router.post('/auth/oauth/github', async (req, res) => {
     const email = primary?.email;
 
     if (!email) {
+      logGithubOAuthFailure('login', githubUser?.id || '', '', ipAddress, 'email missing', userAgent);
       return res
         .status(400)
         .json({ error: 'Не удалось получить подтверждённый email из GitHub' });
     }
 
     let user = null;
-    // Поиск по OAuth среди github
     const userOAuth = await findUserOAuth('github', String(githubUser.id));
     if (userOAuth) {
       user = userOAuth.user;
@@ -148,6 +157,7 @@ router.post('/auth/oauth/github', async (req, res) => {
     }
 
     if (user.role === 'guest' || !user.isActive) {
+      logGithubOAuthFailure('login', githubUser?.id || '', email, ipAddress, 'guest or inactive', userAgent);
       return res
         .status(403)
         .json({ error: 'Этот аккаунт не может использовать OAuth' });
@@ -158,7 +168,6 @@ router.post('/auth/oauth/github', async (req, res) => {
 
     const geoLocation = await getGeoLocation(ipAddress);
 
-    // Новый универсальный хелпер для сессии и токенов
     const { accessToken, csrfToken } = await createUserSessionAndTokens({
       user,
       deviceId,
@@ -171,14 +180,15 @@ router.post('/auth/oauth/github', async (req, res) => {
       geoLocation,
     });
 
-    // Вместо user.githubOAuthEnabled возвращаем наличие enabled-связи:
     const githubOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'github'));
+    logGithubOAuthSuccess('login', githubUser?.id || '', user.uuid, email, ipAddress, userAgent);
     return res.status(200).json({
       accessToken,
       csrfToken,
       githubOAuthEnabled,
     });
   } catch (error) {
+    logGithubOAuthFailure('login', '', '', ipAddress, error?.message || 'unknown error', userAgent);
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при логине через GitHub',
       status: 500,

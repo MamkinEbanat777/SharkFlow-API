@@ -14,6 +14,11 @@ import { getGuestCookieOptions } from '#utils/cookie/guestCookie.js';
 import { findUserOAuth, getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
 import { findOrCreateUserWithOAuth } from '#utils/helpers/oauthHelpers.js';
 import { createUserSessionAndTokens } from '#utils/helpers/authSessionHelpers.js';
+import {
+  logYandexOAuthAttempt,
+  logYandexOAuthSuccess,
+  logYandexOAuthFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -22,7 +27,11 @@ router.post('/auth/oauth/yandex', async (req, res) => {
   const { code, state, captchaToken } = req.body;
   const guestUuid = req.cookies[GUEST_COOKIE_NAME];
 
+  // Логгируем попытку входа через Yandex OAuth
+  logYandexOAuthAttempt('login', '', '', ipAddress, userAgent);
+
   if (!code || typeof code !== 'string') {
+    logYandexOAuthFailure('login', '', '', ipAddress, 'code missing', userAgent);
     return res.status(400).json({ error: 'Код авторизации обязателен' });
   }
 
@@ -111,13 +120,13 @@ router.post('/auth/oauth/yandex', async (req, res) => {
     const email = yandexUser.default_email;
 
     if (!email) {
+      logYandexOAuthFailure('login', yandexUser?.id || '', '', ipAddress, 'email missing', userAgent);
       return res
         .status(400)
         .json({ error: 'Не удалось получить email из Yandex' });
     }
 
     let user = null;
-    // Поиск по OAuth среди yandex
     const userOAuth = await findUserOAuth('yandex', String(yandexUser.id));
     if (userOAuth) {
       user = userOAuth.user;
@@ -152,8 +161,8 @@ router.post('/auth/oauth/yandex', async (req, res) => {
       }
     }
 
-    // Проверяем, что пользователь не является гостевым (после возможной конвертации)
     if (user.role === 'guest' || !user.isActive) {
+      logYandexOAuthFailure('login', yandexUser?.id || '', email, ipAddress, 'guest or inactive', userAgent);
       return res
         .status(403)
         .json({ error: 'Этот аккаунт не может использовать OAuth' });
@@ -164,7 +173,6 @@ router.post('/auth/oauth/yandex', async (req, res) => {
 
     const geoLocation = await getGeoLocation(ipAddress);
 
-    // Новый универсальный хелпер для сессии и токенов
     const { accessToken, csrfToken } = await createUserSessionAndTokens({
       user,
       deviceId,
@@ -177,14 +185,15 @@ router.post('/auth/oauth/yandex', async (req, res) => {
       geoLocation,
     });
 
-    // Вместо user.yandexOAuthEnabled возвращаем наличие enabled-связи:
     const yandexOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'yandex'));
+    logYandexOAuthSuccess('login', yandexUser?.id || '', user.uuid, email, ipAddress, userAgent);
     return res.status(200).json({
       accessToken,
       csrfToken,
       yandexOAuthEnabled,
     });
   } catch (error) {
+    logYandexOAuthFailure('login', '', '', ipAddress, error?.message || 'unknown error', userAgent);
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при логине через Yandex',
       status: 500,

@@ -3,6 +3,7 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import crypto from 'crypto';
 import { v2 as cloudinary } from 'cloudinary';
 import '#config/cloudinaryConfig.js'
+import { logCloudinarySignatureAttempt, logCloudinarySignatureSuccess, logCloudinarySignatureFailure } from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -10,9 +11,13 @@ router.get(
   '/cloudinary-signature',
   authenticateMiddleware,
   async (req, res) => {
+    const userUuid = req.userUuid;
+    const ip = req.ip;
+    logCloudinarySignatureAttempt(userUuid, ip);
     const { api_key, api_secret } = cloudinary.config();
 
     if (!api_key || !api_secret) {
+      logCloudinarySignatureFailure(userUuid, ip, 'Конфигурация отсутствует');
       return res.status(500).json({ error: 'Конфигурация отсутствует' });
     }
 
@@ -33,6 +38,7 @@ router.get(
       .update(toSign + api_secret)
       .digest('hex');
 
+    logCloudinarySignatureSuccess(userUuid, ip);
     return res.json({
       api_key,
       timestamp,

@@ -4,6 +4,7 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import {
   logLogout,
   logLogoutInvalidToken,
+  logLogoutAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
@@ -14,8 +15,10 @@ const router = Router();
 router.post('/auth/logout', authenticateMiddleware, async (req, res) => {
   const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
   const userUuid = req.userUuid;
-  const { ipAddress } = getRequestInfo(req);
+  const { ipAddress, userAgent } = getRequestInfo(req);
   const deviceId = req.headers['x-device-id'];
+
+  logLogoutAttempt(userUuid, ipAddress, userAgent, deviceId);
 
   if (!deviceId) {
     return res.status(401).json({ error: 'Не удалось определить устройство' });

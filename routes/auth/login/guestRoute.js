@@ -17,13 +17,17 @@ import {
   logLoginSuccess,
   logLoginFailure,
   logRegistrationSuccess,
-  logSuspiciousAuthActivity
+  logSuspiciousAuthActivity,
+  logGuestLoginAttempt,
 } from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
 router.post('/auth/guest-login', async (req, res) => {
   const { ipAddress, userAgent } = getRequestInfo(req);
+
+  // Логгируем попытку гостевого входа
+  logGuestLoginAttempt(ipAddress, userAgent);
 
   if (process.env.NODE_ENV === 'production') {
     const { captchaToken } = req.body;

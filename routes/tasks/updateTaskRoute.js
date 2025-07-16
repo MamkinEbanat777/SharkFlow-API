@@ -4,6 +4,7 @@ import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware
 import { validateTaskUuids } from '#middlewares/http/taskMiddleware.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { logTaskUpdate } from '#utils/loggers/taskLoggers.js';
+import { logTaskUpdateAttempt } from '#utils/loggers/taskLoggers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
   findBoardByUuidForUser,
@@ -20,9 +21,12 @@ router.patch(
   async (req, res) => {
     const userUuid = req.userUuid;
     const { boardUuid, taskUuid } = req.params;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
 
     const { title, dueDate, description, priority, status } = req.body;
+    const dataToUpdate = { title, dueDate, description, priority, status };
+
+    logTaskUpdateAttempt(taskUuid, dataToUpdate, userUuid, ipAddress, userAgent);
 
     try {
       const validation = validateTaskData({

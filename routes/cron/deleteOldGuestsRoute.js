@@ -7,6 +7,7 @@ import {
   logCronJobComplete,
   logCronJobError,
 } from '#utils/loggers/systemLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,
@@ -26,7 +27,8 @@ router.post(
     const signature = req.headers['upstash-signature'];
     const body = req.rawBody;
     const url = 'https://sharkflow-api.onrender.com/cron/delete-old-guests';
-    const ipAddress = req.ip || 'unknown';
+    
+    const {ipAddress, userAgent} = getRequestInfo(req)
 
     if (!receiver.verify({ body, signature, url })) {
       return res.status(403).send('Invalid signature');

@@ -24,7 +24,7 @@ export async function findOrCreateUserWithOAuth({ provider, providerId, email, g
       const convertedUser = await convertGuestToUser(guestUuid, {
         email,
         login,
-        oauthData: null, // OAuth связь создаём ниже
+        oauthData: null, 
       });
       if (convertedUser) {
         user = convertedUser;

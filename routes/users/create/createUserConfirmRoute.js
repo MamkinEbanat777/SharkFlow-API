@@ -10,6 +10,7 @@ import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import {
   logRegistrationRequest,
   logRegistrationFailure,
+  logRegistrationConfirmAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
@@ -25,7 +26,10 @@ router.post(
   async (req, res) => {
     const { user, captchaToken } = req.validatedBody;
     const { email, login, password } = user;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logRegistrationConfirmAttempt(email, ipAddress, userAgent);
+
     if (process.env.NODE_ENV === 'production') {
       if (!captchaToken) {
         return res

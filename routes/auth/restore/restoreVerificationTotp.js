@@ -8,26 +8,30 @@ import { deleteConfirmationCode } from '#store/userVerifyStore.js';
 import { validateTotpCodeFormat } from '#utils/helpers/totpHelpers.js';
 import { getUserTempData } from '#store/userTempData.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
-import { logAccountRestoreSuccess, logAccountRestoreFailure } from '#utils/loggers/authLoggers.js';
+import { logAccountRestoreSuccess, logAccountRestoreFailure, logAccountRestoreTotpAttempt } from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const router = Router();
 
 router.post('/auth/restore/verify/totp', async (req, res) => {
   const { totpCode, restoreKey } = req.body;
+  const { ipAddress, userAgent } = getRequestInfo(req);
+
+  logAccountRestoreTotpAttempt(restoreKey, ipAddress, userAgent, totpCode);
 
   console.log('totpsdadsa', totpCode, restoreKey);
 
   try {
     const session = await getUserTempData('twoFactorAuth', restoreKey);
     if (!session) {
-      logAccountRestoreFailure('', req.ip, 'Сессия 2FA истекла или не найдена');
+      logAccountRestoreFailure('', ipAddress, 'Сессия 2FA истекла или не найдена');
       return res
         .status(401)
         .json({ error: 'Сессия 2FA истекла или не найдена' });
     }
 
     if (!validateTotpCodeFormat(totpCode)) {
-      logAccountRestoreFailure('', req.ip, 'Код TOTP неверного формата');
+      logAccountRestoreFailure('', ipAddress, 'Код TOTP неверного формата');
       return res.status(400).json({ error: 'Код должен состоять из 6 цифр' });
     }
 
@@ -45,14 +49,14 @@ router.post('/auth/restore/verify/totp', async (req, res) => {
     });
 
     if (!user.twoFactorEnabled || !user.twoFactorSecret) {
-      logAccountRestoreFailure(user.email, req.ip, '2FA не настроена для пользователя');
+      logAccountRestoreFailure(user.email, ipAddress, '2FA не настроена для пользователя');
       return res
         .status(400)
         .json({ error: '2FA не настроена для пользователя' });
     }
 
     if (!verifyTotpCode(user, totpCode)) {
-      logAccountRestoreFailure(user.email, req.ip, 'Неверный или просроченный код TOTP');
+      logAccountRestoreFailure(user.email, ipAddress, 'Неверный или просроченный код TOTP');
       return res.status(403).json({ error: 'Неверный или просроченный код' });
     }
 
@@ -62,7 +66,7 @@ router.post('/auth/restore/verify/totp', async (req, res) => {
         isDeleted: false,
       },
     });
-    logAccountRestoreSuccess(user.email, user.uuid, req.ip);
+    logAccountRestoreSuccess(user.email, user.uuid, ipAddress);
 
     await deleteUserTempData('restoreUser', restoreKey);
 

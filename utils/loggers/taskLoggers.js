@@ -80,6 +80,30 @@ export const logTaskFetch = (tasksCount, totalTasks, userUuid, ip) => {
 };
 
 /**
+ * Логирование неудачного получения задач
+ * @param {string} boardUuid - UUID доски
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {Error|string} error - Ошибка
+ */
+export const logTaskFetchFailure = (boardUuid, userUuid, ip, error) => {
+  validateParams(userUuid, ip);
+  logWarn('Task', 'fetch failure', `board: ${boardUuid}, user: ${userUuid}, ip: ${ip} - ${error?.message || error}`);
+};
+
+/**
+ * Логирование неудачного создания задачи
+ * @param {string} title - Название задачи
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {Error|string} error - Ошибка
+ */
+export const logTaskCreationFailure = (title, userUuid, ip, error) => {
+  validateParams(userUuid, ip);
+  logWarn('Task', 'creation failure', `title: ${title}, user: ${userUuid}, ip: ${ip} - ${error?.message || error}`);
+};
+
+/**
  * Логирование ошибки при работе с задачами
  * @param {string} action - Действие, которое вызвало ошибку
  * @param {Error} error - Объект ошибки
@@ -108,3 +132,52 @@ export const logSuspiciousActivity = (action, userUuid, ip, details = '') => {
   validateParams(userUuid, ip);
   logSuspicious('Task', action, userUuid, ip, details);
 };
+
+/**
+ * Логгирует попытку создания задачи
+ * @param {string} title
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logTaskCreationAttempt(title, userUuid, ip, userAgent) {
+  logInfo('Task', 'create_attempt', `[TASK_CREATE_ATTEMPT] title: ${title}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}
+
+/**
+ * Логгирует попытку удаления задачи
+ * @param {string} taskUuid
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logTaskDeletionAttempt(taskUuid, userUuid, ip, userAgent) {
+  logInfo('Task', 'delete_attempt', `[TASK_DELETE_ATTEMPT] task: ${taskUuid}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}
+
+/**
+ * Логгирует попытку обновления задачи
+ * @param {string} taskUuid
+ * @param {object} dataToUpdate
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logTaskUpdateAttempt(taskUuid, dataToUpdate, userUuid, ip, userAgent) {
+  logInfo('Task', 'update_attempt', `[TASK_UPDATE_ATTEMPT] task: ${taskUuid}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}, data: ${JSON.stringify(dataToUpdate)}`);
+}
+
+/**
+ * Логгирует попытку получения задач
+ * @param {string} boardUuid
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logTaskFetchAttempt(boardUuid, userUuid, ip, userAgent) {
+  logInfo('Task', 'fetch_attempt', `[TASK_FETCH_ATTEMPT] board: ${boardUuid}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}

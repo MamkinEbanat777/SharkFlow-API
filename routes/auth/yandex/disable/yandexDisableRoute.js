@@ -6,6 +6,12 @@ import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js'
 import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import prisma from '#utils/prismaConfig/prismaClient.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import {
+  logYandexOAuthDisableAttempt,
+  logYandexOAuthDisableSuccess,
+  logYandexOAuthDisableFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -14,8 +20,10 @@ router.post(
   authenticateMiddleware,
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
+    const { ipAddress, userAgent } = getRequestInfo(req);
     try {
       const userUuid = req.userUuid;
+      logYandexOAuthDisableAttempt(userUuid, ipAddress, userAgent);
       const { confirmationCode } = req.body;
 
       const validation = await validateAndDeleteConfirmationCode(
@@ -25,6 +33,7 @@ router.post(
       );
 
       if (!validation.isValid) {
+        logYandexOAuthDisableFailure(userUuid, ipAddress, validation.error, userAgent);
         return res.status(400).json({ error: validation.error });
       }
 
@@ -38,9 +47,10 @@ router.post(
         where: { userId: user.id, provider: 'yandex' },
         data: { enabled: false },
       });
-
+      logYandexOAuthDisableSuccess(userUuid, ipAddress, userAgent);
       return res.json({ message: 'Yandex успешно отвязан от вашего аккаунта' });
     } catch (error) {
+      logYandexOAuthDisableFailure(req.userUuid, ipAddress, error?.message || 'unknown error', userAgent);
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при отвязке Yandex',
         status: 500,

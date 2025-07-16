@@ -7,6 +7,7 @@ import {
   sanitizeColor,
 } from '#utils/validators/boardValidators.js';
 import { logBoardCreation } from '#utils/loggers/boardLoggers.js';
+import { logBoardCreationAttempt } from '#utils/loggers/boardLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { getUserBoardCount } from '#utils/helpers/boardHelpers.js';
@@ -15,10 +16,12 @@ const router = Router();
 
 router.post('/boards', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const { ipAddress } = getRequestInfo(req);
+  const { ipAddress, userAgent } = getRequestInfo(req);
 
   const rawTitle = req.body.title;
   const rawColor = req.body.color;
+
+  logBoardCreationAttempt(rawTitle, userUuid, ipAddress, userAgent);
 
   if (!rawTitle || typeof rawTitle !== 'string') {
     return res.status(400).json({ error: 'Название доски обязательно' });

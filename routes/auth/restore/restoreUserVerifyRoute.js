@@ -3,17 +3,21 @@ import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
 import { getUserTempData } from '#store/userTempData.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
-import { logAccountRestoreFailure } from '#utils/loggers/authLoggers.js';
+import { logAccountRestoreFailure, logAccountRestoreAttempt, logAccountRestoreSuccess } from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const router = Router();
 
 router.post('/auth/restore/confirm', async (req, res) => {
   try {
     const { restoreKey } = req.body;
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logAccountRestoreAttempt(restoreKey, ipAddress, userAgent);
 
     const storedData = await getUserTempData('restoreUser', restoreKey);
     if (!storedData) {
-      logAccountRestoreFailure('', req.ip, 'restoreKey истёк или не найден');
+      logAccountRestoreFailure('', ipAddress, 'restoreKey истёк или не найден');
       return res.status(400).json({ error: 'Код истёк или не найден' });
     }
 
@@ -23,7 +27,7 @@ router.post('/auth/restore/confirm', async (req, res) => {
 
     const email = user.email;
     if (!email) {
-      logAccountRestoreFailure('', req.ip, 'Email пользователя отсутствует');
+      logAccountRestoreFailure('', ipAddress, 'Email пользователя отсутствует');
       return res.status(400).json({ error: 'Email пользователя отсутствует' });
     }
 
@@ -32,7 +36,7 @@ router.post('/auth/restore/confirm', async (req, res) => {
       type: 'restoreUser',
       isDeleted: true,
       loggers: {
-        success: () => {},
+        success: () => logAccountRestoreSuccess(email, userUuid, ipAddress),
         failure: () => {},
       },
     });

@@ -8,6 +8,11 @@ import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '#store/userTempData.js';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import {
+  logGithubOAuthAttempt,
+  logGithubOAuthSuccess,
+  logGithubOAuthFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -19,7 +24,11 @@ router.post(
     const userUuid = req.userUuid;
     const { code } = req.body;
 
+    // Логгируем попытку привязки GitHub OAuth
+    logGithubOAuthAttempt('connect', '', '', ipAddress, userAgent);
+
     if (!code || typeof code !== 'string') {
+      logGithubOAuthFailure('connect', '', '', ipAddress, 'code missing', userAgent);
       return res.status(400).json({ error: 'Код обязателен' });
     }
 
@@ -65,6 +74,7 @@ router.post(
       const githubIdNumber = githubUser.id;
 
       if (!email) {
+        logGithubOAuthFailure('connect', githubIdNumber || '', '', ipAddress, 'email missing', userAgent);
         return res.status(400).json({
           error: 'Не удалось получить подтверждённый email из GitHub',
         });
@@ -127,17 +137,18 @@ router.post(
         });
       }
 
-      // Вместо обновления пользователя обновляем/создаём UserOAuth
       await prisma.userOAuth.upsert({
         where: { provider_providerId: { provider: 'github', providerId: githubIdNumber.toString() } },
         update: { userId: user.id, email: email, enabled: true },
         create: { userId: user.id, provider: 'github', providerId: githubIdNumber.toString(), email: email, enabled: true },
       });
 
+      logGithubOAuthSuccess('connect', githubIdNumber || '', userUuid, email, ipAddress, userAgent);
       return res
         .status(200)
         .json({ message: 'Github-аккаунт успешно привязан' });
     } catch (error) {
+      logGithubOAuthFailure('connect', '', '', ipAddress, error?.message || 'unknown error', userAgent);
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при логине через GitHub',
         status: 500,

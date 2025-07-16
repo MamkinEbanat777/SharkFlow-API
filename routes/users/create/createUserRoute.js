@@ -9,6 +9,7 @@ import {
 import {
   logRegistrationSuccess,
   logRegistrationFailure,
+  logRegistrationAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
@@ -30,10 +31,13 @@ router.post(
     const { confirmationCode } = req.body;
     const regUuid = req.cookies[REGISTER_COOKIE_NAME];
     const guestUuid = req.cookies[GUEST_COOKIE_NAME];
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logRegistrationAttempt('unknown', ipAddress, userAgent, regUuid, guestUuid);
 
     try {
       if (!regUuid) {
+        logRegistrationFailure('unknown', ipAddress, 'Регистрация просрочена: нет regUuid');
         return res.status(400).json({
           error: 'Регистрация просрочена. Пожалуйста попробуйте еще раз',
         });
@@ -41,12 +45,14 @@ router.post(
 
       const storedData = await getUserTempData('registration', regUuid);
       if (!storedData) {
+        logRegistrationFailure('unknown', ipAddress, 'Нет storedData');
         return res.status(400).json({ error: 'Код истёк или не найден' });
       }
 
       const { email, login, hashedPassword } = storedData;
 
-      // Вместо validateConfirmationCode + deleteConfirmationCode
+      logRegistrationAttempt(email, ipAddress, userAgent, regUuid, guestUuid);
+
       const validation = await validateAndDeleteConfirmationCode(
         regUuid,
         'registration',
@@ -56,6 +62,7 @@ router.post(
         },
       );
       if (!validation.isValid) {
+        logRegistrationFailure(email, ipAddress, 'Неверный код');
         return res.status(400).json({ error: validation.error || 'Неверный код' });
       }
 
@@ -67,11 +74,13 @@ router.post(
 
       if (existingUser) {
         if (existingUser.isDeleted) {
+          logRegistrationFailure(email, ipAddress, 'Аккаунт удалён');
           return res.status(403).json({
             error:
               'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.',
           });
         } else {
+          logRegistrationFailure(email, ipAddress, 'Пользователь уже существует');
           return res
             .status(409)
             .json({ error: 'Пользователь с таким email уже существует' });

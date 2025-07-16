@@ -11,6 +11,7 @@ import {
   logAccountRestoreSuccess,
   logAccountRestoreFailure,
   logUserUpdate,
+  logAccountRestoreAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { logRegistrationFailure } from '#utils/loggers/authLoggers.js';
@@ -24,6 +25,8 @@ router.post(
   async (req, res) => {
     const { confirmationCode, restoreKey } = req.body;
     const { ipAddress, userAgent } = getRequestInfo(req);
+
+    logAccountRestoreAttempt(restoreKey, ipAddress, userAgent);
 
     try {
       const storedData = await getUserTempData('restoreUser', restoreKey);

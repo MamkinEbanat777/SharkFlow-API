@@ -169,7 +169,7 @@ model UserOAuth {
   userId     Int
   user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   provider   String   // 'google', 'github', 'yandex', etc.
-  providerId String   // sub/id от провайдера
+  providerId String  
   email      String?  @db.VarChar(320)
   enabled    Boolean  @default(false)
   createdAt  DateTime @default(now())

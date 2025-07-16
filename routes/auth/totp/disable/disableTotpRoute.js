@@ -6,6 +6,7 @@ import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHe
 import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
 import prisma from '#utils/prismaConfig/prismaClient.js';
+import { logTotpDisableAttempt, logTotpDisableSuccess, logTotpDisableFailure } from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -16,6 +17,7 @@ router.post(
   async (req, res) => {
     try {
       const userUuid = req.userUuid;
+      logTotpDisableAttempt(userUuid);
       const { confirmationCode } = req.body;
 
       const validation = await validateAndDeleteConfirmationCode(
@@ -25,6 +27,7 @@ router.post(
       );
 
       if (!validation.isValid) {
+        logTotpDisableFailure(userUuid, 'Код невалиден');
         return res.status(400).json({ error: validation.error });
       }
 
@@ -38,8 +41,10 @@ router.post(
         },
       });
 
+      logTotpDisableSuccess(userUuid);
       return res.json({ message: '2FA успешно отключена' });
     } catch (error) {
+      logTotpDisableFailure(req.userUuid, error?.message || 'unknown error');
       handleRouteError(res, error, {
         mappings: {
           P2025: {

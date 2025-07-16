@@ -105,4 +105,15 @@ export const logExternalServiceError = (service, operation, error) => {
   if (!service) throw new Error('service is required');
   if (!operation) throw new Error('operation is required');
   logError('System', 'externalServiceError', `${service} ${operation} failed`, error);
-}; 
+};
+
+/**
+ * Логгирует healthcheck-запрос
+ * @param {string} ip
+ * @param {string} userAgent
+ * @param {string} status
+ * @returns {void}
+ */
+export function logMonitorCheck(ip, userAgent, status) {
+  logInfo('System', 'monitor_check', `[MONITOR_CHECK] ip: ${ip}, ua: ${userAgent}, status: ${status}`);
+} 

@@ -6,6 +6,7 @@ import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCod
 import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
+  logUserUpdateRequestAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 
@@ -17,6 +18,8 @@ router.post(
   async (req, res) => {
     const userUuid = req.userUuid;
     const { ipAddress } = getRequestInfo(req);
+
+    logUserUpdateRequestAttempt(userUuid, '', ipAddress, '');
 
     try {
       const user = await findUserByUuidOrThrow(userUuid);

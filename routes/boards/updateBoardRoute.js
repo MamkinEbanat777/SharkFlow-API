@@ -8,6 +8,7 @@ import {
   sanitizeColor,
 } from '#utils/validators/boardValidators.js';
 import { logBoardUpdate } from '#utils/loggers/boardLoggers.js';
+import { logBoardUpdateAttempt } from '#utils/loggers/boardLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { findBoardByUuid } from '#utils/helpers/boardHelpers.js';
@@ -21,10 +22,12 @@ router.patch(
   async (req, res) => {
     const userUuid = req.userUuid;
     const boardUuid = req.params.boardUuid;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
 
     let { title, color, isPinned, isFavorite } = req.body;
     const dataToUpdate = {};
+
+    logBoardUpdateAttempt(boardUuid, req.body, userUuid, ipAddress, userAgent);
 
     try {
       if (title !== undefined) {

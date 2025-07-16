@@ -6,14 +6,16 @@ import prisma from '#utils/prismaConfig/prismaClient.js';
 import {
   logTelegramUnlinkSuccess,
   logTelegramUnlinkError,
+  logTelegramUnlinkAttempt,
 } from '#utils/loggers/telegramLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const router = Router();
 
 router.delete('/telegram/unlink', authenticateMiddleware, async (req, res) => {
+  const { ipAddress, userAgent } = getRequestInfo(req);
   const userUuid = req.userUuid;
-  const { ipAddress } = getRequestInfo(req);
+  logTelegramUnlinkAttempt(userUuid, ipAddress, userAgent);
 
   try {
     const user = await findUserByUuidOrThrow(userUuid);

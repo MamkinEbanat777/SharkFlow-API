@@ -86,6 +86,17 @@ export const logBoardFetch = (boardsCount, totalBoards, userUuid, ip) => {
 };
 
 /**
+ * Логирование неудачного получения досок
+ * @param {string} userUuid - UUID пользователя
+ * @param {string} ip - IP адрес клиента
+ * @param {Error|string} error - Ошибка
+ */
+export const logBoardFetchFailure = (userUuid, ip, error) => {
+  validateParams(userUuid, ip);
+  logWarn('Board', 'fetch failure', `${userUuid} from IP: ${ip} - ${error?.message || error}`);
+};
+
+/**
  * Логирование ошибки при работе с досками
  * @param {string} action - Действие, которое вызвало ошибку
  * @param {Error} error - Объект ошибки
@@ -114,3 +125,51 @@ export const logSuspiciousActivity = (action, userUuid, ip, details = '') => {
   validateParams(userUuid, ip);
   logSuspicious('Board', action, userUuid, ip, details);
 };
+
+/**
+ * Логгирует попытку создания доски
+ * @param {string} title
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logBoardCreationAttempt(title, userUuid, ip, userAgent) {
+  logInfo('Board', 'create_attempt', `[BOARD_CREATE_ATTEMPT] title: ${title}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}
+
+/**
+ * Логгирует попытку удаления доски
+ * @param {string} boardUuid
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logBoardDeletionAttempt(boardUuid, userUuid, ip, userAgent) {
+  logInfo('Board', 'delete_attempt', `[BOARD_DELETE_ATTEMPT] board: ${boardUuid}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}
+
+/**
+ * Логгирует попытку обновления доски
+ * @param {string} boardUuid
+ * @param {object} dataToUpdate
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logBoardUpdateAttempt(boardUuid, dataToUpdate, userUuid, ip, userAgent) {
+  logInfo('Board', 'update_attempt', `[BOARD_UPDATE_ATTEMPT] board: ${boardUuid}, user: ${userUuid}, ip: ${ip}, ua: ${userAgent}, data: ${JSON.stringify(dataToUpdate)}`);
+}
+
+/**
+ * Логгирует попытку получения досок
+ * @param {string} userUuid
+ * @param {string} ip
+ * @param {string} userAgent
+ * @returns {void}
+ */
+export function logBoardFetchAttempt(userUuid, ip, userAgent) {
+  logInfo('Board', 'fetch_attempt', `[BOARD_FETCH_ATTEMPT] user: ${userUuid}, ip: ${ip}, ua: ${userAgent}`);
+}

@@ -11,6 +11,7 @@ import {
 import {
   logTokenRefresh,
   logTokenRefreshFailure,
+  logTokenRefreshAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { createCsrfToken } from '#utils/tokens/csrfToken.js';
@@ -24,8 +25,15 @@ const router = Router();
 
 router.post('/auth/refresh', async (req, res) => {
   const refreshToken = req.cookies[REFRESH_COOKIE_NAME];
-  const { ipAddress } = getRequestInfo(req);
+  const { ipAddress, userAgent } = getRequestInfo(req);
   const deviceId = req.headers['x-device-id'];
+
+  let userUuidForLog = null;
+  try {
+    const tokenValidation = refreshToken ? validateRefreshToken(refreshToken) : null;
+    userUuidForLog = tokenValidation && tokenValidation.isValid && tokenValidation.payload ? tokenValidation.payload.userUuid : null;
+  } catch { /* ignore */ }
+  logTokenRefreshAttempt(userUuidForLog, ipAddress, userAgent, deviceId);
 
   if (!deviceId) {
     return res.status(401).json({ message: 'Устройство не найдено' });
@@ -43,7 +51,6 @@ router.post('/auth/refresh', async (req, res) => {
     logLocationError(ipAddress, error);
   }
 
-  const { userAgent } = getRequestInfo(req);
   const deviceinfo = parseDeviceInfo(userAgent);
 
   const tokenValidation = validateRefreshToken(refreshToken);
@@ -205,7 +212,7 @@ router.post('/auth/refresh', async (req, res) => {
       role: user.role,
     });
   } catch (error) {
-    logTokenRefreshFailure(userUuid, ipAddress, 'Server error');
+    logTokenRefreshFailure(userUuidForLog, ipAddress, 'Server error');
 
     if (!res.headersSent) {
       if (error.message === 'Пользователь не найден') {

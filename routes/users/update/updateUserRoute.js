@@ -5,6 +5,7 @@ import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import {
   logUserUpdate,
   logUserUpdateFailure,
+  logUserUpdateAttempt,
 } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
@@ -21,7 +22,7 @@ router.patch(
   validateMiddleware(emailConfirmValidate),
   async (req, res) => {
     const userUuid = req.userUuid;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
 
     try {
       const { confirmationCode, updatedFields } = req.body;
@@ -54,6 +55,8 @@ router.patch(
       if (Object.keys(dataToUpdate).length === 0) {
         return res.status(400).json({ error: 'Нет данных для обновления' });
       }
+
+      logUserUpdateAttempt(userUuid, dataToUpdate, ipAddress, userAgent);
 
       const user = await findUserByUuidOrThrow(userUuid, false, { role: true });
 

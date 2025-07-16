@@ -1,6 +1,8 @@
 import { Router } from 'express';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import { logUserFetch } from '#utils/loggers/authLoggers.js';
+import { logUserFetchAttempt } from '#utils/loggers/authLoggers.js';
+import { logUserFetchFailure } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
@@ -10,7 +12,9 @@ const router = Router();
 
 router.get('/users', authenticateMiddleware, async (req, res) => {
   const userUuid = req.userUuid;
-  const { ipAddress } = getRequestInfo(req);
+  const { ipAddress, userAgent } = getRequestInfo(req);
+
+  logUserFetchAttempt(userUuid, ipAddress, userAgent);
 
   try {
     const user = await findUserByUuidOrThrow(userUuid, false, {
@@ -24,7 +28,6 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
 
     logUserFetch(userUuid, ipAddress);
 
-    // Получаем OAuth-статусы
     const [googleOAuth, githubOAuth, yandexOAuth] = await Promise.all([
       getUserOAuthByUserId(user.id, 'google'),
       getUserOAuthByUserId(user.id, 'github'),
@@ -41,6 +44,7 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
       yandexOAuthEnabled: Boolean(yandexOAuth),
     });
   } catch (error) {
+    logUserFetchFailure(userUuid, ipAddress, error);
     handleRouteError(res, error, {
       logPrefix: 'Ошибка при получении пользователя',
       status: 500,

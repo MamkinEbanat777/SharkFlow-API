@@ -2,21 +2,24 @@ import { Router } from 'express';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
 import { findUserByEmail } from '#utils/helpers/userHelpers.js';
-import { logAccountRestoreFailure, maskEmail } from '#utils/loggers/authLoggers.js';
+import { logAccountRestoreFailure, maskEmail, logAccountRestoreSendAttempt } from '#utils/loggers/authLoggers.js';
 import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import { generateUUID } from '#utils/generators/generateUUID.js';
 import { setUserTempData } from '#store/userTempData.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const router = Router();
 
 router.post('/auth/restore/send', async (req, res) => {
   try {
     const { email } = req.body;
+    const { ipAddress, userAgent } = getRequestInfo(req);
+    logAccountRestoreSendAttempt(email, ipAddress, userAgent);
     const normalizedEmail = normalizeEmail(email)
     const user = await findUserByEmail(normalizedEmail, true);
 
     if (!user) {
-      logAccountRestoreFailure('', req.ip, 'Пользователь не найден');
+      logAccountRestoreFailure('', ipAddress, 'Пользователь не найден');
       return res.status(404).json({ error: 'Пользователь не найден' });
     }
 

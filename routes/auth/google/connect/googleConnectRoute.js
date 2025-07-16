@@ -9,6 +9,11 @@ import { setUserTempData } from '#store/userTempData.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import { findUserOAuth, getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
 import prisma from '#utils/prismaConfig/prismaClient.js';
+import {
+  logGoogleOAuthAttempt,
+  logGoogleOAuthSuccess,
+  logGoogleOAuthFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -26,7 +31,11 @@ router.post(
     const userUuid = req.userUuid;
     const { code } = req.body;
 
+    // Логгируем попытку привязки Google OAuth
+    logGoogleOAuthAttempt('connect', '', '', ipAddress, userAgent);
+
     if (!code || typeof code !== 'string') {
+      logGoogleOAuthFailure('connect', '', '', ipAddress, 'code missing', userAgent);
       return res.status(400).json({ error: 'Код обязателен' });
     }
 
@@ -49,10 +58,12 @@ router.post(
       //   let avatarUrl = payload.picture;
 
       if (!googleSub) {
+        logGoogleOAuthFailure('connect', '', '', ipAddress, 'googleSub missing', userAgent);
         return res.status(400).json({ error: 'Некорректный токен Google' });
       }
 
       if (!email || !emailVerified) {
+        logGoogleOAuthFailure('connect', googleSub || '', '', ipAddress, 'email missing or not verified', userAgent);
         return res.status(400).json({
           error: 'Некорректный или неподтверждённый email Google',
         });
@@ -107,8 +118,10 @@ router.post(
         update: { providerId: googleSub, email: email, enabled: true },
         create: { userId: user.id, provider: 'google', providerId: googleSub, email: email, enabled: true },
       });
+      logGoogleOAuthSuccess('connect', googleSub || '', userUuid, email, ipAddress, userAgent);
       return res.status(200).json({ message: 'Google-аккаунт успешно привязан' });
     } catch (error) {
+      logGoogleOAuthFailure('connect', '', '', ipAddress, error?.message || 'unknown error', userAgent);
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при подключении Google-аккаунта',
         status: 500,

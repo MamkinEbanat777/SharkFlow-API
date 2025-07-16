@@ -8,6 +8,11 @@ import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
 import { setUserTempData } from '#store/userTempData.js';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import {
+  logYandexOAuthAttempt,
+  logYandexOAuthSuccess,
+  logYandexOAuthFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -19,7 +24,11 @@ router.post(
     const userUuid = req.userUuid;
     const { code } = req.body;
 
+    // Логгируем попытку привязки Yandex OAuth
+    logYandexOAuthAttempt('connect', '', '', ipAddress, userAgent);
+
     if (!code || typeof code !== 'string') {
+      logYandexOAuthFailure('connect', '', '', ipAddress, 'code missing', userAgent);
       return res.status(400).json({ error: 'Код обязателен' });
     }
 
@@ -65,6 +74,7 @@ router.post(
       const email = yandexUser.default_email;
 
       if (!email) {
+        logYandexOAuthFailure('connect', yandexUser?.id || '', '', ipAddress, 'email missing', userAgent);
         return res.status(400).json({
           error: 'Не удалось получить email из Yandex',
         });
@@ -131,17 +141,18 @@ router.post(
         });
       }
 
-      // Вместо обновления пользователя обновляем/создаём UserOAuth
       await prisma.userOAuth.upsert({
         where: { provider_providerId: { provider: 'yandex', providerId: String(yandexUser.id) } },
         update: { userId: user.id, email: email, enabled: true },
         create: { userId: user.id, provider: 'yandex', providerId: String(yandexUser.id), email: email, enabled: true },
       });
 
+      logYandexOAuthSuccess('connect', yandexUser?.id || '', userUuid, email, ipAddress, userAgent);
       return res
         .status(200)
         .json({ message: 'Yandex-аккаунт успешно привязан' });
     } catch (error) {
+      logYandexOAuthFailure('connect', '', '', ipAddress, error?.message || 'unknown error', userAgent);
       handleRouteError(res, error, {
         logPrefix: 'Ошибка при привязке Yandex',
         status: 500,

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import prisma from '#utils/prismaConfig/prismaClient.js';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
-import { logLogout } from '#utils/loggers/authLoggers.js';
+import { logLogout, logLogoutAttempt, logLogoutFailure } from '#utils/loggers/authLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { validateDeviceId } from '#utils/helpers/deviceSessionHelper.js';
@@ -14,8 +14,10 @@ router.post(
   authenticateMiddleware,
   async (req, res) => {
     const userUuid = req.userUuid;
-    const { ipAddress } = getRequestInfo(req);
+    const { ipAddress, userAgent } = getRequestInfo(req);
     const { deviceId } = req.params;
+
+    logLogoutAttempt(userUuid, ipAddress, userAgent, deviceId);
 
     const validatedDeviceId = validateDeviceId(req, res);
     if (!validatedDeviceId) return;
@@ -31,6 +33,7 @@ router.post(
     }
 
     if (currentDeviceId && deviceId === currentDeviceId) {
+      logLogoutFailure(userUuid, ipAddress, 'Попытка выйти с текущего устройства', userAgent, deviceId);
       return res
         .status(400)
         .json({ error: 'Нельзя выйти с текущего устройства этим способом' });
@@ -43,6 +46,7 @@ router.post(
       });
 
       if (!user) {
+        logLogoutFailure(userUuid, ipAddress, 'Пользователь не найден', userAgent, deviceId);
         return res.status(401).json({ error: 'Пользователь не найден' });
       }
 
@@ -51,6 +55,7 @@ router.post(
       });
 
       if (!session) {
+        logLogoutFailure(userUuid, ipAddress, 'Сессия не найдена или уже неактивна', userAgent, deviceId);
         return res
           .status(404)
           .json({ error: 'Сессия не найдена или уже неактивна' });
