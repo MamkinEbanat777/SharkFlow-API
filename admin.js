@@ -12,15 +12,14 @@ import {
   logAdminSecurity,
 } from './utils/loggers/adminLoggers.js';
 import { getRequestInfo } from '#utils/helpers/authHelpers.js';
-import {
-  RedisStore,
-  redisClient,
-  connectRedis,
-} from '#config/tcpRedisConfig.js';
+import { connectToRedis, getRedisStore } from '#config/tcpRedisConfig.js';
 
 if (process.env.NODE_ENV === 'production') {
-  await connectRedis();
+  await connectToRedis();
 }
+
+const sessionStore =
+  process.env.NODE_ENV === 'production' ? getRedisStore() : undefined;
 
 AdminJS.registerAdapter({ Database, Resource });
 
@@ -137,10 +136,7 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
   },
   null,
   {
-    store:
-      process.env.NODE_ENV === 'production'
-        ? new RedisStore({ client: redisClient })
-        : undefined,
+    store: sessionStore,
     resave: false,
     saveUninitialized: true,
     secret:
