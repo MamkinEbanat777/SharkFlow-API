@@ -11,7 +11,7 @@ import {
 } from '#utils/helpers/deviceSessionHelper.js';
 import { GUEST_COOKIE_NAME } from '#config/cookiesConfig.js';
 import { getGuestCookieOptions } from '#utils/cookie/guestCookie.js';
-import { findUserOAuth, getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
+import { findUserOAuth, getUserOAuthEnabledByUserId } from '#utils/helpers/userHelpers.js';
 import { findOrCreateUserWithOAuth } from '#utils/helpers/oauthHelpers.js';
 import { createUserSessionAndTokens } from '#utils/helpers/authSessionHelpers.js';
 import {
@@ -180,7 +180,7 @@ router.post('/auth/oauth/github', async (req, res) => {
       geoLocation,
     });
 
-    const githubOAuthEnabled = Boolean(await getUserOAuthByUserId(user.id, 'github'));
+    const githubOAuthEnabled = await getUserOAuthEnabledByUserId(user.id, 'github');
     logGithubOAuthSuccess('login', githubUser?.id || '', user.uuid, email, ipAddress, userAgent);
     return res.status(200).json({
       accessToken,

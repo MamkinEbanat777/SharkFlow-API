@@ -12,6 +12,7 @@ import {
   logGithubOAuthDisableSuccess,
   logGithubOAuthDisableFailure,
 } from '#utils/loggers/authLoggers.js';
+import { getUserOAuthEnabledByUserId } from '#utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -43,12 +44,17 @@ router.post(
         where: { uuid: userUuid },
         data: {
           githubId: null,
-          githubOAuthEnabled: false,
         },
       });
 
+      const user = await findUserByUuidOrThrow(userUuid, false, { id: true, uuid: true });
+      const githubOAuthEnabled = await getUserOAuthEnabledByUserId(user.id, 'github');
+
       logGithubOAuthDisableSuccess(userUuid, ipAddress, userAgent);
-      return res.json({ message: 'Github успешно отвязан от вашего аккаунта' });
+      return res.json({
+        ...user,
+        githubOAuthEnabled,
+      });
     } catch (error) {
       logGithubOAuthDisableFailure(req.userUuid, ipAddress, error?.message || 'unknown error', userAgent);
       handleRouteError(res, error, {

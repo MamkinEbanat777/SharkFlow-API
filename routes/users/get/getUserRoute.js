@@ -7,6 +7,7 @@ import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import { getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
+import { getUserOAuthEnabledByUserId } from '#utils/helpers/userHelpers.js';
 
 const router = Router();
 
@@ -33,6 +34,9 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
       getUserOAuthByUserId(user.id, 'github'),
       getUserOAuthByUserId(user.id, 'yandex'),
     ]);
+
+    const githubOAuthEnabled = user ? await getUserOAuthEnabledByUserId(user.id, 'github') : false;
+
     return res.json({
       login: user.login,
       email: user.email,
@@ -40,7 +44,7 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
       twoFactorEnabled: user.twoFactorEnabled,
       avatarUrl: user.avatarUrl,
       googleOAuthEnabled: Boolean(googleOAuth),
-      githubOAuthEnabled: Boolean(githubOAuth),
+      githubOAuthEnabled: Boolean(githubOAuthEnabled),
       yandexOAuthEnabled: Boolean(yandexOAuth),
     });
   } catch (error) {

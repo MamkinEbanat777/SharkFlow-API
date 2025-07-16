@@ -20,7 +20,7 @@ export async function logoutHandler(ctx) {
     ]);
 
     await send(ctx, '✅ Вы успешно вышли из аккаунта в Telegram!', keyboard);
-  } catch (error) {
+  } catch {
     await send(ctx, '❌ Произошла ошибка при выходе из системы');
   }
 }

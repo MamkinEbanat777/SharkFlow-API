@@ -37,6 +37,8 @@ export default function registerStartCommand(bot) {
       );
     }
 
+    let userUuid;
+
     try {
       const data = await getUserTempData('telegramAuth', nonce);
 
@@ -47,7 +49,7 @@ export default function registerStartCommand(bot) {
         );
       }
 
-      const userUuid = data?.userUuid;
+      userUuid = data?.userUuid;
 
       if (typeof userUuid !== 'string') {
         logTelegramCommandError('start', userUuid, new Error('Ожидалась строка для userUuid'));

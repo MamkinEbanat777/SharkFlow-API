@@ -1,4 +1,20 @@
 import express from 'express';
+import { adminRouter } from './admin.js';
+import rateLimit from 'express-rate-limit';
+
+const app = express();
+
+
+app.use('/admin', express.static('public'));
+app.get('/admin', (req, res) => {
+  res.redirect('/admin/resources/User');
+});
+
+if (process.env.NODE_ENV === 'production') { app.use('/admin', rateLimit({ windowMs: 15 * 60 * 1000, max: 10 })) }
+
+app.use('/admin', adminRouter);
+
+
 import compression from 'compression';
 import corsMiddleware from './middlewares/http/corsMiddleware.js';
 import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
@@ -7,8 +23,6 @@ import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { logDatabaseError } from './utils/loggers/systemLoggers.js';
 import { logInfo } from './utils/loggers/baseLogger.js';
-
-const app = express();
 
 app.use(
   morgan('combined', {
@@ -22,6 +36,19 @@ import helmet from 'helmet';
 import hpp from 'hpp';
 
 app.use(helmet());
+app.use(
+  '/admin',
+  helmet({
+    contentSecurityPolicy: {
+      useDefaults: true,
+      directives: {
+        "script-src": ["'self'", "'unsafe-inline'"],
+        "style-src": ["'self'", "'unsafe-inline'"],
+      },
+    },
+  })
+);
+
 app.use(hpp());
 app.use(corsMiddleware);
 

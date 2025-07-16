@@ -19,6 +19,7 @@ import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { generateUUID } from '#utils/generators/generateUUID.js';
 import { setUserTempData } from '#store/userTempData.js';
 import { findUserByEmail } from '#utils/helpers/userHelpers.js';
+import { getUserOAuthEnabledByUserId } from '#utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
   setAuthCookies,
@@ -93,7 +94,6 @@ router.post(
       email: true,
       role: true,
       twoFactorEnabled: true,
-      githubOAuthEnabled: true,
       isDeleted: true,
       avatarUrl: true,
     });
@@ -127,7 +127,6 @@ router.post(
         email: true,
         role: true,
         twoFactorEnabled: true,
-        githubOAuthEnabled: true,
       });
 
       if (!user || !user.password) {
@@ -175,10 +174,13 @@ router.post(
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
 
+      const githubOAuthEnabled = user ? await getUserOAuthEnabledByUserId(user.id, 'github') : false;
+
       return res.status(200).json({
         accessToken: tokens.accessToken,
         csrfToken: tokens.csrfToken,
         deviceId: deviceSession.deviceId,
+        githubOAuthEnabled,
       });
     } catch (error) {
       incrementLoginAttempts(ipAddress, normalizedEmail);

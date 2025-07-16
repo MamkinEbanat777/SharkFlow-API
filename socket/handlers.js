@@ -5,7 +5,7 @@ export const handleSocketEvents = (socket) => {
     logSocketDisconnect(socket.id, socket.userUuid);
   });
 
-  socket.on('createBoard', async (data) => {
+  socket.on('createBoard', () => {
     logSocketBoardCreated();
   });
 };

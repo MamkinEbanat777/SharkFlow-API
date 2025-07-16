@@ -70,6 +70,21 @@ export const getUserOAuthByUserId = async (userId, provider) => {
 };
 
 /**
+ * Проверка, есть ли у пользователя активная OAuth-связь с провайдером
+ * @param {number} userId - ID пользователя
+ * @param {string} provider - Название провайдера ('google', 'github', 'yandex')
+ * @returns {Promise<boolean>} true если есть активная связь, иначе false
+ * @example
+ * const githubOAuthEnabled = await getUserOAuthEnabledByUserId(user.id, 'github');
+ */
+export const getUserOAuthEnabledByUserId = async (userId, provider) => {
+  const record = await prisma.userOAuth.findFirst({
+    where: { userId, provider, enabled: true },
+  });
+  return !!record;
+};
+
+/**
  * Поиск пользователя по email через OAuth (поиск UserOAuth по email и provider)
  * @param {string} provider - Название провайдера
  * @param {string} email - Email

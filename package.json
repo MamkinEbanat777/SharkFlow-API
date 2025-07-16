@@ -15,10 +15,13 @@
   "license": "ISC",
   "type": "module",
   "dependencies": {
+    "@adminjs/express": "^6.1.1",
+    "@adminjs/prisma": "^5.0.4",
     "@miketako3/cloki": "^0.1.16",
     "@prisma/client": "^6.10.0",
     "@upstash/qstash": "^2.8.1",
     "@upstash/redis": "^1.35.1",
+    "adminjs": "^7.8.17",
     "axios": "^1.10.0",
     "bad-words": "^4.0.0",
     "bcrypt": "^6.0.0",
@@ -70,12 +73,12 @@
     "nodemon": "^3.1.10"
   },
   "imports": {
-  "#utils/*": "./utils/*",
-  "#store/*": "./store/*",
-  "#routes/*": "./routes/*",
-  "#middlewares/*": "./middlewares/*",
-  "#config/*": "./config/*",
-  "#socket/*": "./socket/*",
-  "#telegramBot/*": "./telegramBot/*"
-}
+    "#utils/*": "./utils/*",
+    "#store/*": "./store/*",
+    "#routes/*": "./routes/*",
+    "#middlewares/*": "./middlewares/*",
+    "#config/*": "./config/*",
+    "#socket/*": "./socket/*",
+    "#telegramBot/*": "./telegramBot/*"
+  }
 }

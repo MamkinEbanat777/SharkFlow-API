@@ -1,0 +1,87 @@
+export const resourceOptions = {
+  User: {
+    properties: {
+      password: { isVisible: { list: false, filter: false, show: false, edit: true } },
+      twoFactorSecret: { isVisible: false },
+      twoFactorPendingSecret: { isVisible: false },
+      twoFactorEnabled: { isVisible: { list: false, filter: false, show: true, edit: true } },
+      uuid: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      publicId: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      isDeleted: { isVisible: false },
+      deletedAt: { isVisible: false },
+      updatedAt: { isVisible: false },
+      isActive: { isVisible: false },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+    },
+  },
+  UserDeviceSession: {
+    properties: {
+      id: { isVisible: false },
+      userId: { isVisible: false },
+      ipAddress: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      geoLocation: { isVisible: false },
+      refreshTokens: { isVisible: false },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      lastUsedAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      lastLoginAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      isActive: { isVisible: false },
+      updatedAt: { isVisible: false },
+    },
+  },
+  TwoFactorBackupCode: {
+    properties: {
+      code: { isVisible: false },
+      used: { isVisible: { list: true, filter: true, show: true, edit: false } },
+      usedAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      ipAddress: { isVisible: false },
+      userAgent: { isVisible: false },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      updatedAt: { isVisible: false },
+    },
+  },
+  Board: {
+    properties: {
+      id: { isVisible: false },
+      uuid: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      isDeleted: { isVisible: false },
+      deletedAt: { isVisible: false },
+      updatedAt: { isVisible: false },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+    },
+  },
+  Task: {
+    properties: {
+      id: { isVisible: false },
+      uuid: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      isDeleted: { isVisible: false },
+      deletedAt: { isVisible: false },
+      updatedAt: { isVisible: false },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+    },
+  },
+  RefreshToken: {
+    properties: {
+      id: { isVisible: false },
+      token: { isVisible: false },
+      ipAddress: { isVisible: false },
+      deviceSessionId: { isVisible: false },
+      deviceSession: { isVisible: false },
+      revoked: { isVisible: { list: true, filter: true, show: true, edit: false } },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      expiresAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      lastUsedAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      rememberMe: { isVisible: false },
+      updatedAt: { isVisible: false },
+    },
+  },
+  UserOAuth: {
+    properties: {
+      id: { isVisible: false },
+      userId: { isVisible: false },
+      providerId: { isVisible: false },
+      enabled: { isVisible: { list: true, filter: true, show: true, edit: true } },
+      createdAt: { isVisible: { list: false, filter: false, show: true, edit: false } },
+      updatedAt: { isVisible: false },
+    },
+  },
+};
