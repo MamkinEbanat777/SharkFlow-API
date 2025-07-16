@@ -2,8 +2,8 @@
  * @module helpers/board
  * @description Вспомогательные функции для работы с досками и их валидации.
  */
-import prisma from '../prismaConfig/prismaClient.js';
-import { isValidUUID } from '../validators/taskValidators.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
 
 /**
  * Поиск доски по UUID с проверкой владельца

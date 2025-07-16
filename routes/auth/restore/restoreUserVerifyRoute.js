@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
-import { getUserTempData } from '../../../store/userTempData.js';
-import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
-import { logAccountRestoreFailure } from '../../../utils/loggers/authLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
+import { getUserTempData } from '#store/userTempData.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { logAccountRestoreFailure } from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 

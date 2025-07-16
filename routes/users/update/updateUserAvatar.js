@@ -1,12 +1,12 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
   findUserForAvatar,
   validateImageUrl,
   updateUserAvatar,
-} from '../../../utils/helpers/avatarHelpers.js';
+} from '#utils/helpers/avatarHelpers.js';
 
 const router = Router();
 

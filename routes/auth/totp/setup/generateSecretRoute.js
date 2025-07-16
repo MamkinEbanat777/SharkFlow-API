@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import speakeasy from 'speakeasy';
-import { encrypt } from '../../../../utils/crypto/encrypt.js';
-import { decrypt } from '../../../../utils/crypto/decrypt.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { validateAndDeleteConfirmationCode } from '../../../../utils/helpers/confirmationHelpers.js';
-import { createOtpAuthUrl } from '../../../../utils/helpers/totpHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { encrypt } from '#utils/crypto/encrypt.js';
+import { decrypt } from '#utils/crypto/decrypt.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
+import { createOtpAuthUrl } from '#utils/helpers/totpHelpers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 

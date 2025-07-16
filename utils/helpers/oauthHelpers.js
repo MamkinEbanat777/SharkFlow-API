@@ -1,7 +1,7 @@
-import prisma from '../prismaConfig/prismaClient.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 import { convertGuestToUser } from './guestConversionHelper.js';
-import { generateUniqueLogin } from '../generators/generateUniqueLogin.js';
-import { getGuestCookieOptions } from '../cookie/guestCookie.js';
+import { generateUniqueLogin } from '#utils/generators/generateUniqueLogin.js';
+import { getGuestCookieOptions } from '#utils/cookie/guestCookie.js';
 
 /**
  * Универсальный helper для поиска/создания пользователя и создания OAuth-связи

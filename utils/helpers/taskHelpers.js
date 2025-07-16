@@ -2,9 +2,9 @@
  * @module helpers/task
  * @description Вспомогательные функции для работы с задачами.
  */
-import prisma from '../prismaConfig/prismaClient.js';
-import { isValidUUID } from '../validators/taskValidators.js';
-import { validateTaskStatus, validateTaskPriority } from '../validators/enumValidators.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
+import { validateTaskStatus, validateTaskPriority } from '#utils/validators/enumValidators.js';
 
 /**
  * Поиск доски по UUID для пользователя (с проверкой владельца)

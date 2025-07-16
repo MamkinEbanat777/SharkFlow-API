@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
-import { logTaskDeletion } from '../../utils/loggers/taskLoggers.js';
-import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { validateTaskUuids } from '#middlewares/http/taskMiddleware.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { logTaskDeletion } from '#utils/loggers/taskLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
   findTaskWithBoardAccess,
   softDeleteTask,
-} from '../../utils/helpers/taskHelpers.js';
+} from '#utils/helpers/taskHelpers.js';
 
 const router = Router();
 

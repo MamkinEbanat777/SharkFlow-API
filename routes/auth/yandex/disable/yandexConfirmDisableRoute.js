@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
 import {
   logUserUpdateRequest,
   logUserUpdateRequestFailure,
-} from '../../../../utils/loggers/authLoggers.js';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
+} from '#utils/loggers/authLoggers.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 
 const router = Router();
 

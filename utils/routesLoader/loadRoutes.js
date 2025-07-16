@@ -5,7 +5,7 @@
 import fs from 'fs/promises';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { logExternalServiceError } from '../loggers/systemLoggers.js';
+import { logExternalServiceError } from '#utils/loggers/systemLoggers.js';
 
 /**
  * Рекурсивно загружает все роуты из указанной директории

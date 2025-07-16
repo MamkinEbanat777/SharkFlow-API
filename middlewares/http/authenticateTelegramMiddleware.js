@@ -1,5 +1,5 @@
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { logTelegramMiddlewareError } from '../../utils/loggers/middlewareLoggers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { logTelegramMiddlewareError } from '#utils/loggers/middlewareLoggers.js';
 
 export const authenticateTelegramMiddleware = async (ctx, next) => {
   const telegramId = BigInt(ctx.from?.id);

@@ -2,11 +2,8 @@
  * @module telegramBot/handlers/boards/createBoard
  * @description Обработчик создания досок в Telegram боте.
  */
-import send from '../../send.js';
-import {
-  setBoardCreationState,
-  clearBoardCreation,
-} from '../../store/tempBoardCreateStore.js';
+import send from '#telegramBot/send.js';
+import { setBoardCreationState, clearBoardCreation } from '#telegramBot/store/tempBoardCreateStore.js';
 
 export async function createBoardsHandler(ctx) {
   const user = ctx.state.user;

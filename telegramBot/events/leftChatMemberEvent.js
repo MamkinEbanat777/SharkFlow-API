@@ -2,7 +2,7 @@
  * @module telegramBot/events/leftChatMember
  * @description Событие выхода участника из чата в Telegram боте.
  */
-import send from '../send.js';
+import send from '#telegramBot/send.js';
 
 export default async function registerLeftChatMemberEvent(bot) {
   bot.on('left_chat_member', async (ctx) => {

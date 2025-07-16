@@ -2,7 +2,7 @@
  * @module generators/uniqueLogin
  * @description Генераторы уникальных логинов.
  */
-import prisma from '../prismaConfig/prismaClient.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 import { transliterate } from 'transliteration';
 
 /**

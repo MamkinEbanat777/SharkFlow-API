@@ -1,0 +1,23 @@
+{
+    "compilerOptions": {
+      "baseUrl": ".",
+      "paths": {
+        "#utils/*": ["utils/*"],
+        "#store/*": ["store/*"],
+        "#routes/*": ["routes/*"],
+        "#middlewares/*": ["middlewares/*"],
+        "#config/*": ["config/*"],
+        "#socket/*": ["socket/*"],
+        "#telegramBot/*": ["telegramBot/*"]
+      }
+    },
+    "include": [
+      "utils",
+      "store",
+      "routes",
+      "middlewares",
+      "config",
+      "socket",
+      "telegramBot"
+    ]
+  }

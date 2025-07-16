@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
 
 const router = Router();
 

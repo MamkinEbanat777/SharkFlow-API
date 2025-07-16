@@ -1,21 +1,21 @@
 import { Router } from 'express';
-import { registerValidate } from '../../../utils/validators/registerValidate.js';
-import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { setUserTempData } from '../../../store/userTempData.js';
+import { registerValidate } from '#utils/validators/registerValidate.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { setUserTempData } from '#store/userTempData.js';
 import bcrypt from 'bcrypt';
-import { getRegistrationCookieOptions } from '../../../utils/cookie/registerCookie.js';
-import { generateUUID } from '../../../utils/generators/generateUUID.js';
-import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
+import { getRegistrationCookieOptions } from '#utils/cookie/registerCookie.js';
+import { generateUUID } from '#utils/generators/generateUUID.js';
+import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import {
   logRegistrationRequest,
   logRegistrationFailure,
-} from '../../../utils/loggers/authLoggers.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
-import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
-import { REGISTER_COOKIE_NAME } from '../../../config/cookiesConfig.js';
+} from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
+import { verifyTurnstileCaptcha } from '#utils/helpers/verifyTurnstileCaptchaHelper.js';
+import { REGISTER_COOKIE_NAME } from '#config/cookiesConfig.js';
 
 const router = Router();
 

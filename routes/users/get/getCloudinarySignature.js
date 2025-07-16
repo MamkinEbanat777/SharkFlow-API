@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import crypto from 'crypto';
 import { v2 as cloudinary } from 'cloudinary';
-import '../../../config/cloudinaryConfig.js';
+import '#config/cloudinaryConfig.js'
 
 const router = Router();
 

@@ -1,4 +1,4 @@
-import { logSocketDisconnect, logSocketBoardCreated } from '../utils/loggers/socketLoggers.js';
+import { logSocketDisconnect, logSocketBoardCreated } from '#utils/loggers/socketLoggers.js';
 
 export const handleSocketEvents = (socket) => {
   socket.on('disconnect', () => {

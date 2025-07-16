@@ -6,7 +6,7 @@ import fs from 'fs/promises';
 import path from 'path';
 import Handlebars from 'handlebars';
 import { fileURLToPath } from 'url';
-import { logMailRenderError } from '../loggers/mailLoggers.js';
+import { logMailRenderError } from '#utils/loggers/mailLoggers.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

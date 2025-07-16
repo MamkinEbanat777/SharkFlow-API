@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
-import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import { logAuthMiddlewareError } from '../../utils/loggers/middlewareLoggers.js';
+import { isValidUUID } from '#utils/validators/boardValidators.js';
+import { logAuthMiddlewareError } from '#utils/loggers/middlewareLoggers.js';
 
 export function authenticateMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;

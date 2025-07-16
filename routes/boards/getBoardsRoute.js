@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { logBoardFetch } from '../../utils/loggers/boardLoggers.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { getBoardsWithTaskCounts } from '../../utils/helpers/boardHelpers.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { logBoardFetch } from '#utils/loggers/boardLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { getBoardsWithTaskCounts } from '#utils/helpers/boardHelpers.js';
 
 const router = Router();
 

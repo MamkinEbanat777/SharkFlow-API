@@ -1,12 +1,12 @@
 import express from 'express';
 import { Router } from 'express';
-import { deleteOldGuests } from '../../utils/jobs/deleteOldGuests.js';
+import { deleteOldGuests } from '#utils/jobs/deleteOldGuests.js';
 import { Receiver } from '@upstash/qstash';
 import {
   logCronJobStart,
   logCronJobComplete,
   logCronJobError,
-} from '../../utils/loggers/systemLoggers.js';
+} from '#utils/loggers/systemLoggers.js';
 
 const receiver = new Receiver({
   currentSigningKey: process.env.QSTASH_CURRENT_SIGNING_KEY,

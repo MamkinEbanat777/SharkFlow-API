@@ -1,13 +1,14 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
-import { verifyTotpCode } from '../../../utils/helpers/totpHelpers.js';
-import { deleteUserTempData } from '../../../store/userTempData.js';
-import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
-import { validateTotpCodeFormat } from '../../../utils/helpers/totpHelpers.js';
-import { getUserTempData } from '../../../store/userTempData.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { logAccountRestoreSuccess, logAccountRestoreFailure } from '../../../utils/loggers/authLoggers.js';
+
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { verifyTotpCode } from '#utils/helpers/totpHelpers.js';
+import { deleteUserTempData } from '#store/userTempData.js';
+import { deleteConfirmationCode } from '#store/userVerifyStore.js';
+import { validateTotpCodeFormat } from '#utils/helpers/totpHelpers.js';
+import { getUserTempData } from '#store/userTempData.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { logAccountRestoreSuccess, logAccountRestoreFailure } from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 

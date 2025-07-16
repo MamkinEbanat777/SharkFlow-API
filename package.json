@@ -68,5 +68,14 @@
     "glob": "^11.0.3",
     "jsdoc": "^4.0.4",
     "nodemon": "^3.1.10"
-  }
+  },
+  "imports": {
+  "#utils/*": "./utils/*",
+  "#store/*": "./store/*",
+  "#routes/*": "./routes/*",
+  "#middlewares/*": "./middlewares/*",
+  "#config/*": "./config/*",
+  "#socket/*": "./socket/*",
+  "#telegramBot/*": "./telegramBot/*"
+}
 }

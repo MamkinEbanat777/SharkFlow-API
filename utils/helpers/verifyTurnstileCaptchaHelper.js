@@ -3,7 +3,7 @@
  * @description Вспомогательные функции для проверки Turnstile Captcha
  */
 import axios from 'axios';
-import { logExternalServiceError } from '../loggers/systemLoggers.js';
+import { logExternalServiceError } from '#utils/loggers/systemLoggers.js';
 
 const EXPECTED_DOMAIN = process.env.FRONTEND_DOMAIN;
 

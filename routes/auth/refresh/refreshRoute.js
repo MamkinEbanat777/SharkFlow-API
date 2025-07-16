@@ -1,24 +1,24 @@
 import { Router } from 'express';
-import { createAccessToken } from '../../../utils/tokens/accessToken.js';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { issueRefreshToken } from '../../../utils/tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../../../utils/cookie/refreshCookie.js';
+import { createAccessToken } from '#utils/tokens/accessToken.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { issueRefreshToken } from '#utils/tokens/refreshToken.js';
+import { getRefreshCookieOptions } from '#utils/cookie/refreshCookie.js';
 import {
   validateRefreshToken,
   isTokenExpired,
   shouldRotateToken,
-} from '../../../utils/validators/jwtValidators.js';
+} from '#utils/validators/jwtValidators.js';
 import {
   logTokenRefresh,
   logTokenRefreshFailure,
-} from '../../../utils/loggers/authLoggers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { createCsrfToken } from '../../../utils/tokens/csrfToken.js';
+} from '#utils/loggers/authLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { createCsrfToken } from '#utils/tokens/csrfToken.js';
 import axios from 'axios';
-import { parseDeviceInfo } from '../../../utils/helpers/authHelpers.js';
-import { logLocationError } from '../../../utils/loggers/systemLoggers.js';
-import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
+import { parseDeviceInfo } from '#utils/helpers/authHelpers.js';
+import { logLocationError } from '#utils/loggers/systemLoggers.js';
+import { REFRESH_COOKIE_NAME } from '#config/cookiesConfig.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const router = Router();
 

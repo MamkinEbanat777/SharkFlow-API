@@ -1,17 +1,17 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import {
   logUserUpdate,
   logUserUpdateFailure,
-} from '../../../utils/loggers/authLoggers.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
-import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
-import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
-import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
+} from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 

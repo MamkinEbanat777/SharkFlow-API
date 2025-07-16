@@ -1,24 +1,24 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 import { v4 as uuidv4 } from 'uuid';
 import bcrypt from 'bcrypt';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { getGuestCookieOptions } from '../../../utils/cookie/guestCookie.js';
-import { findUserByUuid } from '../../../utils/helpers/userHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { getGuestCookieOptions } from '#utils/cookie/guestCookie.js';
+import { findUserByUuid } from '#utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
   setAuthCookies,
   getRequestInfo,
-} from '../../../utils/helpers/authHelpers.js';
-import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
-import { generateUUID } from '../../../utils/generators/generateUUID.js';
-import { GUEST_COOKIE_NAME } from '../../../config/cookiesConfig.js';
+} from '#utils/helpers/authHelpers.js';
+import { verifyTurnstileCaptcha } from '#utils/helpers/verifyTurnstileCaptchaHelper.js';
+import { generateUUID } from '#utils/generators/generateUUID.js';
+import { GUEST_COOKIE_NAME } from '#config/cookiesConfig.js';
 import {
   logLoginSuccess,
   logLoginFailure,
   logRegistrationSuccess,
   logSuspiciousAuthActivity
-} from '../../../utils/loggers/authLoggers.js';
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 

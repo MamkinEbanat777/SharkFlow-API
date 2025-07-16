@@ -3,7 +3,7 @@
  * @description Обработчик показа справки в Telegram боте.
  */
 import { Markup } from 'telegraf';
-import send from '../../send.js';
+import send from '#telegramBot/send.js';
 
 
 export async function showHelpHandler(ctx) {

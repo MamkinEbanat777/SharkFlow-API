@@ -3,10 +3,10 @@
  * @description Обработчик получения досок в Telegram боте.
  */
 import { Markup } from 'telegraf';
-import { getBoardsWithTaskCounts } from '../../../utils/helpers/boardHelpers.js';
-import { getColorEmoji } from '../../utils/color/getColorEmoji.js';
-import send from '../../send.js';
-import { logTelegramCommandError } from '../../../utils/loggers/telegramLoggers.js';
+import { getBoardsWithTaskCounts } from '#utils/helpers/boardHelpers.js';
+import { getColorEmoji } from '#telegramBot/utils/color/getColorEmoji.js';
+import send from '#telegramBot/send.js';
+import { logTelegramCommandError } from '#utils/loggers/telegramLoggers.js';
 
 export async function getBoardsHandler(ctx) {
   const user = ctx.state.user;

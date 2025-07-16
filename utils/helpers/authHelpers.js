@@ -2,12 +2,12 @@
  * @module helpers/auth
  * @description Вспомогательные функции для аутентификации и авторизации.
  */
-import { createAccessToken } from '../tokens/accessToken.js';
-import { createCsrfToken } from '../tokens/csrfToken.js';
-import { issueRefreshToken } from '../tokens/refreshToken.js';
-import { getRefreshCookieOptions } from '../cookie/refreshCookie.js';
-import { isValidUUID } from '../validators/taskValidators.js';
-import { REFRESH_COOKIE_NAME } from '../../config/cookiesConfig.js';
+import { createAccessToken } from '#utils/tokens/accessToken.js';
+import { createCsrfToken } from '#utils/tokens/csrfToken.js';
+import { issueRefreshToken } from '#utils/tokens/refreshToken.js';
+import { getRefreshCookieOptions } from '#utils/cookie/refreshCookie.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
+import { REFRESH_COOKIE_NAME } from '#config/cookiesConfig.js';
 
 import DeviceDetector from 'device-detector-js';
 

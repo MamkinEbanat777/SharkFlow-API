@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
-import { validateTaskUuids } from '../../middlewares/http/taskMiddleware.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
-import { logTaskUpdate } from '../../utils/loggers/taskLoggers.js';
-import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { validateTaskUuids } from '#middlewares/http/taskMiddleware.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { logTaskUpdate } from '#utils/loggers/taskLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
   findBoardByUuidForUser,
   findTaskByUuid,
   validateTaskData,
-} from '../../utils/helpers/taskHelpers.js';
+} from '#utils/helpers/taskHelpers.js';
 
 const router = Router();
 

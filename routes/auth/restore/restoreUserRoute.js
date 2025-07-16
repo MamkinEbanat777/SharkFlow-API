@@ -1,20 +1,20 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import { getUserTempData } from '../../../store/userTempData.js';
-import { deleteUserTempData } from '../../../store/userTempData.js';
-import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
-import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
-import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
-import { setUserTempData } from '../../../store/userTempData.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { getUserTempData } from '#store/userTempData.js';
+import { deleteUserTempData } from '#store/userTempData.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
+import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { setUserTempData } from '#store/userTempData.js';
 import {
   logAccountRestoreSuccess,
   logAccountRestoreFailure,
   logUserUpdate,
-} from '../../../utils/loggers/authLoggers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { logRegistrationFailure } from '../../../utils/loggers/authLoggers.js';
-import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
+} from '#utils/loggers/authLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { logRegistrationFailure } from '#utils/loggers/authLoggers.js';
+import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 

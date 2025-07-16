@@ -3,7 +3,7 @@
  * @description Функции для работы с CSRF-токенами.
  */
 import jwt from 'jsonwebtoken';
-import { validateUserRole } from '../validators/enumValidators.js';
+import { validateUserRole } from '#utils/validators/enumValidators.js';
 
 export function createCsrfToken(userUuid, role = 'user') {
   const roleValidation = validateUserRole(role);

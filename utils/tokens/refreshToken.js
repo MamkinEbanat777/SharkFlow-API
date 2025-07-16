@@ -3,10 +3,10 @@
  * @description Функции для работы с refresh-токенами.
  */
 import jwt from 'jsonwebtoken';
-import { generateUUID } from '../generators/generateUUID.js';
-import { getRefreshCookieOptions } from '../cookie/refreshCookie.js';
-import prisma from '../prismaConfig/prismaClient.js';
-import { REFRESH_COOKIE_NAME } from '../../config/cookiesConfig.js';
+import { generateUUID } from '#utils/generators/generateUUID.js';
+import { getRefreshCookieOptions } from '#utils/cookie/refreshCookie.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { REFRESH_COOKIE_NAME } from '#config/cookiesConfig.js';
 
 /**
  * Создает JWT refresh-токен

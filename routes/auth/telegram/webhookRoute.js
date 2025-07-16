@@ -1,8 +1,8 @@
 import { Router } from 'express';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import bot from '../../../telegramBot/bot.js';
-import { logTelegramCommand } from '../../utils/loggers/telegramLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import bot from '#telegramBot/bot.js';
+import { logTelegramCommand } from '#utils/loggers/telegramLoggers.js';
 
 const router = Router();
 

@@ -2,11 +2,11 @@
  * @module helpers/sendUserConfirmationCode
  * @description Вспомогательные функции для отправки кодов подтверждения пользователям.
  */
-import { generateConfirmationCode } from '../generators/generateConfirmationCode.js';
-import { sendConfirmationEmail } from '../mail/sendConfirmationEmail.js';
-import { setConfirmationCode } from '../../store/userVerifyStore.js';
-import prisma from '../prismaConfig/prismaClient.js';
-import { isValidUUID } from '../validators/taskValidators.js';
+import { generateConfirmationCode } from '#utils/generators/generateConfirmationCode.js';
+import { sendConfirmationEmail } from '#utils/mail/sendConfirmationEmail.js';
+import { setConfirmationCode } from '#store/userVerifyStore.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
 
 /**
  * Отправка кода подтверждения пользователю

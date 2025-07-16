@@ -1,10 +1,10 @@
 import { Server } from 'socket.io';
-import { socketAuthMiddleware } from '../middlewares/ws/socketAuthMiddleware.js';
-import { socketRateLimitMiddleware } from '../middlewares/ws/socketRateLimitMiddleware.js';
-import { allowedOrigins } from '../config/allowedOrigins.js';
-import { allowedMethods } from '../config/allowedMethods.js';
+import { socketAuthMiddleware } from '#middlewares/ws/socketAuthMiddleware.js';
+import { socketRateLimitMiddleware } from '#middlewares/ws/socketRateLimitMiddleware.js';
+import { allowedOrigins } from '#config/allowedOrigins.js';
+import { allowedMethods } from '#config/allowedMethods.js';
 import { handleSocketEvents } from './handlers.js';
-import { logSocketDisconnect, logSocketPartialDisconnect } from '../utils/loggers/socketLoggers.js';
+import { logSocketDisconnect, logSocketPartialDisconnect } from '#utils/loggers/socketLoggers.js';
 
 export function initSocket(server) {
   const io = new Server(server, {

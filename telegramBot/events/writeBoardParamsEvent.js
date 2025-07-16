@@ -2,13 +2,9 @@
  * @module telegramBot/events/writeBoardParams
  * @description Событие записи параметров доски в Telegram боте.
  */
-import send from '../send.js';
+import send from '#telegramBot/send.js';
 import { Markup } from 'telegraf';
-import {
-  getBoardCreationData,
-  setBoardCreationState,
-  setBoardTitle,
-} from '../store/tempBoardCreateStore.js';
+import { getBoardCreationData, setBoardCreationState, setBoardTitle } from '#telegramBot/store/tempBoardCreateStore.js';
 
 export default function registerWriteBoardParamsEvent(bot) {
   bot.on('text', async (ctx) => {

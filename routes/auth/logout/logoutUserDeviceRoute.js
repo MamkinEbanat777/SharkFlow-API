@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { logLogout } from '../../../utils/loggers/authLoggers.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { validateDeviceId } from '../../../utils/helpers/deviceSessionHelper.js';
-import { REFRESH_COOKIE_NAME } from '../../../config/cookiesConfig.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { logLogout } from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { validateDeviceId } from '#utils/helpers/deviceSessionHelper.js';
+import { REFRESH_COOKIE_NAME } from '#config/cookiesConfig.js';
 
 const router = Router();
 

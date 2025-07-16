@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
-import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { getUserTempData } from '../../../../store/userTempData.js';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-import { deleteUserTempData } from '../../../../store/userTempData.js';
-import { validateAndDeleteConfirmationCode } from '../../../../utils/helpers/confirmationHelpers.js';
+import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { getUserTempData } from '#store/userTempData.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { deleteUserTempData } from '#store/userTempData.js';
+import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 

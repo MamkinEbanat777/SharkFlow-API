@@ -3,7 +3,7 @@
  * @description Обработчик главного меню Telegram бота.
  */
 import { Markup } from 'telegraf';
-import send from '../send.js';
+import send from '#telegramBot/send.js';
 
 export async function mainMenuHandler(ctx) {
   const message = `

@@ -2,10 +2,10 @@
  * @module helpers/deviceSession
  * @description Вспомогательные функции для работы с сессиями устройств.
  */
-import prisma from '../prismaConfig/prismaClient.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 import { parseDeviceInfo } from './authHelpers.js';
 import axios from 'axios';
-import { logLocationError } from '../loggers/systemLoggers.js';
+import { logLocationError } from '#utils/loggers/systemLoggers.js';
 
 /**
  * Получение геолокации по IP адресу

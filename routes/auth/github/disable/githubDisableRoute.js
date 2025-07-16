@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { validateAndDeleteConfirmationCode } from '../../../../utils/helpers/confirmationHelpers.js';
-import { emailConfirmValidate } from '../../../../utils/validators/emailConfirmValidate.js';
-import { validateMiddleware } from '../../../../middlewares/http/validateMiddleware.js';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
+import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 

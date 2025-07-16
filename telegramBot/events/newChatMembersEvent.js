@@ -2,7 +2,7 @@
  * @module telegramBot/events/newChatMembers
  * @description Событие новых участников чата в Telegram боте.
  */
-import send from '../send.js';
+import send from '#telegramBot/send.js';
 
 export default async function registerNewChatMembersEvent(bot) {
   bot.on('new_chat_members', async (ctx) => {

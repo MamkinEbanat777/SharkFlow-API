@@ -1,33 +1,33 @@
 import { Router } from 'express';
-import { loginValidate } from '../../../utils/validators/loginValidate.js';
-import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
+import { loginValidate } from '#utils/validators/loginValidate.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
 import bcrypt from 'bcrypt';
-import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
+import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
 import {
   checkLoginRateLimit,
   incrementLoginAttempts,
   resetLoginAttempts,
-} from '../../../utils/rateLimiters/authRateLimiters.js';
+} from '#utils/rateLimiters/authRateLimiters.js';
 import {
   logLoginSuccess,
   logLoginFailure,
   maskEmail,
-} from '../../../utils/loggers/authLoggers.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { generateUUID } from '../../../utils/generators/generateUUID.js';
-import { setUserTempData } from '../../../store/userTempData.js';
-import { findUserByEmail } from '../../../utils/helpers/userHelpers.js';
+} from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { generateUUID } from '#utils/generators/generateUUID.js';
+import { setUserTempData } from '#store/userTempData.js';
+import { findUserByEmail } from '#utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
   setAuthCookies,
-} from '../../../utils/helpers/authHelpers.js';
-import { verifyTurnstileCaptcha } from '../../../utils/helpers/verifyTurnstileCaptchaHelper.js';
+} from '#utils/helpers/authHelpers.js';
+import { verifyTurnstileCaptcha } from '#utils/helpers/verifyTurnstileCaptchaHelper.js';
 import {
   createOrUpdateDeviceSession,
   getGeoLocation,
   validateDeviceId,
-} from '../../../utils/helpers/deviceSessionHelper.js';
+} from '#utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
 

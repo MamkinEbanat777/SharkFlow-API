@@ -1,5 +1,5 @@
-import { redis } from '../config/redisconfig.js';
-import { allowedTypes } from '../config/allowedTypes.js';
+import { redis } from '#config/redisconfig.js';
+import { allowedTypes } from '#config/allowedTypes.js';
 
 const EXPIRE_SECONDS = 15 * 60;
 const MAX_ATTEMPTS = 5;

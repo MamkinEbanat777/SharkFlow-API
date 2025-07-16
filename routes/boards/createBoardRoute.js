@@ -1,15 +1,15 @@
 import { Router } from 'express';
-import prisma from '../../utils/prismaConfig/prismaClient.js';
-import { authenticateMiddleware } from '../../middlewares/http/authenticateMiddleware.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import {
   validateBoardTitle,
   isValidColor,
   sanitizeColor,
-} from '../../utils/validators/boardValidators.js';
-import { logBoardCreation } from '../../utils/loggers/boardLoggers.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../utils/handlers/handleRouteError.js';
-import { getUserBoardCount } from '../../utils/helpers/boardHelpers.js';
+} from '#utils/validators/boardValidators.js';
+import { logBoardCreation } from '#utils/loggers/boardLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { getUserBoardCount } from '#utils/helpers/boardHelpers.js';
 
 const router = Router();
 

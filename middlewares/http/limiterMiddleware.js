@@ -1,4 +1,4 @@
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const requestBuckets = new Map();
 const violationCounts = new Map();

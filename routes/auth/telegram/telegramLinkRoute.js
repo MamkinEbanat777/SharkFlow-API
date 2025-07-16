@@ -1,9 +1,9 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { setUserTempData } from '../../../store/userTempData.js';
-import { generateUUID } from '../../../utils/generators/generateUUID.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { setUserTempData } from '#store/userTempData.js';
+import { generateUUID } from '#utils/generators/generateUUID.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 
 const router = Router();
 

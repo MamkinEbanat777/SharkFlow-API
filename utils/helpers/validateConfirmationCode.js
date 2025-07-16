@@ -7,8 +7,8 @@ import {
   isConfirmationBlocked,
   registerFailedAttempt,
   resetConfirmationAttempts,
-} from '../../store/userVerifyStore.js';
-import { isValidUUID } from '../validators/taskValidators.js';
+} from '#store/userVerifyStore.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
 
 /**
  * Валидация кода подтверждения с защитой от брутфорса

@@ -3,7 +3,7 @@
  * @description Обработчик показа профиля пользователя в Telegram боте.
  */
 import { Markup } from 'telegraf';
-import send from '../../send.js';
+import send from '#telegramBot/send.js';
 
 export async function showProfileHandler(ctx) {
   const user = ctx.state.user;

@@ -1,14 +1,14 @@
 import { Router } from 'express';
-import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 import { OAuth2Client } from 'google-auth-library';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
-import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
-import { setUserTempData } from '../../../../store/userTempData.js';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { findUserOAuth, getUserOAuthByUserId } from '../../../../utils/helpers/userHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
+import { setUserTempData } from '#store/userTempData.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { findUserOAuth, getUserOAuthByUserId } from '#utils/helpers/userHelpers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 

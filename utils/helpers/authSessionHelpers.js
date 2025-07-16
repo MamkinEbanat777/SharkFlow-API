@@ -1,9 +1,9 @@
 import { createOrUpdateDeviceSession } from './deviceSessionHelper.js';
-import { issueRefreshToken } from '../tokens/refreshToken.js';
-import { createAccessToken } from '../tokens/accessToken.js';
-import { createCsrfToken } from '../tokens/csrfToken.js';
-import { getRefreshCookieOptions } from '../cookie/refreshCookie.js';
-import { REFRESH_COOKIE_NAME } from '../../config/cookiesConfig.js';
+import { issueRefreshToken } from '#utils/tokens/refreshToken.js';
+import { createAccessToken } from '#utils/tokens/accessToken.js';
+import { createCsrfToken } from '#utils/tokens/csrfToken.js';
+import { getRefreshCookieOptions } from '#utils/cookie/refreshCookie.js';
+import { REFRESH_COOKIE_NAME } from '#config/cookiesConfig.js';
 
 /**
  * Универсальный helper для создания/обновления deviceSession и токенов

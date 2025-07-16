@@ -3,13 +3,13 @@
  * @description Команда /start для аутентификации в Telegram боте.
  */
 import { Markup } from 'telegraf';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { logTelegramCommandError } from '../../../utils/loggers/telegramLoggers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { logTelegramCommandError } from '#utils/loggers/telegramLoggers.js';
 import {
   getUserTempData,
   deleteUserTempData,
-} from '../../../store/userTempData.js';
-import send from '../../send.js';
+} from '#store/userTempData.js';
+import send from '#telegramBot/send.js';
 
 export default function registerStartCommand(bot) {
   bot.start(async (ctx) => {

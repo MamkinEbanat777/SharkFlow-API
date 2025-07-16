@@ -3,7 +3,7 @@
  * @description Функции для работы с access-токенами.
  */
 import jwt from 'jsonwebtoken';
-import { validateUserRole } from '../validators/enumValidators.js';
+import { validateUserRole } from '#utils/validators/enumValidators.js';
 
 export function createAccessToken(userUuid, role = 'user') {
   const roleValidation = validateUserRole(role);

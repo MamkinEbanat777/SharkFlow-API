@@ -1,13 +1,13 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { findUserByUuidOrThrow } from '../../../utils/helpers/userHelpers.js';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 import {
   logTelegramUnlinkSuccess,
   logTelegramUnlinkError,
-} from '../../../utils/loggers/telegramLoggers.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
+} from '#utils/loggers/telegramLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 const router = Router();
 

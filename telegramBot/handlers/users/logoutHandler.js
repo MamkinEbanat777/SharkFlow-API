@@ -3,8 +3,8 @@
  * @description Обработчик выхода пользователя в Telegram боте.
  */
 import { Markup } from 'telegraf';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import send from '../../send.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import send from '#telegramBot/send.js';
 
 export async function logoutHandler(ctx) {
   const user = ctx.state.user;

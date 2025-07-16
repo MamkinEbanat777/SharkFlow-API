@@ -1,10 +1,10 @@
 import { Router } from 'express';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
-import { clearEmailConfirmed } from '../../../../store/emailConfirmedStore.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { verifyTotpCode } from '../../../../utils/helpers/totpHelpers.js';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
+import { clearEmailConfirmed } from '#store/emailConfirmedStore.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { verifyTotpCode } from '#utils/helpers/totpHelpers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 
 const router = Router();
 

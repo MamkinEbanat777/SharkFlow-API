@@ -2,8 +2,8 @@
  * @module helpers/user
  * @description Вспомогательные функции для работы с пользователями.
  */
-import prisma from '../prismaConfig/prismaClient.js';
-import { isValidUUID } from '../validators/taskValidators.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
 
 /**
  * Поиск пользователя по UUID

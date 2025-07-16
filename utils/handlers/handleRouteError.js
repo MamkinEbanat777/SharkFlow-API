@@ -2,7 +2,7 @@
  * @module handlers/routeError
  * @description Обработчики ошибок для маршрутов.
  */
-import { logRouteHandlerError } from '../loggers/errorLoggers.js';
+import { logRouteHandlerError } from '#utils/loggers/errorLoggers.js';
 
 /**
  * Обрабатывает ошибки в роутах и отправляет ответ клиенту

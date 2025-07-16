@@ -3,7 +3,7 @@
  * @description Валидаторы для JWT-токенов и проверки их срока действия.
  */
 import jwt from 'jsonwebtoken';
-import { logExternalServiceError } from '../loggers/systemLoggers.js';
+import { logExternalServiceError } from '#utils/loggers/systemLoggers.js';
 
 
 /**

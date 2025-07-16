@@ -5,7 +5,7 @@
 import fs from 'fs';
 import path from 'path';
 import { pathToFileURL } from 'url';
-import { logTelegramCommandError } from '../utils/loggers/telegramLoggers.js';
+import { logTelegramCommandError } from '#utils/loggers/telegramLoggers.js';
 
 export async function loadConfig(bot, folderPath) {
   const fullPath = path.resolve(folderPath);

@@ -1,13 +1,13 @@
 import { Router } from 'express';
 import axios from 'axios';
-import prisma from '../../../../utils/prismaConfig/prismaClient.js';
-import { getRequestInfo } from '../../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
-import { normalizeEmail } from '../../../../utils/validators/normalizeEmail.js';
-import { sendUserConfirmationCode } from '../../../../utils/helpers/sendUserConfirmationCode.js';
-import { setUserTempData } from '../../../../store/userTempData.js';
-import { authenticateMiddleware } from '../../../../middlewares/http/authenticateMiddleware.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
+import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
+import { setUserTempData } from '#store/userTempData.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 
 const router = Router();
 

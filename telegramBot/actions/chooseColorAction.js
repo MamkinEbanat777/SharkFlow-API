@@ -5,10 +5,10 @@
 import {
   getBoardCreationData,
   clearBoardCreation,
-} from '../../../store/tempBoardCreationStore.js';
-import { createBoard } from '../../../utils/helpers/boardHelpers.js';
-import send from '../../send.js';
-import { logTelegramCommandError } from '../../utils/loggers/telegramLoggers.js';
+} from '#store/tempBoardCreationStore.js';
+import { createBoard } from '#utils/helpers/boardHelpers.js';
+import send from '#telegramBot/send.js';
+import { logTelegramCommandError } from '#utils/loggers/telegramLoggers.js';
 
 export default function registerChooseColorAction(bot) {
   bot.action(/^choose_color_(.+)/, async (ctx) => {

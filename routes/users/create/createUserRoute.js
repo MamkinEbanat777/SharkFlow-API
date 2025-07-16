@@ -1,25 +1,25 @@
 import { Router } from 'express';
-import prisma from '../../../utils/prismaConfig/prismaClient.js';
-import { emailConfirmValidate } from '../../../utils/validators/emailConfirmValidate.js';
-import { validateMiddleware } from '../../../middlewares/http/validateMiddleware.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
+import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
 import {
   getUserTempData,
   deleteUserTempData,
-} from '../../../store/userTempData.js';
+} from '#store/userTempData.js';
 import {
   logRegistrationSuccess,
   logRegistrationFailure,
-} from '../../../utils/loggers/authLoggers.js';
-import { getRequestInfo } from '../../../utils/helpers/authHelpers.js';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { deleteConfirmationCode } from '../../../store/userVerifyStore.js';
+} from '#utils/loggers/authLoggers.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { deleteConfirmationCode } from '#store/userVerifyStore.js';
 import {
   GUEST_COOKIE_NAME,
   REGISTER_COOKIE_NAME,
-} from '../../../config/cookiesConfig.js';
-import { getRegistrationCookieOptions } from '../../../utils/cookie/registerCookie.js';
-import { getGuestCookieOptions } from '../../../utils/cookie/guestCookie.js';
-import { validateAndDeleteConfirmationCode } from '../../../utils/helpers/confirmationHelpers.js';
+} from '#config/cookiesConfig.js';
+import { getRegistrationCookieOptions } from '#utils/cookie/registerCookie.js';
+import { getGuestCookieOptions } from '#utils/cookie/guestCookie.js';
+import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
 
 const router = Router();
 

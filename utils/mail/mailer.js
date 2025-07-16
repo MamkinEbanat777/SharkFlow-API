@@ -3,7 +3,7 @@
  * @description Основной модуль для отправки email.
  */
 import nodemailer from 'nodemailer';
-import { logMailSendSuccess, logMailSendError } from '../loggers/mailLoggers.js';
+import { logMailSendSuccess, logMailSendError } from '#utils/loggers/mailLoggers.js';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.mail.ru',

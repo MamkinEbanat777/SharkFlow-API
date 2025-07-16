@@ -1,22 +1,22 @@
 import { Router } from 'express';
-import { findUserByUuidOrThrow } from '../../../../utils/helpers/userHelpers.js';
+import { findUserByUuidOrThrow } from '#utils/helpers/userHelpers.js';
 import {
   createAuthTokens,
   setAuthCookies,
-} from '../../../../utils/helpers/authHelpers.js';
-import { resetLoginAttempts } from '../../../../utils/rateLimiters/authRateLimiters.js';
-import { logLoginSuccess } from '../../../../utils/loggers/authLoggers.js';
-import { handleRouteError } from '../../../../utils/handlers/handleRouteError.js';
-import { deleteUserTempData } from '../../../../store/userTempData.js';
-import { getUserTempData } from '../../../../store/userTempData.js';
+} from '#utils/helpers/authHelpers.js';
+import { resetLoginAttempts } from '#utils/rateLimiters/authRateLimiters.js';
+import { logLoginSuccess } from '#utils/loggers/authLoggers.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { deleteUserTempData } from '#store/userTempData.js';
+import { getUserTempData } from '#store/userTempData.js';
 import {
   verifyTotpCode,
   validateTotpCodeFormat,
-} from '../../../../utils/helpers/totpHelpers.js';
+} from '#utils/helpers/totpHelpers.js';
 import {
   createOrUpdateDeviceSession,
   getGeoLocation,
-} from '../../../../utils/helpers/deviceSessionHelper.js';
+} from '#utils/helpers/deviceSessionHelper.js';
 
 const router = Router();
 

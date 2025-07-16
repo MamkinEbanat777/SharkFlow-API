@@ -2,8 +2,8 @@
  * @module telegramBot/events/boardsTrigger
  * @description Событие триггера досок в Telegram боте.
  */
-import { authenticateTelegramMiddleware } from '../../middlewares/http/authenticateTelegramMiddleware.js';
-import { getBoardsHandler } from '../handlers/boards/getBoardsHandler.js';
+import { authenticateTelegramMiddleware } from '#middlewares/http/authenticateTelegramMiddleware.js';
+import { getBoardsHandler } from '#telegramBot/handlers/boards/getBoardsHandler.js';
 
 export default function registerBoardTriggerEvent(bot) {
   bot.on('text', async (ctx) => {

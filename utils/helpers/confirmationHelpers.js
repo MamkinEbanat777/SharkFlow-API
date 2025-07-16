@@ -3,8 +3,8 @@
  * @description Вспомогательные функции для работы с кодами подтверждения.
  */
 import { validateConfirmationCode } from './validateConfirmationCode.js';
-import { deleteConfirmationCode } from '../../store/userVerifyStore.js';
-import { isValidUUID } from '../validators/taskValidators.js';
+import { deleteConfirmationCode } from '#store/userVerifyStore.js';
+import { isValidUUID } from '#utils/validators/taskValidators.js';
 
 /**
  * Валидация кода подтверждения с последующим удалением

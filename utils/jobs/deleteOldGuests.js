@@ -2,8 +2,8 @@
  * @module jobs/deleteOldGuests
  * @description Задачи для удаления старых гостевых аккаунтов.
  */
-import { logCronJobStart, logCronJobComplete, logCronJobError } from '../loggers/systemLoggers.js';
-import prisma from '../prismaConfig/prismaClient.js';
+import { logCronJobStart, logCronJobComplete, logCronJobError } from '#utils/loggers/systemLoggers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
 
 /**
  * Удаляет гостевые аккаунты старше 30 дней

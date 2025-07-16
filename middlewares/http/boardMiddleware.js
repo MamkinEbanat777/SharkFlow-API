@@ -1,5 +1,5 @@
-import { isValidUUID } from '../../utils/validators/boardValidators.js';
-import { getRequestInfo } from '../../utils/helpers/authHelpers.js';
+import { isValidUUID } from '#utils/validators/boardValidators.js';
+import { getRequestInfo } from '#utils/helpers/authHelpers.js';
 
 export const validateBoardUuid = (req, res, next) => {
   const { boardUuid } = req.params;

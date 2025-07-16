@@ -2,12 +2,12 @@
  * @module helpers/uploadAvatarAndUpdateUser
  * @description Вспомогательные функции для загрузки аватаров и обновления пользователей.
  */
-import '../../config/cloudinaryConfig.js';
+import '#config/cloudinaryConfig.js'
 import { v2 as cloudinary } from 'cloudinary';
 import axios from 'axios';
-import prisma from '../prismaConfig/prismaClient.js';
-import { logMailSendError } from '../loggers/mailLoggers.js';
-import { logLocationError } from '../loggers/systemLoggers.js';
+import prisma from '#utils/prismaConfig/prismaClient.js';
+import { logMailSendError } from '#utils/loggers/mailLoggers.js';
+import { logLocationError } from '#utils/loggers/systemLoggers.js';
 
 /**
  * Загрузка аватара в Cloudinary и обновление пользователя

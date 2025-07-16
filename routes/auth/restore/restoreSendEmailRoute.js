@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
-import { sendUserConfirmationCode } from '../../../utils/helpers/sendUserConfirmationCode.js';
-import { findUserByEmail } from '../../../utils/helpers/userHelpers.js';
-import { logAccountRestoreFailure, maskEmail } from '../../../utils/loggers/authLoggers.js';
-import { normalizeEmail } from '../../../utils/validators/normalizeEmail.js';
-import { generateUUID } from '../../../utils/generators/generateUUID.js';
-import { setUserTempData } from '../../../store/userTempData.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
+import { sendUserConfirmationCode } from '#utils/helpers/sendUserConfirmationCode.js';
+import { findUserByEmail } from '#utils/helpers/userHelpers.js';
+import { logAccountRestoreFailure, maskEmail } from '#utils/loggers/authLoggers.js';
+import { normalizeEmail } from '#utils/validators/normalizeEmail.js';
+import { generateUUID } from '#utils/generators/generateUUID.js';
+import { setUserTempData } from '#store/userTempData.js';
 
 const router = Router();
 

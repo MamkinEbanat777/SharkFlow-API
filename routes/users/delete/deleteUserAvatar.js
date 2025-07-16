@@ -1,11 +1,11 @@
 import { Router } from 'express';
-import { authenticateMiddleware } from '../../../middlewares/http/authenticateMiddleware.js';
+import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import cloudinary from 'cloudinary';
-import { handleRouteError } from '../../../utils/handlers/handleRouteError.js';
+import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import {
   findUserForAvatar,
   clearUserAvatar,
-} from '../../../utils/helpers/avatarHelpers.js';
+} from '#utils/helpers/avatarHelpers.js';
 
 const router = Router();
 
