@@ -2,7 +2,7 @@ import prisma from '#utils/prismaConfig/prismaClient.js';
 import { logTelegramMiddlewareError } from '#utils/loggers/middlewareLoggers.js';
 
 export const authenticateTelegramMiddleware = async (ctx, next) => {
-  const telegramId = BigInt(ctx.from?.id);
+  const telegramId = ctx.from?.id?.toString();
 
   if (!telegramId) {
     await ctx.reply('Не удалось определить ваш Telegram ID.');
@@ -10,27 +10,28 @@ export const authenticateTelegramMiddleware = async (ctx, next) => {
   }
 
   try {
-    const user = await prisma.user.findFirst({
-      where: { telegramId, isDeleted: false },
-      select: {
-        uuid: true,
-        email: true,
-        login: true,
-        telegramId: true,
-        telegramEnabled: true,
-        role: true,
-        avatarUrl: true,
+    const userOAuth = await prisma.userOAuth.findFirst({
+      where: {
+        provider: 'telegram',
+        providerId: telegramId,
+        enabled: true,
+        user: {
+          isDeleted: false,
+        },
+      },
+      include: {
+        user: true,
       },
     });
 
-    if (!user) {
+    if (!userOAuth) {
       await ctx.reply(
         'Вы не авторизованы через Telegram. Перейдите на наш сайт для авторизации: https://sharkflow.onrender.com ',
       );
       return;
     }
 
-    ctx.state.user = user;
+    ctx.state.user = userOAuth.user;
 
     await next();
   } catch (error) {

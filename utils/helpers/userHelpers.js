@@ -17,7 +17,7 @@ import { isValidUUID } from '#utils/validators/taskValidators.js';
 export const findUserByUuid = async (uuid, isDeleted = false, select = {}) => {
   if (!isValidUUID(uuid)) {
     throw new Error('Invalid user UUID');
-  }
+  }p
   return await prisma.user.findFirst({
     where: { uuid, isDeleted: isDeleted },
     ...(Object.keys(select).length > 0 ? { select } : {}),
