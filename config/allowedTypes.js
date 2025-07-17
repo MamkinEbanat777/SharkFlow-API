@@ -15,4 +15,5 @@ export const allowedTypes = [
   'telegramAuth',
   'twoFactorAuth',
   'restoreUser',
+  'twoFactorPendingSecret',
 ];
