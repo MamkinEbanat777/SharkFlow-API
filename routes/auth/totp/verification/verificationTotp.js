@@ -25,7 +25,6 @@ router.post('/auth/totp/verify', async (req, res) => {
   const { totpCode, sessionKey } = req.body;
   const {ipAddress,userAgent} = getRequestInfo(req)
 
-  // Логгируем попытку верификации TOTP
   logTotpVerifyAttempt(sessionKey, totpCode, ipAddress, userAgent);
 
   try {
