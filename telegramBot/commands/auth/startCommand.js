@@ -5,10 +5,7 @@
 import { Markup } from 'telegraf';
 import prisma from '#utils/prismaConfig/prismaClient.js';
 import { logTelegramCommandError } from '#utils/loggers/telegramLoggers.js';
-import {
-  getUserTempData,
-  deleteUserTempData,
-} from '#store/userTempData.js';
+import { getUserTempData, deleteUserTempData } from '#store/userTempData.js';
 import send from '#telegramBot/send.js';
 
 export default function registerStartCommand(bot) {
@@ -20,13 +17,23 @@ export default function registerStartCommand(bot) {
     const args = messageText.split(' ');
     const nonce = args[1];
 
-    const telegramId = BigInt(ctx.from?.id);
+    const telegramId = ctx.from?.id?.toString();
 
-    const existingUser = await prisma.user.findFirst({
-      where: { telegramId, isDeleted: false },
+    if (!telegramId) {
+      return await send(ctx, 'Ошибка: не удалось определить Telegram ID');
+    }
+
+    const existingOAuth = await prisma.userOAuth.findFirst({
+      where: {
+        provider: 'telegram',
+        providerId: telegramId,
+        user: {
+          isDeleted: false,
+        },
+      },
     });
 
-    if (existingUser) {
+    if (existingOAuth) {
       return await send(ctx, 'Вы уже авторизованы.');
     }
 
@@ -52,7 +59,11 @@ export default function registerStartCommand(bot) {
       userUuid = data?.userUuid;
 
       if (typeof userUuid !== 'string') {
-        logTelegramCommandError('start', userUuid, new Error('Ожидалась строка для userUuid'));
+        logTelegramCommandError(
+          'start',
+          userUuid,
+          new Error('Ожидалась строка для userUuid'),
+        );
         return await send(
           ctx,
           'Ошибка привязки Telegram. Неверный формат идентификатора пользователя.',
@@ -63,37 +74,52 @@ export default function registerStartCommand(bot) {
 
       const user = await prisma.user.findFirst({
         where: { uuid: userUuid, isDeleted: false },
-        select: { telegramId: true },
+        select: { id: true },
       });
 
       if (!user) {
-        logTelegramCommandError('start', userUuid, new Error('Пользователь не найден'));
+        logTelegramCommandError(
+          'start',
+          userUuid,
+          new Error('Пользователь не найден'),
+        );
         await ctx.reply('❌ Пользователь не найден в системе');
         return;
       }
 
-      if (user.telegramId) {
-        return await send(ctx, 'Вы уже привязали Telegram к своему аккаунту.');
-      }
-
-      const existingUserWithTelegramId = await prisma.user.findFirst({
+      const userOAuthExists = await prisma.userOAuth.findFirst({
         where: {
-          telegramId,
-          isDeleted: false,
-          uuid: { not: userUuid },
+          userId: user.id,
+          provider: 'telegram',
         },
       });
 
-      if (existingUserWithTelegramId) {
+      if (userOAuthExists) {
+        return await send(ctx, 'Вы уже привязали Telegram к своему аккаунту.');
+      }
+
+      const conflictOAuth = await prisma.userOAuth.findFirst({
+        where: {
+          provider: 'telegram',
+          providerId: telegramId,
+          userId: { not: user.id },
+        },
+      });
+
+      if (conflictOAuth) {
         return await send(
           ctx,
           'Этот Telegram уже привязан к другому аккаунту.',
         );
       }
 
-      await prisma.user.update({
-        where: { uuid: userUuid },
-        data: { telegramId, telegramEnabled: true },
+      await prisma.userOAuth.create({
+        data: {
+          userId: user.id,
+          provider: 'telegram',
+          providerId: telegramId,
+          enabled: true,
+        },
       });
 
       const message = `
