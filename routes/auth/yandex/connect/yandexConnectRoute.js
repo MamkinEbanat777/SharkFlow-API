@@ -24,7 +24,6 @@ router.post(
     const userUuid = req.userUuid;
     const { code } = req.body;
 
-    // Логгируем попытку привязки Yandex OAuth
     logYandexOAuthAttempt('connect', '', '', ipAddress, userAgent);
 
     if (!code || typeof code !== 'string') {
