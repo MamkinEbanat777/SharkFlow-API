@@ -4,7 +4,7 @@ import { allowedMethods } from '#config/allowedMethods.js';
 import { allowedOrigins } from '#config/allowedOrigins.js';
 const corsOptions = {
   origin: function (origin, callback) {
-    if (!origin  || origin === 'null' || allowedOrigins.includes(origin)) {
+    if (!origin  || allowedOrigins.includes(origin)) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
