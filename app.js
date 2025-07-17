@@ -4,16 +4,16 @@ import rateLimit from 'express-rate-limit';
 
 const app = express();
 
-
 app.use('/admin', express.static('public'));
 app.get('/admin', (req, res) => {
   res.redirect('/admin/resources/User');
 });
 
-if (process.env.NODE_ENV === 'production') { app.use('/admin', rateLimit({ windowMs: 15 * 60 * 1000, max: 10 })) }
+if (process.env.NODE_ENV === 'production') {
+  app.use('/admin', rateLimit({ windowMs: 15 * 60 * 1000, max: 100 }));
+}
 
 app.use('/admin', adminRouter);
-
 
 import compression from 'compression';
 import corsMiddleware from './middlewares/http/corsMiddleware.js';
@@ -42,11 +42,11 @@ app.use(
     contentSecurityPolicy: {
       useDefaults: true,
       directives: {
-        "script-src": ["'self'", "'unsafe-inline'"],
-        "style-src": ["'self'", "'unsafe-inline'"],
+        'script-src': ["'self'", "'unsafe-inline'"],
+        'style-src': ["'self'", "'unsafe-inline'"],
       },
     },
-  })
+  }),
 );
 
 app.use(hpp());
