@@ -26,7 +26,7 @@ router.post(
   async (req, res) => {
     const signature = req.headers['upstash-signature'];
     const body = req.rawBody;
-    const url = 'https://sharkflow-api.onrender.com/cron/delete-old-guests';
+    const url = 'https://sharkflow-api.onrender.com/api/v1/cron/delete-old-guests';
     
     const {ipAddress, userAgent} = getRequestInfo(req)
 
