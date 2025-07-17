@@ -146,7 +146,7 @@ const adminRouter = AdminJSExpress.buildAuthenticatedRouter(
     cookie: {
       maxAge:
         process.env.NODE_ENV === 'production'
-          ? process.env.ADMIN_COOKIE_MAX_AGE
+          ? parseInt(process.env.ADMIN_COOKIE_MAX_AGE, 10) || 600000
           : 60 * 60 * 1000,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
