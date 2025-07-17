@@ -7,7 +7,7 @@ import { decrypt } from '#utils/crypto/decrypt.js';
 import { handleRouteError } from '#utils/handlers/handleRouteError.js';
 import { validateAndDeleteConfirmationCode } from '#utils/helpers/confirmationHelpers.js';
 import { createOtpAuthUrl } from '#utils/helpers/totpHelpers.js';
-import { getUserTempData, setUserTempData } from '#store/userTempData';
+import { getUserTempData, setUserTempData } from '#store/userTempData.js';
 
 const router = Router();
 

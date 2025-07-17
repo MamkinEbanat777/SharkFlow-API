@@ -32,7 +32,6 @@ model User {
 
   twoFactorSecret        String? @db.VarChar(256)
   twoFactorEnabled       Boolean @default(false)
-  twoFactorPendingSecret String? @db.VarChar(256)
 
   boards               Board[]
   refreshTokens        RefreshToken[]

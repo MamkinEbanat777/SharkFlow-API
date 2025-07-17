@@ -11,7 +11,7 @@ import {
   logTotpSetupSuccess,
   logTotpSetupFailure,
 } from '#utils/loggers/authLoggers.js';
-import { deleteUserTempData, getUserTempData } from '#store/userTempData';
+import { deleteUserTempData, getUserTempData } from '#store/userTempData.js';
 
 const router = Router();
 
