@@ -14,6 +14,9 @@
   "author": "",
   "license": "ISC",
   "type": "module",
+  "lint-staged": {
+    "*.{js,ts}": "eslint --fix"
+  },
   "dependencies": {
     "@adminjs/design-system": "^4.0.5",
     "@adminjs/express": "^6.1.1",
@@ -76,7 +79,9 @@
     "docolatte": "^4.5.1",
     "eslint-plugin-unused-imports": "^4.1.4",
     "glob": "^11.0.3",
+    "husky": "^9.1.7",
     "jsdoc": "^4.0.4",
+    "lint-staged": "^16.1.2",
     "nodemon": "^3.1.10"
   },
   "imports": {
