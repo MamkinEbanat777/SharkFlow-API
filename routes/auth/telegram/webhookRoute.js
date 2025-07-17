@@ -28,7 +28,7 @@ router.post('/telegram/webhook', async (req, res) => {
     }
 
     logTelegramCommand('webhook', updateId.toString(), ipAddress);
-    await bot.handleUpdate(updateData, res);
+    await bot.handleUpdate(updateData);
 
     return res.status(200).json({
       success: true,
