@@ -10,3 +10,4 @@ node_modules
 
 logs/
 utils/loggers/LokiTest.js
+.adminjs

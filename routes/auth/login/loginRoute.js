@@ -30,6 +30,7 @@ import {
   getGeoLocation,
   validateDeviceId,
 } from '#utils/helpers/deviceSessionHelper.js';
+import { Logger } from 'winston';
 
 const router = Router();
 
@@ -45,30 +46,30 @@ router.post(
 
     logLoginAttempt(email, ipAddress, userAgent);
 
-    if (process.env.NODE_ENV === 'production') {
-      if (!captchaToken) {
-        return res
-          .status(400)
-          .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
-      }
+    // if (process.env.NODE_ENV === 'production') {
+    //   if (!captchaToken) {
+    //     return res
+    //       .status(400)
+    //       .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
+    //   }
 
-      const turnstileUuid = generateUUID();
+    //   const turnstileUuid = generateUUID();
 
-      try {
-        const captchaSuccess = await verifyTurnstileCaptcha(
-          captchaToken,
-          ipAddress,
-          turnstileUuid,
-        );
-        if (!captchaSuccess) {
-          return res
-            .status(400)
-            .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
-        }
-      } catch (error) {
-        return res.status(500).json({ error: error.message });
-      }
-    }
+    //   try {
+    //     const captchaSuccess = await verifyTurnstileCaptcha(
+    //       captchaToken,
+    //       ipAddress,
+    //       turnstileUuid,
+    //     );
+    //     if (!captchaSuccess) {
+    //       return res
+    //         .status(400)
+    //         .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+    //     }
+    //   } catch (error) {
+    //     return res.status(500).json({ error: error.message });
+    //   }
+    // }
 
     const normalizedEmail =
       typeof email === 'string' ? normalizeEmail(email) : null;
@@ -170,12 +171,14 @@ router.post(
       });
 
       const tokens = await createAuthTokens(user, rememberMe, deviceSession.id);
+
       setAuthCookies(res, tokens.refreshToken, rememberMe);
 
       logLoginSuccess(normalizedEmail, user.uuid, ipAddress);
 
-      const githubOAuthEnabled = user ? await getUserOAuthEnabledByUserId(user.id, 'github') : false;
-
+      const githubOAuthEnabled = user
+        ? await getUserOAuthEnabledByUserId(user.id, 'github')
+        : false;
       return res.status(200).json({
         accessToken: tokens.accessToken,
         csrfToken: tokens.csrfToken,

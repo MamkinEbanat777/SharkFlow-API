@@ -30,30 +30,31 @@ router.post(
 
     logRegistrationConfirmAttempt(email, ipAddress, userAgent);
 
-    if (process.env.NODE_ENV === 'production') {
-      if (!captchaToken) {
-        return res
-          .status(400)
-          .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
-      }
+    // if (process.env.NODE_ENV === 'production') {
+    //   if (!captchaToken) {
+    //     return res
+    //       .status(400)
+    //       .json({ error: 'Пожалуйста, подтвердите, что вы не робот!' });
+    //   }
 
-      const turnstileUuid = generateUUID();
+    //   const turnstileUuid = generateUUID();
 
-      try {
-        const captchaSuccess = await verifyTurnstileCaptcha(
-          captchaToken,
-          ipAddress,
-          turnstileUuid,
-        );
-        if (!captchaSuccess) {
-          return res
-            .status(400)
-            .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
-        }
-      } catch (error) {
-        return res.status(500).json({ error: error.message });
-      }
-    }
+    //   try {
+    //     const captchaSuccess = await verifyTurnstileCaptcha(
+    //       captchaToken,
+    //       ipAddress,
+    //       turnstileUuid,
+    //     );
+    //     if (!captchaSuccess) {
+    //       return res
+    //         .status(400)
+    //         .json({ error: 'Captcha не пройдена. Попробуйте еще раз' });
+    //     }
+    //   } catch (error) {
+    //     return res.status(500).json({ error: error.message });
+    //   }
+    // }
+
     const uuid = generateUUID();
     const hashedPassword = await bcrypt.hash(password, 10);
     const normalizedEmail = normalizeEmail(email);
