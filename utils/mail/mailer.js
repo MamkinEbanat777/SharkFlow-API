@@ -3,20 +3,24 @@
  * @description Основной модуль для отправки email.
  */
 import nodemailer from 'nodemailer';
-import { logMailSendSuccess, logMailSendError } from '#utils/loggers/mailLoggers.js';
+import {
+  logMailSendSuccess,
+  logMailSendError,
+} from '#utils/loggers/mailLoggers.js';
 
 const transporter = nodemailer.createTransport({
   host: 'smtp.mail.ru',
-  port: 465,
-  secure: true,
+  port: 587,
+  secure: false,
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
   pool: true,
-  connectionTimeout: 30_000,  
+  connectionTimeout: 30_000,
   greetingTimeout: 20_000,
   socketTimeout: 45_000,
+  requireTLS: true,
 });
 
 /**
