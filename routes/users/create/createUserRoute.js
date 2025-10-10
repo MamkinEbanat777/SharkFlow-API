@@ -2,10 +2,7 @@ import { Router } from 'express';
 import prisma from '#utils/prismaConfig/prismaClient.js';
 import { emailConfirmValidate } from '#utils/validators/emailConfirmValidate.js';
 import { validateMiddleware } from '#middlewares/http/validateMiddleware.js';
-import {
-  getUserTempData,
-  deleteUserTempData,
-} from '#store/userTempData.js';
+import { getUserTempData, deleteUserTempData } from '#store/userTempData.js';
 import {
   logRegistrationSuccess,
   logRegistrationFailure,
@@ -37,7 +34,11 @@ router.post(
 
     try {
       if (!regUuid) {
-        logRegistrationFailure('unknown', ipAddress, 'Регистрация просрочена: нет regUuid');
+        logRegistrationFailure(
+          'unknown',
+          ipAddress,
+          'Регистрация просрочена: нет regUuid',
+        );
         return res.status(400).json({
           error: 'Регистрация просрочена. Пожалуйста попробуйте еще раз',
         });
@@ -58,12 +59,15 @@ router.post(
         'registration',
         confirmationCode,
         {
-          failure: (uuid, reason) => logRegistrationFailure(email, ipAddress, reason),
+          failure: (uuid, reason) =>
+            logRegistrationFailure(email, ipAddress, reason),
         },
       );
       if (!validation.isValid) {
         logRegistrationFailure(email, ipAddress, 'Неверный код');
-        return res.status(400).json({ error: validation.error || 'Неверный код' });
+        return res
+          .status(400)
+          .json({ error: validation.error || 'Неверный код' });
       }
 
       let userRecord;
@@ -80,7 +84,11 @@ router.post(
               'Аккаунт с этой почтой был удален. Пожалуйста, используйте другую почту или обратитесь в поддержку для восстановления аккаунта.',
           });
         } else {
-          logRegistrationFailure(email, ipAddress, 'Пользователь уже существует');
+          logRegistrationFailure(
+            email,
+            ipAddress,
+            'Пользователь уже существует',
+          );
           return res
             .status(409)
             .json({ error: 'Пользователь с таким email уже существует' });
@@ -92,7 +100,8 @@ router.post(
           const existingGuest = await tx.user.findFirst({
             where: { uuid: guestUuid, isDeleted: false, role: 'guest' },
           });
-          if (existingGuest && existingGuest.role === 'guest') {
+
+          if (existingGuest) {
             userRecord = await tx.user.update({
               where: { uuid: guestUuid },
               data: {
@@ -102,14 +111,14 @@ router.post(
                 role: 'user',
               },
             });
+
+            await tx.refreshToken.deleteMany({
+              where: { userId: userRecord.id, revoked: false },
+            });
+
             res.clearCookie(GUEST_COOKIE_NAME, getGuestCookieOptions());
           }
-          await tx.refreshToken.deleteMany({
-            where: {
-              userId: userRecord.id,
-              revoked: false,
-            },
-          });
+
           await deleteUserTempData('registration', regUuid);
           await deleteConfirmationCode('registration', regUuid);
         });
