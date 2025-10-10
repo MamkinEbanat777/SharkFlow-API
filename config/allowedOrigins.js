@@ -6,5 +6,5 @@ export const allowedOrigins = [
   'https://sharkflow.onrender.com',
   'http://192.168.128.44:5173',
   'https://taskflow-6wu.pages.dev',
-  'https://sharkflow.gt.tc/',
+  'https://sharkflow.gt.tc',
 ];
