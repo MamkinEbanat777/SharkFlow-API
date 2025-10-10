@@ -30,7 +30,6 @@ import {
   getGeoLocation,
   validateDeviceId,
 } from '#utils/helpers/deviceSessionHelper.js';
-import { Logger } from 'winston';
 
 const router = Router();
 
