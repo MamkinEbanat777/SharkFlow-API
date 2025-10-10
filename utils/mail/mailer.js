@@ -9,18 +9,17 @@ import {
 } from '#utils/loggers/mailLoggers.js';
 
 const transporter = nodemailer.createTransport({
-  host: 'smtp.mail.ru',
+  host: 'smtp.gmail.com',
   port: 587,
   secure: false,
   auth: {
     user: process.env.MAIL_USER,
     pass: process.env.MAIL_PASS,
   },
-  pool: true,
+  // pool: true,
   connectionTimeout: 30_000,
   greetingTimeout: 20_000,
   socketTimeout: 45_000,
-  requireTLS: true,
 });
 
 /**
@@ -34,14 +33,19 @@ const transporter = nodemailer.createTransport({
  * @throws {Error} При ошибке отправки
  */
 export async function sendEmail({ to, subject, text = '', html }) {
+  console.log('🚀 Trying to send email to:', to);
+  console.log('📧 MAIL_USER:', process.env.MAIL_USER);
+  console.log('🔑 MAIL_PASS length:', process.env.MAIL_PASS?.length);
   try {
     const mailOptions = {
-      from: `"SharkFlow" ${process.env.MAIL_USER}`,
+      from: 'SharkFlow',
       to,
       subject,
       text,
       html,
     };
+
+    console.log('📨 Sending mail...');
 
     const info = await new Promise((resolve, reject) => {
       transporter.sendMail(mailOptions, (error, info) => {
