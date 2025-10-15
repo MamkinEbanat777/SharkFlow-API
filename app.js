@@ -18,7 +18,8 @@ app.use('/admin', adminRouter);
 import compression from 'compression';
 import corsMiddleware from './middlewares/http/corsMiddleware.js';
 import { limiterMiddleware } from './middlewares/http/limiterMiddleware.js';
-import loadRoutes from './utils/routesLoader/loadRoutes.js';
+import loadRoutes, { joinPaths } from './utils/routesLoader/loadRoutes.js';
+
 import cookieParser from 'cookie-parser';
 import morgan from 'morgan';
 import { logDatabaseError } from './utils/loggers/systemLoggers.js';
@@ -66,7 +67,19 @@ app.use('/users', limiterMiddleware);
 
 const routes = await loadRoutes();
 routes.forEach(({ path, router }) => {
-  app.use(process.env.API_PREFIX + path, router);
+  const fullPath = '/' + joinPaths(process.env.API_PREFIX, path); 
+  app.use(fullPath, router);
+
+  if (router.stack) {
+    router.stack.forEach(layer => {
+      if (layer.route) {
+        const methods = Object.keys(layer.route.methods)
+          .map(m => m.toUpperCase())
+          .join(', ');
+        console.log(`${methods} ${fullPath}${layer.route.path}`);
+      }
+    });
+  }
 });
 
 logInfo('System', 'routesLoaded', `Routes loaded: ${routes.length}`);

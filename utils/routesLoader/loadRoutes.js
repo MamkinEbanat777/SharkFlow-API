@@ -38,3 +38,12 @@ async function loadRoutes(dir = 'routes') {
 }
 
 export default loadRoutes;
+
+
+export function joinPaths(...paths) {
+  return paths
+    .map(p => p.replace(/^\/+|\/+$/g, '')) 
+    .filter(Boolean)
+    .join('/')
+    .replace(/\/+/g, '/'); 
+}
