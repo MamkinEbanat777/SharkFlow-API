@@ -7,13 +7,20 @@ export function authenticateMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   const csrfHeader = req.headers['x-csrf-token'];
   const { ipAddress, userAgent } = getRequestInfo(req);
+  console.info(authHeader);
+  console.info(csrfHeader);
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
-    logAuthMiddlewareError('invalidHeader', ipAddress, userAgent, new Error('Invalid auth header'));
-    return res.status(401).json({ error: 'Недействительный заголовок авторизации' });
+    logAuthMiddlewareError(
+      'invalidHeader',
+      ipAddress,
+      userAgent,
+      new Error('Invalid auth header'),
+    );
+    return res
+      .status(401)
+      .json({ error: 'Недействительный заголовок авторизации' });
   }
-  console.info(authHeader)
-  console.info(csrfHeader)
 
   try {
     const token = authHeader.split(' ')[1];
@@ -22,12 +29,22 @@ export function authenticateMiddleware(req, res, next) {
     });
 
     if (!isValidUUID(decoded.userUuid)) {
-      logAuthMiddlewareError('invalidUserUuid', ipAddress, userAgent, new Error('Invalid userUuid in token'));
+      logAuthMiddlewareError(
+        'invalidUserUuid',
+        ipAddress,
+        userAgent,
+        new Error('Invalid userUuid in token'),
+      );
       return res.status(401).json({ error: 'Недействительный токен' });
     }
 
     if (!csrfHeader) {
-      logAuthMiddlewareError('missingCsrf', ipAddress, userAgent, new Error('Missing CSRF token'));
+      logAuthMiddlewareError(
+        'missingCsrf',
+        ipAddress,
+        userAgent,
+        new Error('Missing CSRF token'),
+      );
       return res.status(401).json({ error: 'Отсутствует CSRF токен' });
     }
 
@@ -37,7 +54,12 @@ export function authenticateMiddleware(req, res, next) {
       });
 
       if (csrfPayload.userUuid !== decoded.userUuid) {
-        logAuthMiddlewareError('csrfMismatch', ipAddress, userAgent, new Error('CSRF token mismatch'));
+        logAuthMiddlewareError(
+          'csrfMismatch',
+          ipAddress,
+          userAgent,
+          new Error('CSRF token mismatch'),
+        );
         return res.status(401).json({ error: 'Недействительный CSRF токен' });
       }
     } catch (csrfErr) {
