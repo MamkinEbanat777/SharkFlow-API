@@ -12,6 +12,8 @@ export function authenticateMiddleware(req, res, next) {
     logAuthMiddlewareError('invalidHeader', ipAddress, userAgent, new Error('Invalid auth header'));
     return res.status(401).json({ error: 'Недействительный заголовок авторизации' });
   }
+  console.info(authHeader)
+  console.info(csrfHeader)
 
   try {
     const token = authHeader.split(' ')[1];
