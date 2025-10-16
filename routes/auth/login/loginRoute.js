@@ -178,6 +178,9 @@ router.post(
       const githubOAuthEnabled = user
         ? await getUserOAuthEnabledByUserId(user.id, 'github')
         : false;
+
+      console.info(accessToken);
+      console.info(csrfToken);
       return res.status(200).json({
         accessToken: tokens.accessToken,
         csrfToken: tokens.csrfToken,
