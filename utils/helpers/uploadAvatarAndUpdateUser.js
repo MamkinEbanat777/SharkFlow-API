@@ -67,8 +67,6 @@ export async function uploadAvatarAndUpdateUser(userId, avatarUrl, publicId) {
       return;
     }
 
-    console.log(result);
-
     const secureUrl = result?.secure_url || null;
     if (secureUrl) {
       const update = await prisma.user.update({

@@ -19,8 +19,6 @@ router.post('/auth/restore/verify/totp', async (req, res) => {
 
   logAccountRestoreTotpAttempt(restoreKey, ipAddress, userAgent, totpCode);
 
-  console.log('totpsdadsa', totpCode, restoreKey);
-
   try {
     const session = await getUserTempData('twoFactorAuth', restoreKey);
     if (!session) {

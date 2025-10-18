@@ -7,8 +7,6 @@ export function authenticateMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
   const csrfHeader = req.headers['x-csrf-token'];
   const { ipAddress, userAgent } = getRequestInfo(req);
-  console.info(authHeader);
-  console.info(csrfHeader);
 
   if (!authHeader || !authHeader.startsWith('Bearer ')) {
     logAuthMiddlewareError(

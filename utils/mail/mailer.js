@@ -113,8 +113,7 @@ const resend = new Resend(process.env.RESEND_API_KEY);
  * @throws {Error} При ошибке отправки
  */
 export async function sendEmail({ to, subject, text = '', html }) {
-  console.log('🚀 Trying to send email to:', to);
-  console.log('📧 Using Resend API');
+  console.log('Trying to send email to:', to);
 
   try {
     const { data, error } = await resend.emails.send({
@@ -132,7 +131,7 @@ export async function sendEmail({ to, subject, text = '', html }) {
     }
 
     logMailSendSuccess(data.id);
-    console.log('✅ Email sent with ID:', data.id);
+    console.log('Email sent with ID:', data.id);
     return data;
   } catch (error) {
     logMailSendError(error);
