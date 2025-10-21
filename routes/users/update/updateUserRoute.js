@@ -80,7 +80,7 @@ router.patch(
 
       const updatedUser = await prisma.user.findUnique({
         where: { uuid: userUuid },
-        select: { login: true, email: true },
+        select: { login: true, email: true, uuid: true },
       });
 
       logUserUpdate(userUuid, dataToUpdate, ipAddress);

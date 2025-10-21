@@ -20,6 +20,7 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
   try {
     const user = await findUserByUuidOrThrow(userUuid, false, {
       id: true,
+      uuid: true,
       login: true,
       email: true,
       role: true,
@@ -35,9 +36,12 @@ router.get('/users', authenticateMiddleware, async (req, res) => {
       getUserOAuthByUserId(user.id, 'yandex'),
     ]);
 
-    const githubOAuthEnabled = user ? await getUserOAuthEnabledByUserId(user.id, 'github') : false;
+    const githubOAuthEnabled = user
+      ? await getUserOAuthEnabledByUserId(user.id, 'github')
+      : false;
 
     return res.json({
+      uuid: user.uuid,
       login: user.login,
       email: user.email,
       role: user.role,
