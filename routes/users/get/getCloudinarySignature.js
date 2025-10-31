@@ -2,8 +2,12 @@ import { Router } from 'express';
 import { authenticateMiddleware } from '#middlewares/http/authenticateMiddleware.js';
 import crypto from 'crypto';
 import { v2 as cloudinary } from 'cloudinary';
-import '#config/cloudinaryConfig.js'
-import { logCloudinarySignatureAttempt, logCloudinarySignatureSuccess, logCloudinarySignatureFailure } from '#utils/loggers/authLoggers.js';
+import '#config/cloudinaryConfig.js';
+import {
+  logCloudinarySignatureAttempt,
+  logCloudinarySignatureSuccess,
+  logCloudinarySignatureFailure,
+} from '#utils/loggers/authLoggers.js';
 
 const router = Router();
 
@@ -22,7 +26,10 @@ router.get(
     }
 
     const timestamp = Math.floor(Date.now() / 1000);
-    const upload_preset = process.env.NODE_ENV === 'production' ?  process.env.CLOUDINARY_UPLOAD_PRECET : "Precet-SharkFlow";
+    const upload_preset =
+      process.env.NODE_ENV === 'production'
+        ? process.env.CLOUDINARY_UPLOAD_PRECET
+        : 'Precet-SharkFlow';
     const paramsToSign = {
       timestamp,
       upload_preset,
@@ -39,6 +46,8 @@ router.get(
       .digest('hex');
 
     logCloudinarySignatureSuccess(userUuid, ip);
+    console.info(`Подпись: ${api_key} ${timestamp} ${signature}`);
+
     return res.json({
       api_key,
       timestamp,
